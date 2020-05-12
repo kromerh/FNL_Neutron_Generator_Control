@@ -1,0 +1,225 @@
+*****************************************
+Database structure
+*****************************************
+
+*****************************************
+Settings table: can be live
+*****************************************
+
+- ID
+- description
+- time of last reading
+- state
+- value
+- comment
+
+CREATE TABLE settings (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, description TEXT NOT NULL, time TIMESTAMP(6), state FLOAT DEFAULT NULL, value FLOAT NOT NULL, comment TEXT DEFAULT NULL);
+
+1.) Reading of rotation
+- ID: 1
+- description: rotation
+- time of last reading: last timestamp distanceSensor
+- state: either 0 or 1, 0 indicates not rotating, 1 indicates rotating
+- value: RPM
+- comment: state: either 0 (not rotating) or 1 (rotating). value: the rpm computed by the script
+
+2.) Extraction voltage on / off
+- ID: 2
+- description: extraction
+- time of last reading: last timestamp HV_voltage
+- state: either 0 or 1, 0 indicates the mean of past readings of HV is below 30 (BBoxReadout), 1 indicates the mean of past readings of HV is above 30
+- value: mean of HV_voltage in last reading
+- comment: state: 0 indicates the mean of past readings of HV is below 30 (BBoxReadout), 1 indicates the mean of past readings of HV is above 30. value: mean of HV_voltage in last reading
+
+3.) Chiller1 power consumption
+- ID: 3
+- description: chiller1
+- time of last reading: last timestamp HV_voltage
+- state: either 0 or 1, 0 indicates the mean of past readings of HV is below 30 (BBoxReadout), 1 indicates the mean of past readings of HV is above 30
+- value: mean of HV_voltage in last reading
+- comment: state: 0 indicates the mean of past readings of HV is below 30 (BBoxReadout), 1 indicates the mean of past readings of HV is above 30. value: mean of HV_voltage in last reading
+
+
+*****************************************
+HBox_Uno: live table
+*****************************************
+
+- ID
+- time
+- dose_voltage
+- HV_current
+- HV_voltage
+
+CREATE TABLE HBox_Uno (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, time TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP, dose_voltage FLOAT NOT NULL, HV_current FLOAT NOT NULL,  HV_voltage FLOAT NOT NULL);
+
+*****************************************
+BBox: live table
+*****************************************
+- ID
+- time
+- voltage_IS
+- voltage_VC
+
+CREATE TABLE BBox (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, time TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP, voltage_IS FLOAT NOT NULL, voltage_VC FLOAT NOT NULL);
+
+*****************************************
+distanceSensor: live table
+*****************************************
+- ID
+- time
+- rpm_peaks
+- avg_peaks
+- avg_bottoms
+
+CREATE TABLE distanceSensor (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, time TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP, rpm_peaks FLOAT NOT NULL, avg_peaks FLOAT NOT NULL, avg_bottoms FLOAT NOT NULL);
+
+*****************************************
+referenceDetectors: live table
+*****************************************
+- ID
+- ard_time: time measurement from the arduino
+- counts_D1: counts in detector 1
+- counts_D2: counts in detector 2
+- counts_D3: counts in detector 3
+- counts_D4: counts in detector 4
+
+CREATE TABLE referenceDetectors (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, time TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP, ard_time FLOAT NOT NULL, counts_D1 FLOAT NOT NULL, counts_D2 FLOAT NOT NULL, counts_D3 FLOAT NOT NULL, counts_D4 FLOAT NOT NULL);
+
+*****************************************
+chillers: live table
+*****************************************
+
+- ID
+- time
+- relaisOn
+- chiller1
+- chiller2
+
+CREATE TABLE chillers (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, time TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP, relaisOn FLOAT NOT NULL, chiller1 FLOAT NOT NULL,  chiller2 FLOAT NOT NULL);
+
+
+*****************************************
+Storage tables
+*****************************************
+
+
+
+*****************************************
+HV: (HBox_Uno)
+*****************************************
+- ID
+- time
+- HV_voltage in -kV
+- HV_current in mA
+
+CREATE TABLE data_HV (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, time TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP, HV_voltage FLOAT NOT NULL, HV_current FLOAT NOT NULL);
+
+*****************************************
+Dose: (HBox_Uno)
+*****************************************
+- ID
+- time
+- dose in µSv/h
+
+CREATE TABLE data_dose (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, time TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP, dose FLOAT NOT NULL);
+
+*****************************************
+Pressure: (BBox)
+*****************************************
+- ID
+- time
+- pressure_IS in mbar
+- pressure_VC in mbar
+
+CREATE TABLE data_pressure (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, time TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP, pressure_IS FLOAT NOT NULL, pressure_VC FLOAT NOT NULL);
+
+*****************************************
+Counts_WS and BS: (HBox_Due)
+*****************************************
+- ID
+- time
+- counts_WS
+- counts_BS
+
+CREATE TABLE data_counts (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, time TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP, counts_WS FLOAT NOT NULL, counts_BS FLOAT NOT NULL);
+
+*****************************************
+data_distanceSensor
+*****************************************
+- ID
+- time
+- rpm_peaks
+- avg_peaks
+- avg_bottoms
+
+CREATE TABLE data_distanceSensor (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, time TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP, rpm_peaks FLOAT NOT NULL, avg_peaks FLOAT NOT NULL, avg_bottoms FLOAT NOT NULL);
+
+
+
+*****************************************
+data_referenceDetectors
+*****************************************
+- ID
+- ard_time: time measurement from the arduino
+- counts_D1: counts in detector 1
+- counts_D2: counts in detector 2
+- counts_D3: counts in detector 3
+- counts_D4: counts in detector 4
+
+CREATE TABLE data_referenceDetectors (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, time TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP, ard_time FLOAT NOT NULL, counts_D1 FLOAT NOT NULL, counts_D2 FLOAT NOT NULL, counts_D3 FLOAT NOT NULL, counts_D4 FLOAT NOT NULL);
+
+
+
+*****************************************
+temp_humid_sensor
+*****************************************
+- ID
+- time
+- temp
+- humid
+
+CREATE TABLE temp_humid_sensor (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, time TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP, temp FLOAT NOT NULL, humid FLOAT NOT NULL);
+
+
+
+*****************************************
+Other sql statements
+*****************************************
+
+SELECT date, dose FROM readings WHERE dose < 10 OR dose IS NULL;
+
+SELECT * FROM HBox;
+
+DELETE FROM readings WHERE counts_WS IS NULL AND counts_DF IS NULL AND (dose IS NULL OR dose < 10) AND pressure_IS IS NULL AND pressure_VC IS NULL;
+
+
+DELETE FROM readings WHERE counts_WS IS NULL AND counts_DF IS NULL AND (dose IS NULL OR dose < 10) AND pressure_IS IS NULL AND pressure_VC IS NULL;
+
+SELECT * FROM readings WHERE (dose IS NULL OR dose < 10);
+
+
+DELETE FROM data_HV where time > "2018-01-01 00:00:00";
+DELETE FROM data_dose where time > "2018-01-01 00:00:00";
+DELETE FROM data_pressure where time > "2018-01-01 00:00:00";
+
+SELECT * FROM readings WHERE date > "2017-10-09 13:00:30";
+
+
+0.443037975
+CREATE TABLE HBox (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, time TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP, dose_voltage FLOAT NOT NULL, counts_WS FLOAT NOT NULL, counts_BS FLOAT NOT NULL, counts_DF FLOAT NOT NULL, HV_current FLOAT NOT NULL,  HV_voltage FLOAT NOT NULL);
+
+ALTER TABLE readings CHANGE I HV_current varchar(10);
+
+
+ALTER TABLE data_dose
+ADD COLUMN dose_voltage FLOAT,
+ADD COLUMN dose_corrected FLOAT;
+
+ALTER TABLE data_pressure
+ADD COLUMN voltage_IS FLOAT,
+ADD COLUMN voltage_VC FLOAT;
+
+ALTER TABLE data_pressure
+ADD COLUMN pressure_IS_corrected FLOAT,
+ADD COLUMN pressure_VC_corrected FLOAT;
+

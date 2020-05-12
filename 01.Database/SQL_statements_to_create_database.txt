@@ -1,0 +1,351 @@
+*****************************************
+DATABASE STRUCTURE
+*****************************************
+
+- live tables:
+	"""
+	Live readings from each sensor
+	"""
+	- live_pressure (Pressure; former BBox)
+	- live_hv_dose (High voltage and LB6411 signal; former HBox)
+	- live_mw (Microwave)
+	- live_d2flow (Deuterium flow meter)
+	- live_leak (Water sensors)
+	- live_ref_det (Reference detectors [Benoits box below neutron source])
+
+- storage tables:
+	"""
+	Raw readings are in storage_xxx, resampled data for one day in 10s intervals is stored in
+	storage_all table. Each night at 4 AM the live tables are copied into the storage tables and
+	the live tables are then truncated.
+
+	Note that the water sensor data is not stored, the live table is truncated at 4 AM each night.
+	"""
+	- storage_pressure (Pressure; raw readings for one da)
+	- storage_hv_dose (High voltage and LB6411 signal; former HBox)
+	- storage_mw (Microwave)
+	- storage_d2flow (Deuterium flow meter)
+	- storage_ref_det (Reference detectors [Benoits box below neutron source])
+	- storage_all (Resampled data for each day in 10s intervals)
+
+
+- control tables:
+	"""
+	These tables are used to control the microwave and the d2flow meter.
+	"""
+	- ctrl_mw (Microwave control)
+	- ctrl_d2flow (Deuterium flow meter control)
+
+
+*****************************************
+CREATE LIVE TABLES
+*****************************************
+
+
+*****************************************
+- live_pressure (Pressure; former BBox)
+*****************************************
+Columns:
+	- ID (Primay key)
+	- time (Timestamp when the entry was added into the database)
+	- voltage_IS (measured voltage in ion source PKR251 in V)
+	- voltage_VC (measured voltage in ion source PKR251 in V)
+
+
+SQL statement:
+CREATE TABLE live_pressure (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, time TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP, voltage_IS FLOAT NOT NULL, voltage_VC FLOAT NOT NULL);
+
+
+*****************************************
+- live_hv_dose (High voltage and LB6411 signal; former HBox)
+*****************************************
+Columns:
+	- ID (Primay key)
+	- time (Timestamp when the entry was added into the database)
+	- HV_voltage (Voltage read from HV power supply in -kV; calibrated with a lookup table)
+	- HV_current (Current read from HV power supply in mA; calibrated with a lookup table)
+	- dose_voltage (Voltage read from the LB6411 output in V; calibrated with a lookup table)
+
+
+SQL statement:
+CREATE TABLE live_hv_dose (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, time TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP, HV_voltage FLOAT NOT NULL, HV_current FLOAT NOT NULL, dose_voltage FLOAT NOT NULL);
+
+
+*****************************************
+- live_mw (Microwave)
+*****************************************
+Columns:
+	- ID (Primay key)
+	- time (Timestamp when the entry was added into the database)
+	- FP (Measured forward power in W)
+	- FP_set (Forward power setpoint in W)
+	- RP (Reflected power setpoint in W)
+	- Freq (Frequency setpoint in kHz)
+	- Freq_set (Frequency setpoint in kHz)
+	- Code (Error code that the microwave generator returned (if any), see manual for what it corresponds to)
+
+SQL statement:
+CREATE TABLE live_mw (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, time TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP, FP FLOAT NOT NULL, FP_set FLOAT NOT NULL, RP FLOAT NOT NULL, Freq FLOAT NOT NULL, Freq_set FLOAT NOT NULL, Code INT);
+
+
+*****************************************
+- live_d2flow (Deuterium flow meter)
+*****************************************
+Columns:
+	- ID (Primay key)
+	- time (Timestamp when the entry was added into the database)
+	- voltage_flow (Measured flow voltage (see manual for conversion))
+	- voltage_flow_set (Flow voltage setpoint)
+
+
+SQL statement:
+CREATE TABLE live_d2flow (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, time TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP, voltage_flow FLOAT NOT NULL, voltage_flow_set FLOAT NOT NULL);
+
+
+*****************************************
+- live_leak (Water sensors)
+*****************************************
+Columns:
+	- ID (Primay key)
+	- time (Timestamp when the entry was added into the database)
+	- s1 (Sensor 1 measurement)
+	- s2 (Sensor 2 measurement)
+	- s3 (Sensor 3 measurement)
+
+
+SQL statement:
+CREATE TABLE live_leak (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, time TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP, s1 INT NOT NULL, s2 INT NOT NULL, s3 INT NOT NULL);
+
+
+*****************************************
+- live_ref_det (Reference detectors [Benoits box below neutron source])
+*****************************************
+Columns:
+	- ID (Primay key)
+	- time (Timestamp when the entry was added into the database)
+	- ard_time (Interval in ms over which the measurement was recorded on the arduino)
+	- counts_D1 (Counts in detector 1)
+	- counts_D2 (Counts in detector 2)
+	- counts_D3 (Counts in detector 3)
+	- counts_D4 (Counts in detector 4)
+
+SQL statement:
+CREATE TABLE live_ref_det (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, time TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP, ard_time FLOAT NOT NULL, counts_D1 FLOAT NOT NULL, counts_D2 FLOAT NOT NULL, counts_D3 FLOAT NOT NULL, counts_D4 FLOAT NOT NULL);
+
+
+
+
+
+
+
+
+
+
+
+
+*****************************************
+CREATE STORAGE TABLES
+*****************************************
+
+*****************************************
+- storage_pressure (Pressure; raw readings for one da)
+*****************************************
+Columns:
+	- ID (Primay key)
+	- time (Timestamp when the entry was added into the database)
+	- voltage_IS (measured voltage in ion source PKR251 in V)
+	- voltage_VC (measured voltage in ion source PKR251 in V)
+	- pressure_IS (Pressure in ion source PKR251 in bar; not corrected for D2)
+	- pressure_IS_calib (Pressure in ion source PKR251 in bar; not corrected for D2; calibrated using a calibration table)
+	- pressure_VC (Pressure in vacuum chamber PKR251 in V; not present in GenII neutron source!; not corrected for D2)
+
+
+SQL statement:
+CREATE TABLE storage_pressure (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, time TIMESTAMP(6), voltage_IS FLOAT NOT NULL, voltage_VC FLOAT NOT NULL, pressure_IS FLOAT NOT NULL, pressure_VC FLOAT NOT NULL, pressure_IS_calib FLOAT NOT NULL);
+
+
+*****************************************
+- storage_hv_dose (High voltage and LB6411 signal; former HBox)
+*****************************************
+Columns:
+	- ID (Primay key)
+	- time (Timestamp when the entry was added into the database)
+	- HV_voltage (Voltage read from HV power supply in -kV; calibrated with a lookup table)
+	- HV_current (Current read from HV power supply in mA; calibrated with a lookup table)
+	- dose_voltage (Voltage read from the LB6411 output in V; calibrated with a lookup table)
+	- dose_rate (Ambient dose rate computed using the read voltage in muSv/hr)
+	- neutron_output (Computed neutron output in 1/s)
+
+
+SQL statement:
+CREATE TABLE storage_hv_dose (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, time TIMESTAMP(6), HV_voltage FLOAT NOT NULL, HV_current FLOAT NOT NULL, dose_voltage FLOAT NOT NULL, dose_rate FLOAT NOT NULL, neutron_output FLOAT NOT NULL);
+
+
+*****************************************
+- storage_mw (Microwave)
+*****************************************
+Columns:
+	- ID (Primay key)
+	- time (Timestamp when the entry was added into the database)
+	- FP (Measured forward power in W)
+	- FP_set (Forward power setpoint in W)
+	- RP (Reflected power setpoint in W)
+	- Freq (Frequency setpoint in kHz)
+	- Freq_set (Frequency setpoint in kHz)
+	- Code (Error code that the microwave generator returned (if any), see manual for what it corresponds to)
+
+SQL statement:
+CREATE TABLE storage_mw (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, time TIMESTAMP(6), FP FLOAT NOT NULL, FP_set FLOAT NOT NULL, RP FLOAT NOT NULL, Freq FLOAT NOT NULL, Freq_set FLOAT NOT NULL, Code INT);
+
+
+*****************************************
+- storage_d2flow (Deuterium flow meter)
+*****************************************
+Columns:
+	- ID (Primay key)
+	- time (Timestamp when the entry was added into the database)
+	- voltage_flow (Measured flow voltage (see manual for conversion))
+	- voltage_flow_set (Flow voltage setpoint)
+
+
+SQL statement:
+CREATE TABLE storage_d2flow (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, time TIMESTAMP(6), voltage_flow FLOAT NOT NULL, voltage_flow_set FLOAT NOT NULL);
+
+
+*****************************************
+- storage_ref_det (Reference detectors [Benoits box below neutron source])
+*****************************************
+Columns:
+	- ID (Primay key)
+	- time (Timestamp when the entry was added into the database)
+	- ard_time (Interval in ms over which the measurement was recorded on the arduino)
+	- counts_D1 (Counts in detector 1)
+	- counts_D2 (Counts in detector 2)
+	- counts_D3 (Counts in detector 3)
+	- counts_D4 (Counts in detector 4)
+
+SQL statement:
+CREATE TABLE storage_ref_det (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, time TIMESTAMP(6), ard_time FLOAT NOT NULL, counts_D1 FLOAT NOT NULL, counts_D2 FLOAT NOT NULL, counts_D3 FLOAT NOT NULL, counts_D4 FLOAT NOT NULL);
+
+
+*****************************************
+- storage_all (Resampled data for each day in 10s intervals)
+*****************************************
+Columns:
+	- ID (Primay key)
+	- time (Timestamp 10s resampled that day)
+	- pressure_IS (Pressure in ion source PKR251 in bar; not corrected for D2)
+	- pressure_IS_calib (Pressure in ion source PKR251 in bar; not corrected for D2; calibrated using a calibration table)
+	- pressure_VC (Pressure in vacuum chamber PKR251 in V; not present in GenII neutron source!; not corrected for D2)
+	- HV_voltage (Voltage read from HV power supply in -kV; calibrated with a lookup table)
+	- HV_current (Current read from HV power supply in mA; calibrated with a lookup table)
+	- dose_voltage (Voltage read from the LB6411 output in V; calibrated with a lookup table)
+	- dose_rate (Ambient dose rate computed using the read voltage in muSv/hr)
+	- neutron_output (Computed neutron output in 1/s)
+	- FP (Measured forward power in W)
+	- FP_set (Forward power setpoint in W)
+	- RP (Reflected power setpoint in W)
+	- Freq (Frequency setpoint in kHz)
+	- Freq_set (Frequency setpoint in kHz)
+	- Code (Error code that the microwave generator returned (if any), see manual for what it corresponds to)
+	- voltage_flow (Measured flow voltage (see manual for conversion))
+	- voltage_flow_set (Flow voltage setpoint)
+	- ard_time (Interval in ms over which the measurement was recorded on the arduino)
+	- counts_D1 (Counts in detector 1)
+	- counts_D2 (Counts in detector 2)
+	- counts_D3 (Counts in detector 3)
+	- counts_D4 (Counts in detector 4)
+
+SQL statement:
+CREATE TABLE storage_all (
+id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+time TIMESTAMP(6),
+pressure_IS FLOAT NOT NULL,
+pressure_IS_calib FLOAT NOT NULL,
+pressure_VC FLOAT NOT NULL,
+dose_voltage FLOAT NOT NULL,
+HV_voltage FLOAT NOT NULL,
+HV_current FLOAT NOT NULL,
+dose_rate FLOAT NOT NULL,
+neutron_output FLOAT NOT NULL,
+FP FLOAT NOT NULL,
+FP_set FLOAT NOT NULL,
+RP FLOAT NOT NULL,
+Freq FLOAT NOT NULL,
+Freq_set FLOAT NOT NULL,
+Code FLOAT NOT NULL,
+voltage_flow FLOAT NOT NULL,
+voltage_flow_set FLOAT NOT NULL,
+ard_time FLOAT NOT NULL,
+counts_D1 FLOAT NOT NULL,
+counts_D2 FLOAT NOT NULL,
+counts_D3 FLOAT NOT NULL,
+counts_D4 FLOAT NOT NULL
+);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+*****************************************
+SELECTION OF USEFUL SQL STATEMENTS
+*****************************************
+
+CREATE USER 'logger'@'localhost' IDENTIFIED BY 'logger';
+CREATE USER 'logger'@'%' IDENTIFIED BY 'logger';
+GRANT ALL ON *.* TO 'logger'@'localhost';
+GRANT ALL ON *.* TO 'logger'@'%';
+FLUSH PRIVILEGES;
+
+
+
+
+SELECT date, dose FROM readings WHERE dose < 10 OR dose IS NULL;
+
+SELECT * FROM HBox;
+
+DELETE FROM readings WHERE counts_WS IS NULL AND counts_DF IS NULL AND (dose IS NULL OR dose < 10) AND pressure_IS IS NULL AND pressure_VC IS NULL;
+
+
+DELETE FROM readings WHERE counts_WS IS NULL AND counts_DF IS NULL AND (dose IS NULL OR dose < 10) AND pressure_IS IS NULL AND pressure_VC IS NULL;
+
+SELECT * FROM readings WHERE (dose IS NULL OR dose < 10);
+
+
+DELETE FROM data_HV where time > "2018-01-01 00:00:00";
+DELETE FROM data_dose where time > "2018-01-01 00:00:00";
+DELETE FROM data_pressure where time > "2018-01-01 00:00:00";
+
+SELECT * FROM readings WHERE date > "2017-10-09 13:00:30";
+
+
+0.443037975
+CREATE TABLE HBox (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, time TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP, dose_voltage FLOAT NOT NULL, counts_WS FLOAT NOT NULL, counts_BS FLOAT NOT NULL, counts_DF FLOAT NOT NULL, HV_current FLOAT NOT NULL,  HV_voltage FLOAT NOT NULL);
+
+ALTER TABLE readings CHANGE I HV_current varchar(10);
+
+
+ALTER TABLE data_dose
+ADD COLUMN dose_voltage FLOAT,
+ADD COLUMN dose_corrected FLOAT;
+
+ALTER TABLE data_pressure
+ADD COLUMN voltage_IS FLOAT,
+ADD COLUMN voltage_VC FLOAT;
+
+ALTER TABLE data_pressure
+ADD COLUMN pressure_IS_corrected FLOAT,
+ADD COLUMN pressure_VC_corrected FLOAT;
+
