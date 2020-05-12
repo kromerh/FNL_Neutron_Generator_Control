@@ -47,7 +47,7 @@ def pi_read():
 # calibrate HV voltage
 
 # correct the HV that the arduino reads. This is done using the dose_lookup_table which relates the pi dose with the displayed dose.
-df_HV_LT = pd.read_csv('./HV_readout    _calibration.txt', delimiter="\t")
+df_HV_LT = pd.read_csv('./HV_readout_calibration.txt', delimiter="\t")
 
 # interpolation function
 interp_HV_voltage = interp1d(df_HV_LT['Voltage_read'], df_HV_LT['HV_voltage'])
