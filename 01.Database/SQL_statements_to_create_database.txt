@@ -1,144 +1,266 @@
+CREATE DATABASE FNL;
+
 *****************************************
 DATABASE STRUCTURE
 *****************************************
+- administrative tables:
+    """
+    Experiment and user data
+    """
+    - experiment (info on the experiment itself)
 
-- live tables:
-	"""
-	Live readings from each sensor
-	"""
-	- live_pressure (Pressure; former BBox)
-	- live_hv_dose (High voltage and LB6411 signal; former HBox)
-	- live_mw (Microwave)
-	- live_d2flow (Deuterium flow meter)
-	- live_leak (Water sensors)
-	- live_ref_det (Reference detectors [Benoits box below neutron source])
+*****************************************
+CREATE ADMINISTRATIVE TABLES
+*****************************************
+
+*****************************************
+- experiment (info on the experiment itself)
+*****************************************
+Columns:
+    - id (Primay key)
+    - date (date of the experiment)
+    - comment (free text)
+
+
+SQL statement:
+CREATE TABLE experiment (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, date TIMESTAMP DEFAULT CURRENT_TIMESTAMP, comment TEXT);
+
+
+
+*****************************************
+- user (info on the users)
+*****************************************
+Columns:
+    - id (Primay key)
+    - name (name of user)
+    - comment (free text)
+
+
+SQL statement:
+CREATE TABLE user (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, name VARCHAR(2000), comment TEXT);
+
+*****************************************
+- tag (tags for experiment topics)
+*****************************************
+Columns:
+    - id (Primay key)
+    - tag_name (name of tag)
+
+
+SQL statement:
+CREATE TABLE tag (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, tag_name VARCHAR(2000));
+
+
+*****************************************
+- experiment_users (link users to experiments)
+*****************************************
+Columns:
+    - id (Primay key)
+    - experiment_id (id in experiment table)
+    - user_id (id in user table)
+
+
+SQL statement:
+CREATE TABLE experiment_users (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, experiment_id INT NOT NULL, user_id INT NOT NULL);
+
+ALTER TABLE experiment_users ADD FOREIGN KEY (experiment_id) REFERENCES experiment(id);
+ALTER TABLE experiment_users ADD FOREIGN KEY (user_id) REFERENCES user(id);
+
+*****************************************
+- experiment_tags (link tags to experiments)
+*****************************************
+Columns:
+    - id (Primay key)
+    - experiment_id (id in experiment table)
+    - tag_id (id in tag table)
+
+
+SQL statement:
+CREATE TABLE experiment_tags (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, experiment_id INT NOT NULL, tag_id INT NOT NULL);
+
+ALTER TABLE experiment_tags ADD FOREIGN KEY (experiment_id) REFERENCES experiment(id);
+ALTER TABLE experiment_tags ADD FOREIGN KEY (tag_id) REFERENCES tag(id);
+
+
+
+
+
+
 
 - storage tables:
-	"""
-	Raw readings are in storage_xxx, resampled data for one day in 10s intervals is stored in
-	storage_all table. Each night at 4 AM the live tables are copied into the storage tables and
-	the live tables are then truncated.
+    """
+    Raw readings are in storage_xxx, resampled data for one day in 10s intervals is stored in
+    storage_all table. Each night at 4 AM the live tables are copied into the storage tables and
+    the live tables are then truncated.
 
-	Note that the water sensor data is not stored, the live table is truncated at 4 AM each night.
-	"""
-	- storage_pressure (Pressure; raw readings for one da)
-	- storage_hv_dose (High voltage and LB6411 signal; former HBox)
-	- storage_mw (Microwave)
-	- storage_d2flow (Deuterium flow meter)
-	- storage_ref_det (Reference detectors [Benoits box below neutron source])
-	- storage_all (Resampled data for each day in 10s intervals)
+    Note that the water sensor data is not stored, the live table is truncated at 4 AM each night.
+    """
+    - storage_pressure (Pressure; raw readings for one da)
+    - storage_hv_dose (High voltage and LB6411 signal; former HBox)
+    - storage_mw (Microwave)
+    - storage_d2flow (Deuterium flow meter)
+    - storage_ref_det (Reference detectors [Benoits box below neutron source])
+    - storage_all (Resampled data for each day in 10s intervals)
 
 
 - control tables:
-	"""
-	These tables are used to control the microwave and the d2flow meter.
-	"""
-	- ctrl_mw (Microwave control)
-	- ctrl_d2flow (Deuterium flow meter control)
+    """
+    These tables are used to control the microwave and the d2flow meter.
+    """
+    - ctrl_mw (Microwave control)
+    - ctrl_d2flow (Deuterium flow meter control)
 
 
 *****************************************
 CREATE LIVE TABLES
 *****************************************
 
+- live tables:
+    """
+    Live readings from each sensor
+    """
+    - live_pressure (Pressure; former BBox)
+    - live_hv_dose (High voltage and LB6411 signal; former HBox)
+    - live_mw (Microwave)
+    - live_d2flow (Deuterium flow meter)
+    - live_leak (Water sensors)
+    - live_ref_det (Reference detectors [Benoit's box below neutron source])
 
 *****************************************
 - live_pressure (Pressure; former BBox)
 *****************************************
 Columns:
-	- ID (Primay key)
-	- time (Timestamp when the entry was added into the database)
-	- voltage_IS (measured voltage in ion source PKR251 in V)
-	- voltage_VC (measured voltage in ion source PKR251 in V)
+    - id (Primay key)
+    - experiment_id
+    - time (Timestamp when the entry was added into the database)
+    - voltage_IS (measured voltage in ion source PKR251 in V)
+    - voltage_VC (measured voltage in ion source PKR251 in V)
 
 
 SQL statement:
-CREATE TABLE live_pressure (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, time TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP, voltage_IS FLOAT NOT NULL, voltage_VC FLOAT NOT NULL);
+CREATE TABLE live_pressure (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, experiment_id INT NOT NULL, FOREIGN KEY (experiment_id) REFERENCES experiment(id), time TIMESTAMP DEFAULT CURRENT_TIMESTAMP, voltage_IS FLOAT NOT NULL, voltage_VC FLOAT NOT NULL);
 
 
 *****************************************
 - live_hv_dose (High voltage and LB6411 signal; former HBox)
 *****************************************
 Columns:
-	- ID (Primay key)
-	- time (Timestamp when the entry was added into the database)
-	- HV_voltage (Voltage read from HV power supply in -kV; calibrated with a lookup table)
-	- HV_current (Current read from HV power supply in mA; calibrated with a lookup table)
-	- dose_voltage (Voltage read from the LB6411 output in V; calibrated with a lookup table)
+    - id (Primay key)
+    - experiment_id
+    - time (Timestamp when the entry was added into the database)
+    - HV_voltage (Voltage read from HV power supply in -kV; calibrated with a lookup table)
+    - HV_current (Current read from HV power supply in mA; calibrated with a lookup table)
+    - dose_voltage (Voltage read from the LB6411 output in V; calibrated with a lookup table)
 
 
 SQL statement:
-CREATE TABLE live_hv_dose (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, time TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP, HV_voltage FLOAT NOT NULL, HV_current FLOAT NOT NULL, dose_voltage FLOAT NOT NULL);
+CREATE TABLE live_hv_dose (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, experiment_id INT NOT NULL, FOREIGN KEY (experiment_id) REFERENCES experiment(id), time TIMESTAMP DEFAULT CURRENT_TIMESTAMP, HV_voltage FLOAT NOT NULL, HV_current FLOAT NOT NULL, dose_voltage FLOAT NOT NULL);
 
 
 *****************************************
 - live_mw (Microwave)
 *****************************************
 Columns:
-	- ID (Primay key)
-	- time (Timestamp when the entry was added into the database)
-	- FP (Measured forward power in W)
-	- FP_set (Forward power setpoint in W)
-	- RP (Reflected power setpoint in W)
-	- Freq (Frequency setpoint in kHz)
-	- Freq_set (Frequency setpoint in kHz)
-	- Code (Error code that the microwave generator returned (if any), see manual for what it corresponds to)
+    - id (Primay key)
+    - experiment_id
+    - time (Timestamp when the entry was added into the database)
+    - FP (Measured forward power in W)
+    - FP_set (Forward power setpoint in W)
+    - RP (Reflected power setpoint in W)
+    - Freq (Frequency setpoint in kHz)
+    - Freq_set (Frequency setpoint in kHz)
+    - Code (Error code that the microwave generator returned (if any), see manual for what it corresponds to)
 
 SQL statement:
-CREATE TABLE live_mw (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, time TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP, FP FLOAT NOT NULL, FP_set FLOAT NOT NULL, RP FLOAT NOT NULL, Freq FLOAT NOT NULL, Freq_set FLOAT NOT NULL, Code INT);
+CREATE TABLE live_mw
+(
+    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    experiment_id INT NOT NULL,
+        FOREIGN KEY (experiment_id) REFERENCES experiment(id),
+    time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FP FLOAT NOT NULL,
+    FP_set FLOAT NOT NULL,
+    RP FLOAT NOT NULL,
+    Freq FLOAT NOT NULL,
+    Freq_set FLOAT NOT NULL,
+    Code INT
+);
 
 
 *****************************************
 - live_d2flow (Deuterium flow meter)
 *****************************************
 Columns:
-	- ID (Primay key)
-	- time (Timestamp when the entry was added into the database)
-	- voltage_flow (Measured flow voltage (see manual for conversion))
-	- voltage_flow_set (Flow voltage setpoint)
+    - ID (Primay key)
+    - experiment_id
+    - time (Timestamp when the entry was added into the database)
+    - voltage_flow (Measured flow voltage (see manual for conversion))
+    - voltage_flow_set (Flow voltage setpoint)
 
 
 SQL statement:
-CREATE TABLE live_d2flow (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, time TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP, voltage_flow FLOAT NOT NULL, voltage_flow_set FLOAT NOT NULL);
+CREATE TABLE live_d2flow
+(
+    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    experiment_id INT NOT NULL,
+        FOREIGN KEY (experiment_id) REFERENCES experiment(id),
+    time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    voltage_flow FLOAT NOT NULL,
+    voltage_flow_set FLOAT NOT NULL
+);
 
 
 *****************************************
 - live_leak (Water sensors)
 *****************************************
 Columns:
-	- ID (Primay key)
-	- time (Timestamp when the entry was added into the database)
-	- s1 (Sensor 1 measurement)
-	- s2 (Sensor 2 measurement)
-	- s3 (Sensor 3 measurement)
+    - ID (Primay key)
+    - experiment_id
+    - time (Timestamp when the entry was added into the database)
+    - s1 (Sensor 1 measurement)
+    - s2 (Sensor 2 measurement)
+    - s3 (Sensor 3 measurement)
 
 
 SQL statement:
-CREATE TABLE live_leak (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, time TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP, s1 INT NOT NULL, s2 INT NOT NULL, s3 INT NOT NULL);
+CREATE TABLE live_leak
+(
+    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    experiment_id INT NOT NULL,
+        FOREIGN KEY (experiment_id) REFERENCES experiment(id),
+    time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    s1 INT NOT NULL,
+    s2 INT NOT NULL,
+    s3 INT NOT NULL
+);
 
 
 *****************************************
 - live_ref_det (Reference detectors [Benoits box below neutron source])
 *****************************************
 Columns:
-	- ID (Primay key)
-	- time (Timestamp when the entry was added into the database)
-	- ard_time (Interval in ms over which the measurement was recorded on the arduino)
-	- counts_D1 (Counts in detector 1)
-	- counts_D2 (Counts in detector 2)
-	- counts_D3 (Counts in detector 3)
-	- counts_D4 (Counts in detector 4)
+    - ID (Primay key)
+    - experiment_id
+    - time (Timestamp when the entry was added into the database)
+    - ard_time (Interval in ms over which the measurement was recorded on the arduino)
+    - counts_D1 (Counts in detector 1)
+    - counts_D2 (Counts in detector 2)
+    - counts_D3 (Counts in detector 3)
+    - counts_D4 (Counts in detector 4)
 
 SQL statement:
-CREATE TABLE live_ref_det (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, time TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP, ard_time FLOAT NOT NULL, counts_D1 FLOAT NOT NULL, counts_D2 FLOAT NOT NULL, counts_D3 FLOAT NOT NULL, counts_D4 FLOAT NOT NULL);
-
-
-
-
-
-
-
-
+CREATE TABLE live_ref_det
+(
+    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    experiment_id INT NOT NULL,
+        FOREIGN KEY (experiment_id) REFERENCES experiment(id),
+    time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    ard_time FLOAT NOT NULL,
+    counts_D1 FLOAT NOT NULL,
+    counts_D2 FLOAT NOT NULL,
+    counts_D3 FLOAT NOT NULL,
+    counts_D4 FLOAT NOT NULL
+);
 
 
 
@@ -151,115 +273,176 @@ CREATE STORAGE TABLES
 - storage_pressure (Pressure; raw readings for one da)
 *****************************************
 Columns:
-	- ID (Primay key)
-	- time (Timestamp when the entry was added into the database)
-	- voltage_IS (measured voltage in ion source PKR251 in V)
-	- voltage_VC (measured voltage in ion source PKR251 in V)
-	- pressure_IS (Pressure in ion source PKR251 in bar; not corrected for D2)
-	- pressure_IS_calib (Pressure in ion source PKR251 in bar; not corrected for D2; calibrated using a calibration table)
-	- pressure_VC (Pressure in vacuum chamber PKR251 in V; not present in GenII neutron source!; not corrected for D2)
+    - ID (Primay key)
+    - experiment_id
+    - time (Timestamp when the entry was added into the database)
+    - voltage_IS (measured voltage in ion source PKR251 in V)
+    - voltage_VC (measured voltage in ion source PKR251 in V)
+    - pressure_IS (Pressure in ion source PKR251 in bar; not corrected for D2)
+    - pressure_IS_calib (Pressure in ion source PKR251 in bar; not corrected for D2; calibrated using a calibration table)
+    - pressure_VC (Pressure in vacuum chamber PKR251 in V; not present in GenII neutron source!; not corrected for D2)
 
 
 SQL statement:
-CREATE TABLE storage_pressure (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, time TIMESTAMP(6), voltage_IS FLOAT NOT NULL, voltage_VC FLOAT NOT NULL, pressure_IS FLOAT NOT NULL, pressure_VC FLOAT NOT NULL, pressure_IS_calib FLOAT NOT NULL);
+CREATE TABLE storage_pressure
+(
+    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    experiment_id INT NOT NULL,
+        FOREIGN KEY (experiment_id) REFERENCES experiment(id),
+    time TIMESTAMP,
+    voltage_IS FLOAT NOT NULL,
+    voltage_VC FLOAT NOT NULL,
+    pressure_IS FLOAT NOT NULL,
+    pressure_VC FLOAT NOT NULL,
+    pressure_IS_calib FLOAT NOT NULL
+);
 
 
 *****************************************
 - storage_hv_dose (High voltage and LB6411 signal; former HBox)
 *****************************************
 Columns:
-	- ID (Primay key)
-	- time (Timestamp when the entry was added into the database)
-	- HV_voltage (Voltage read from HV power supply in -kV; calibrated with a lookup table)
-	- HV_current (Current read from HV power supply in mA; calibrated with a lookup table)
-	- dose_voltage (Voltage read from the LB6411 output in V; calibrated with a lookup table)
-	- dose_rate (Ambient dose rate computed using the read voltage in muSv/hr)
-	- neutron_output (Computed neutron output in 1/s)
+    - ID (Primay key)
+    - experiment_id
+    - time (Timestamp when the entry was added into the database)
+    - HV_voltage (Voltage read from HV power supply in -kV; calibrated with a lookup table)
+    - HV_current (Current read from HV power supply in mA; calibrated with a lookup table)
+    - dose_voltage (Voltage read from the LB6411 output in V; calibrated with a lookup table)
+    - dose_rate (Ambient dose rate computed using the read voltage in muSv/hr)
+    - neutron_output (Computed neutron output in 1/s)
 
 
 SQL statement:
-CREATE TABLE storage_hv_dose (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, time TIMESTAMP(6), HV_voltage FLOAT NOT NULL, HV_current FLOAT NOT NULL, dose_voltage FLOAT NOT NULL, dose_rate FLOAT NOT NULL, neutron_output FLOAT NOT NULL);
+CREATE TABLE storage_hv_dose
+(
+    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    experiment_id INT NOT NULL,
+        FOREIGN KEY (experiment_id) REFERENCES experiment(id),
+    time TIMESTAMP,
+    HV_voltage FLOAT NOT NULL,
+    HV_current FLOAT NOT NULL,
+    dose_voltage FLOAT NOT NULL,
+    dose_rate FLOAT NOT NULL,
+    neutron_output FLOAT NOT NULL
+);
 
 
 *****************************************
 - storage_mw (Microwave)
 *****************************************
 Columns:
-	- ID (Primay key)
-	- time (Timestamp when the entry was added into the database)
-	- FP (Measured forward power in W)
-	- FP_set (Forward power setpoint in W)
-	- RP (Reflected power setpoint in W)
-	- Freq (Frequency setpoint in kHz)
-	- Freq_set (Frequency setpoint in kHz)
-	- Code (Error code that the microwave generator returned (if any), see manual for what it corresponds to)
+    - ID (Primay key)
+    - experiment_id
+    - time (Timestamp when the entry was added into the database)
+    - FP (Measured forward power in W)
+    - FP_set (Forward power setpoint in W)
+    - RP (Reflected power setpoint in W)
+    - Freq (Frequency setpoint in kHz)
+    - Freq_set (Frequency setpoint in kHz)
+    - Code (Error code that the microwave generator returned (if any), see manual for what it corresponds to)
 
 SQL statement:
-CREATE TABLE storage_mw (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, time TIMESTAMP(6), FP FLOAT NOT NULL, FP_set FLOAT NOT NULL, RP FLOAT NOT NULL, Freq FLOAT NOT NULL, Freq_set FLOAT NOT NULL, Code INT);
+CREATE TABLE storage_mw
+(
+    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    experiment_id INT NOT NULL,
+        FOREIGN KEY (experiment_id) REFERENCES experiment(id),
+    time TIMESTAMP,
+    FP FLOAT NOT NULL,
+    FP_set FLOAT NOT NULL,
+    RP FLOAT NOT NULL,
+    Freq FLOAT NOT NULL,
+    Freq_set FLOAT NOT NULL,
+    Code INT
+);
 
 
 *****************************************
 - storage_d2flow (Deuterium flow meter)
 *****************************************
 Columns:
-	- ID (Primay key)
-	- time (Timestamp when the entry was added into the database)
-	- voltage_flow (Measured flow voltage (see manual for conversion))
-	- voltage_flow_set (Flow voltage setpoint)
+    - ID (Primay key)
+    - experiment_id
+    - time (Timestamp when the entry was added into the database)
+    - voltage_flow (Measured flow voltage (see manual for conversion))
+    - voltage_flow_set (Flow voltage setpoint)
 
 
 SQL statement:
-CREATE TABLE storage_d2flow (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, time TIMESTAMP(6), voltage_flow FLOAT NOT NULL, voltage_flow_set FLOAT NOT NULL);
+CREATE TABLE storage_d2flow
+(
+    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    experiment_id INT NOT NULL,
+        FOREIGN KEY (experiment_id) REFERENCES experiment(id),
+    time TIMESTAMP,
+    voltage_flow FLOAT NOT NULL,
+    voltage_flow_set FLOAT NOT NULL
+);
 
 
 *****************************************
 - storage_ref_det (Reference detectors [Benoits box below neutron source])
 *****************************************
 Columns:
-	- ID (Primay key)
-	- time (Timestamp when the entry was added into the database)
-	- ard_time (Interval in ms over which the measurement was recorded on the arduino)
-	- counts_D1 (Counts in detector 1)
-	- counts_D2 (Counts in detector 2)
-	- counts_D3 (Counts in detector 3)
-	- counts_D4 (Counts in detector 4)
+    - ID (Primay key)
+    - experiment_id
+    - time (Timestamp when the entry was added into the database)
+    - ard_time (Interval in ms over which the measurement was recorded on the arduino)
+    - counts_D1 (Counts in detector 1)
+    - counts_D2 (Counts in detector 2)
+    - counts_D3 (Counts in detector 3)
+    - counts_D4 (Counts in detector 4)
 
 SQL statement:
-CREATE TABLE storage_ref_det (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, time TIMESTAMP(6), ard_time FLOAT NOT NULL, counts_D1 FLOAT NOT NULL, counts_D2 FLOAT NOT NULL, counts_D3 FLOAT NOT NULL, counts_D4 FLOAT NOT NULL);
+CREATE TABLE storage_ref_det
+(
+    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    experiment_id INT NOT NULL,
+        FOREIGN KEY (experiment_id) REFERENCES experiment(id),
+    time TIMESTAMP,
+    ard_time FLOAT NOT NULL,
+    counts_D1 FLOAT NOT NULL,
+    counts_D2 FLOAT NOT NULL,
+    counts_D3 FLOAT NOT NULL,
+    counts_D4 FLOAT NOT NULL
+);
 
 
 *****************************************
 - storage_all (Resampled data for each day in 10s intervals)
 *****************************************
 Columns:
-	- ID (Primay key)
-	- time (Timestamp 10s resampled that day)
-	- pressure_IS (Pressure in ion source PKR251 in bar; not corrected for D2)
-	- pressure_IS_calib (Pressure in ion source PKR251 in bar; not corrected for D2; calibrated using a calibration table)
-	- pressure_VC (Pressure in vacuum chamber PKR251 in V; not present in GenII neutron source!; not corrected for D2)
-	- HV_voltage (Voltage read from HV power supply in -kV; calibrated with a lookup table)
-	- HV_current (Current read from HV power supply in mA; calibrated with a lookup table)
-	- dose_voltage (Voltage read from the LB6411 output in V; calibrated with a lookup table)
-	- dose_rate (Ambient dose rate computed using the read voltage in muSv/hr)
-	- neutron_output (Computed neutron output in 1/s)
-	- FP (Measured forward power in W)
-	- FP_set (Forward power setpoint in W)
-	- RP (Reflected power setpoint in W)
-	- Freq (Frequency setpoint in kHz)
-	- Freq_set (Frequency setpoint in kHz)
-	- Code (Error code that the microwave generator returned (if any), see manual for what it corresponds to)
-	- voltage_flow (Measured flow voltage (see manual for conversion))
-	- voltage_flow_set (Flow voltage setpoint)
-	- ard_time (Interval in ms over which the measurement was recorded on the arduino)
-	- counts_D1 (Counts in detector 1)
-	- counts_D2 (Counts in detector 2)
-	- counts_D3 (Counts in detector 3)
-	- counts_D4 (Counts in detector 4)
+    - ID (Primay key)
+    - experiment_id
+    - time (Timestamp 10s resampled that day)
+    - pressure_IS (Pressure in ion source PKR251 in bar; not corrected for D2)
+    - pressure_IS_calib (Pressure in ion source PKR251 in bar; not corrected for D2; calibrated using a calibration table)
+    - pressure_VC (Pressure in vacuum chamber PKR251 in V; not present in GenII neutron source!; not corrected for D2)
+    - HV_voltage (Voltage read from HV power supply in -kV; calibrated with a lookup table)
+    - HV_current (Current read from HV power supply in mA; calibrated with a lookup table)
+    - dose_voltage (Voltage read from the LB6411 output in V; calibrated with a lookup table)
+    - dose_rate (Ambient dose rate computed using the read voltage in muSv/hr)
+    - neutron_output (Computed neutron output in 1/s)
+    - FP (Measured forward power in W)
+    - FP_set (Forward power setpoint in W)
+    - RP (Reflected power setpoint in W)
+    - Freq (Frequency setpoint in kHz)
+    - Freq_set (Frequency setpoint in kHz)
+    - Code (Error code that the microwave generator returned (if any), see manual for what it corresponds to)
+    - voltage_flow (Measured flow voltage (see manual for conversion))
+    - voltage_flow_set (Flow voltage setpoint)
+    - ard_time (Interval in ms over which the measurement was recorded on the arduino)
+    - counts_D1 (Counts in detector 1)
+    - counts_D2 (Counts in detector 2)
+    - counts_D3 (Counts in detector 3)
+    - counts_D4 (Counts in detector 4)
 
 SQL statement:
 CREATE TABLE storage_all (
 id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-time TIMESTAMP(6),
+experiment_id INT NOT NULL,
+    FOREIGN KEY (experiment_id) REFERENCES experiment(id),
+time TIMESTAMP,
 pressure_IS FLOAT NOT NULL,
 pressure_IS_calib FLOAT NOT NULL,
 pressure_VC FLOAT NOT NULL,
