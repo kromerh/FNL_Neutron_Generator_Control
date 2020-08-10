@@ -9,9 +9,8 @@ import dash_bootstrap_components as dbc
 
 # from app import app
 
-layout_experiment = html.Div(
+layout_experiment = html.Div(id='parent',children=
     [
-
 		dcc.Tabs(
                     id="tabs",
                     value="new-experiment-tab",
@@ -22,6 +21,16 @@ layout_experiment = html.Div(
                             children=[
                                 html.Div(
                                     [
+                                     html.Div(
+                                            [
+                                            html.Button(
+                                                        "NEW EXPERIMENT",
+                                                        id="new-experiment-btn-new",
+                                                        className="submit__button",
+                                                        style={"margin-right": "2.5%"},
+                                                        ),
+                                            ]
+                                            ),
                                         html.Div(
                                             [
                                                 html.P(
@@ -112,18 +121,12 @@ layout_experiment = html.Div(
                                                     className="submit__button",
                                                     style={"margin-right": "2.5%"},
                                                 ),
-                                              	html.Button(
-                                                    "NEW EXPERIMENT",
-                                                    id="new-experiment-btn-new",
-                                                    className="submit__button",
-                                                    style={"margin-right": "2.5%"},
-                                                )
                                             ]
                                         ),
                                         dbc.Modal(
 										    [
 										        dbc.ModalHeader("NEW EXPERIMENT"),
-										        dbc.ModalBody("This is the content of the modal"),
+										        dbc.ModalBody("This is the content of the modal", id="new-experiment-modal-body"),
 										        dbc.ModalFooter(
 										            dbc.Button("Close", id="new-experiment-modal-btn-close", className="ml-auto")
 										        ),
@@ -132,7 +135,19 @@ layout_experiment = html.Div(
 										),
                                     ],
                                     className="container__1",
-                                )
+                                ),
+                                # Placeholder Divs
+                                html.Div(
+                                    [
+                                        # dcc.Interval(id="readout-interval", interval=2000, n_intervals=0),
+                                        # dcc.Interval(id="microwave-readout-interval", interval=2000, n_intervals=0),
+                                        # html.Div(id="flow-meter-readout-start-time"), # start time of mass flow reading from database
+                                        # html.Div(id="new-experiment-"), # stop time of mass flow reading from database
+                                        dcc.Store(id='edit-user-state'),
+                                        dcc.Store(id='edit-user-new-clicked')
+                                    ],
+                                    style={"visibility": "hidden"},
+                                ),
                             ],
                         ),
 						dcc.Tab(
@@ -237,12 +252,6 @@ layout_experiment = html.Div(
                                         ),
                                         html.Div(
                                             [
-                                                html.Button(
-                                                    "LOAD",
-                                                    id="edit-experiment-btn-load",
-                                                    className="submit__button",
-                                                    style={"margin-right": "2.5%"},
-                                                ),
                                               	html.Button(
                                                     "SAVE",
                                                     id="edit-experiment-btn-save",
@@ -254,7 +263,7 @@ layout_experiment = html.Div(
                                         dbc.Modal(
 										    [
 										        dbc.ModalHeader("EDIT EXPERIMENT"),
-										        dbc.ModalBody("This is the content of the modal"),
+										        dbc.ModalBody("This is the content of the modal", id="edit-experiment-modal-body"),
 										        dbc.ModalFooter(
 										            dbc.Button("Close", id="edit-experiment-modal-btn-close", className="ml-auto")
 										        ),
@@ -272,26 +281,6 @@ layout_experiment = html.Div(
                             children=[
                                 html.Div(
                                     [
-                                        html.Div(
-                                            [
-                                                html.P(
-                                                    "ID:",
-                                                    className="input__heading",
-                                                ),
-                                                dcc.Dropdown(
-                                                    id="edit-user-id",
-													options=[
-													    {'label': '1', 'value': '1'},
-													    {'label': '2', 'value': '2'},
-													    {'label': '3', 'value': '3'}
-													],
-													multi=False,
-                                                    placeholder="Select user id",
-                                                    className="reag__select",
-                                                ),
-                                            ],
-                                            className="dropdown__container",
-                                        ),
                                         html.Div(
                                             [
                                                 html.P(
@@ -314,6 +303,20 @@ layout_experiment = html.Div(
                                                 	type='text',
                                                 	placeholder='Enter new name here',
                                                 	style={"margin-top": "0.5%"},
+                                                ),
+                                            ],
+                                            className="dropdown__container",
+                                        ),
+                                        html.Div(
+                                            [
+                                                html.P(
+                                                    "ID:",
+                                                    className="input__heading",
+                                                ),
+                                                html.P(
+                                                    id="edit-user-id",
+                                                    children=["NULL"],
+                                                    className="oper__input",
                                                 ),
                                             ],
                                             className="dropdown__container",
@@ -346,18 +349,13 @@ layout_experiment = html.Div(
                                                     className="submit__button",
                                                     style={"margin-right": "2.5%"},
                                                 ),
-                                                html.Button(
-                                                    "LOAD USER",
-                                                    id="edit-user-btn-load",
-                                                    className="submit__button",
-                                                    style={"margin-right": "2.5%"},
-                                                ),
+
                                             ]
                                         ),
                                         dbc.Modal(
 										    [
 										        dbc.ModalHeader("EDIT USER"),
-										        dbc.ModalBody("This is the content of the modal"),
+										        dbc.ModalBody("This is the content of the modal", id="edit-user-modal-body"),
 										        dbc.ModalFooter(
 										            dbc.Button("Close", id="edit-user-modal-btn-close", className="ml-auto")
 										        ),
@@ -378,19 +376,25 @@ layout_experiment = html.Div(
                                         html.Div(
                                             [
                                                 html.P(
-                                                    "ID:",
+                                                    "Name:",
                                                     className="input__heading",
                                                 ),
                                                 dcc.Dropdown(
-                                                    id="edit-tag-id",
-													options=[
-													    {'label': '1', 'value': '1'},
-													    {'label': '2', 'value': '2'},
-													    {'label': '3', 'value': '3'}
-													],
-													multi=False,
-                                                    placeholder="Select tag id",
+                                                    id="edit-tag-name",
+                                                    options=[
+                                                        {'label': 'Tag1', 'value': 'Tag1'},
+                                                        {'label': 'Tag2', 'value': 'Tag2'},
+                                                        {'label': 'Tag3', 'value': 'Tag3'}
+                                                    ],
+                                                    multi=False,
+                                                    placeholder="Select tag name",
                                                     className="reag__select",
+                                                ),
+                                                dcc.Input(
+                                                    id='edit-tag-name-input',
+                                                    type='text',
+                                                    placeholder='Enter new tag here',
+                                                    style={"margin-top": "0.5%"},
                                                 ),
                                             ],
                                             className="dropdown__container",
@@ -398,29 +402,18 @@ layout_experiment = html.Div(
                                         html.Div(
                                             [
                                                 html.P(
-                                                    "Name:",
+                                                    "ID:",
                                                     className="input__heading",
                                                 ),
-                                                dcc.Dropdown(
-                                                    id="edit-tag-name",
-													options=[
-													    {'label': 'Tag1', 'value': 'Tag1'},
-													    {'label': 'Tag2', 'value': 'Tag2'},
-													    {'label': 'Tag3', 'value': 'Tag3'}
-													],
-													multi=False,
-                                                    placeholder="Select tag name",
-                                                    className="reag__select",
-                                                ),
-                                                dcc.Input(
-                                                	id='edit-tag-name-input',
-                                                	type='text',
-                                                	placeholder='Enter new tag here',
-                                                	style={"margin-top": "0.5%"},
+                                                html.P(
+                                                    id="edit-tag-id",
+													children=['NULL'],
+                                                    className="oper__input",
                                                 ),
                                             ],
                                             className="dropdown__container",
                                         ),
+
                                         html.Div(
                                             [
                                                 html.Button(
@@ -435,18 +428,12 @@ layout_experiment = html.Div(
                                                     className="submit__button",
                                                     style={"margin-right": "2.5%"},
                                                 ),
-                                                html.Button(
-                                                    "LOAD TAG",
-                                                    id="edit-tag-btn-load",
-                                                    className="submit__button",
-                                                    style={"margin-right": "2.5%"},
-                                                ),
                                             ]
                                         ),
                                         dbc.Modal(
 										    [
 										        dbc.ModalHeader("EDIT TAG"),
-										        dbc.ModalBody("This is the content of the modal"),
+										        dbc.ModalBody("This is the content of the modal", id='edit-tag-modal-body'),
 										        dbc.ModalFooter(
 										            dbc.Button("Close", id="edit-tag-modal-btn-close", className="ml-auto")
 										        ),

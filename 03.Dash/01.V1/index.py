@@ -13,7 +13,7 @@ app.layout = html.Div(
 	    [
 	        # html.Img(src="assets/logo.png", className="app__logo"),
 	        html.Img(src=app.get_asset_url('logo.png'), className="app__logo"),
-	        html.H4("Version 2020.07.000", className="header__text"),
+	        html.H4("Version 2020.08.003", className="header__text"),
 	    ],
 	    className="app__header",
 		),
