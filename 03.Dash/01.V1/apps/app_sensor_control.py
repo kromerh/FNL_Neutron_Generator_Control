@@ -9,6 +9,7 @@ from app import app
 from layout_sensor_control import layout_sensor_control
 
 # CALLBACKS
-# from callbacks_experiment_new import *
+from callback_sensor_control import *
+
 
 

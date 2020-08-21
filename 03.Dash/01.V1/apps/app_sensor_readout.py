@@ -9,6 +9,6 @@ from app import app
 from layout_sensor_readout import layout_sensor_readout
 
 # CALLBACKS
-# from callbacks_experiment_new import *
+from callback_sensor_readout import *
 
 

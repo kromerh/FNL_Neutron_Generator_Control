@@ -8,7 +8,7 @@ from dash.dependencies import Input, Output, State
 import dash_bootstrap_components as dbc
 import dash_daq as daq
 
-layout_sensor_readout = html.Div(
+layout_sensor_readout = html.Div(id='sensor_readout_parent',children=
     [
         dcc.Store(id="aggregate_data"),
         # empty Div to trigger javascript file for graph resizing
@@ -35,8 +35,8 @@ layout_sensor_readout = html.Div(
                 ),
                 html.Div(
                     [
-                        html.P("Experiment date: 2020-08-01 10:00", style={"color":'red'}),
-                        html.P("Experiment ID: 99", style={"color":'red'}),
+                        html.P("Experiment date: 2020-08-01 10:00", style={"color":'red'}, id="P_experiment_date_readout"),
+                        html.P("Experiment ID: 99", style={"color":'red'}, id="P_experiment_id_readout"),
                     ],
                     className="one-third column"
                 ),
@@ -455,6 +455,6 @@ layout_sensor_readout = html.Div(
         ),
 
     ],
-    id="mainContainer",
+
     style={"display": "flex", "flex-direction": "column"},
 )

@@ -13,7 +13,7 @@ import dash_daq as daq
 df = pd.read_csv('https://raw.githubusercontent.com/plotly/datasets/master/solar.csv')
 df_hostnames = pd.read_csv('/Users/hkromer/02_PhD/01.github/FNL_Neutron_Generator_Control/03.Dash/01.V1/pi_hostnames.csv')
 
-layout_sensor_control = html.Div(
+layout_sensor_control = html.Div(id='sensor_control_parent',children=
     [
         dcc.Store(id="aggregate_data"),
         # empty Div to trigger javascript file for graph resizing
@@ -40,8 +40,8 @@ layout_sensor_control = html.Div(
                 ),
                 html.Div(
                     [
-                        html.P("Experiment date: 2020-08-01 10:00", style={"color":'red'}),
-                        html.P("Experiment ID: 99", style={"color":'red'}),
+                        html.P(children="Experiment date: 2020-08-01 10:00", style={"color":'red'}, id="P_experiment_date"),
+                        html.P("Experiment ID: 99", style={"color":'red'}, id="P_experiment_id"),
                     ],
                     className="one-third column"
                 ),
@@ -550,7 +550,6 @@ layout_sensor_control = html.Div(
                                                                                 {'label': 'id3', 'value': '3'}
                                                                             ],
                                                                             multi=False,
-                                                                            value="3",
                                                                             className="reag__select",
                                                                             style={"margin-left": "3%", "width": "120px"}
                                                                         ),
@@ -562,7 +561,7 @@ layout_sensor_control = html.Div(
                                                             html.Div(
                                                                 [
                                                                     dash_table.DataTable(
-                                                                        id="entry-table",
+                                                                        id="experiment_id_table_sensor_control",
                                                                         columns=[{"name": i, "id": i} for i in df.columns],
                                                                         data=df.to_dict('records'),
                                                                         style_cell={
@@ -793,6 +792,6 @@ layout_sensor_control = html.Div(
                 )
 
     ],
-    id="mainContainer",
+
     style={"display": "flex", "flex-direction": "column"},
 )
