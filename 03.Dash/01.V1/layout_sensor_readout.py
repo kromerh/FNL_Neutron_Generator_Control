@@ -96,7 +96,7 @@ layout_sensor_readout = html.Div(
                             [
                                 html.Div(
                                     [daq.Indicator(
-                                            id='idc_HV_sensor',
+                                            id='idc_HV_sensor_readout',
                                             color="#39ff14",
                                             size=30,
                                             value=True
@@ -105,16 +105,16 @@ layout_sensor_readout = html.Div(
                                     style={"margin-left": "4%"},
                                 ),
                                 html.Div(
-                                    [html.P("-100.0 kV", id="HV_kV_text")],
+                                    [html.P("-100.0 kV", id="HV_kV_text_readout")],
                                     className="mini_container",
                                 ),
                                 html.Div(
-                                    [html.P("1.0 mA", id="HV_mA_text")],
+                                    [html.P("1.0 mA", id="HV_mA_text_readout")],
                                     className="mini_container",
                                 ),
                                 html.Div(
                                     [daq.Indicator(
-                                            id='idc_dose_sensor',
+                                            id='idc_dose_sensor_readout',
                                             color="#39ff14",
                                             size=30,
                                             value=True
@@ -123,16 +123,16 @@ layout_sensor_readout = html.Div(
                                     style={"margin-left": "3%"}
                                 ),
                                 html.Div(
-                                    [html.P("1000 muSv/h", id="dose_text")],
+                                    [html.P("1000 muSv/h", id="dose_text_readout")],
                                     className="mini_container",
                                 ),
                                 html.Div(
-                                    [html.P("5.5 E7 n/s", id="yield_text")],
+                                    [html.P("5.5 E7 n/s", id="yield_text_readout")],
                                     className="mini_container",
                                 ),
                                 html.Div(
                                     [daq.Indicator(
-                                            id='idc_refDet_sensor',
+                                            id='idc_refDet_sensor_readout',
                                             color="#39ff14",
                                             size=30,
                                             value=True
@@ -141,12 +141,12 @@ layout_sensor_readout = html.Div(
                                     style={"margin-left": "3%"}
                                 ),
                                 html.Div(
-                                    [html.P("1200 1/s", id="refDet_text")],
+                                    [html.P("1200 1/s", id="refDet_text_readout")],
                                     className="mini_container",
                                 ),
                                 html.Div(
                                     [daq.Indicator(
-                                            id='idc_pressure_sensor',
+                                            id='idc_pressure_sensor_readout',
                                             color="#39ff14",
                                             size=30,
                                             value=True
@@ -155,12 +155,12 @@ layout_sensor_readout = html.Div(
                                     style={"margin-left": "3%"}
                                 ),
                                 html.Div(
-                                    [html.P("7 E-7 mbar", id="pressure_text")],
+                                    [html.P("7 E-7 mbar", id="pressure_text_readout")],
                                     className="mini_container",
                                 ),
                                 html.Div(
                                     [daq.Indicator(
-                                            id='idc_d2flow_sensor',
+                                            id='idc_d2flow_sensor_readout',
                                             color="#39ff14",
                                             size=30,
                                             value=True
@@ -169,19 +169,8 @@ layout_sensor_readout = html.Div(
                                     style={"margin-left": "3%"}
                                 ),
                                 html.Div(
-                                    [html.P("1000 mV", id="d2flow_text")],
+                                    [html.P("1000 mV", id="d2flow_text_readout")],
                                     className="mini_container",
-                                ),
-                                html.Div(
-                                    [daq.NumericInput(id='d2flow_input',value=1000, max=4000, min=0, size=120,label='mV', labelPosition='right')],
-                                    className="mini_container",
-                                    style={"margin-left": "3%"}
-                                ),
-                                html.Div(
-                                    [html.Button('Send', id='btn_d2flow_set', n_clicks=0)],
-                                    className="mini_container",
-                                    style={"margin-left": "-0.5%"}
-
                                 ),
 
                             ],
@@ -201,7 +190,7 @@ layout_sensor_readout = html.Div(
                 html.Div(
                     [
                         dcc.Graph(
-                                id="sensor_readout_graph_HV",
+                                id="sensor_readout_graph_HV_readout",
                                 figure={
                                     "data": [
                                         {"x": [1, 2, 3], "y": [4, 1, 2], "type": "scatter"},
@@ -220,7 +209,7 @@ layout_sensor_readout = html.Div(
                 html.Div(
                     [
                         dcc.Graph(
-                                id="sensor_readout_graph_dose",
+                                id="sensor_readout_graph_dose_readout",
                                 figure={
                                     "data": [
                                         {"x": [1, 2, 3], "y": [4, 1, 2], "type": "scatter"},
@@ -243,7 +232,7 @@ layout_sensor_readout = html.Div(
                 html.Div(
                     [
                         dcc.Graph(
-                                id="sensor_readout_graph_pressure",
+                                id="sensor_readout_graph_pressure_readout",
                                 figure={
                                     "data": [
                                         {"x": [1, 2, 3], "y": [4, 1, 2], "type": "scatter"},
@@ -262,7 +251,7 @@ layout_sensor_readout = html.Div(
                 html.Div(
                     [
                         dcc.Graph(
-                                id="sensor_readout_graph_d2flow",
+                                id="sensor_readout_graph_d2flow_readout",
                                 figure={
                                     "data": [
                                         {"x": [1, 2, 3], "y": [4, 1, 2], "type": "scatter"},
@@ -284,38 +273,14 @@ layout_sensor_readout = html.Div(
             [
                 html.Div(
                     [
+
                         html.Div(
                                 [
                                     html.Div(
-                                            [daq.PowerButton(id="switch_mw_on_off",
-                                                on=False,
-                                                label='MW ON / OFF',
-                                                labelPosition='bottom',
-                                                color='#FF5E5E')],
-                                            style={"margin-left": "80%", "margin-bottom": "5%"}
-                                        ),
-                                ],
-                                className='row container-display'
-                             ),
-                        html.Div(
-                                [
-                                    html.Div(
-                                            [html.P("FP setpoint 200 W", id="mw_setpoint_FP_text")],
+                                            [html.P("FP setpoint 200 W", id="mw_setpoint_FP_text_readout")],
                                             style={"margin-left": "4%", "margin-top": "1%"}
                                         ),
-                                    html.Div(
-                                            [html.P("FP input:")],
-                                            style={"margin-left": "21.5%", "margin-top": "1%"}
-                                        ),
-                                    html.Div(
-                                            [daq.NumericInput(id='FP_input',value=200, max=200, min=0, size=80,label='W', labelPosition='right')],
-                                            # style={"margin-left": "80%"}
-                                        ),
-                                html.Div(
-                                    [html.Button('Send', id='btn_FP_set', n_clicks=0)],
-                                    style={"margin-left": "6.5%"}
 
-                                ),
                                 ],
                                 className='row container-display',
                                 style={"margin-bottom": "2%"}
@@ -323,38 +288,26 @@ layout_sensor_readout = html.Div(
                         html.Div(
                                 [
                                     html.Div(
-                                            [html.P("freq setpoint 2450.0 MHz", id="mw_setpoint_freq_text")],
+                                            [html.P("freq setpoint 2450.0 MHz", id="mw_setpoint_freq_text_readout")],
                                             style={"margin-left": "4%", "margin-top": "1%"}
                                         ),
-                                    html.Div(
-                                            [html.P("Freq input:")],
-                                            style={"margin-left": "10%", "margin-top": "1%"}
-                                        ),
-                                    html.Div(
-                                            [daq.NumericInput(id='freq_input',value=2450, max=2500, min=2400, size=80,label='MHz', labelPosition='right')],
-                                            # style={"margin-left": "80%"}
-                                        ),
-                                html.Div(
-                                    [html.Button('Send', id='btn_freq_set', n_clicks=0)],
-                                    style={"margin-left": "4%"}
 
-                                ),
                                 ],
                                 className='row container-display'
                              ),
                         html.Div(
                                 [
                                     html.Div(
-                                            [html.P("No faults", id="mw_fault_text_no", style={"color":"#39ff14"})],
+                                            [html.P("No faults", id="mw_fault_text_no_readout", style={"color":"#39ff14"})],
                                             className='three columns',
                                             style={"margin-left": "4%"}
                                         ),
                                     html.Div(
-                                            [html.P("External safety", id="mw_fault_text_0", style={"color":"#FF5E5E"})],
+                                            [html.P("External safety", id="mw_fault_text_0_readout", style={"color":"#FF5E5E"})],
                                             className='three columns'
                                         ),
                                     html.Div(
-                                            [html.P("RP limit", id="mw_fault_text_1", style={"color":"#FF5E5E"})],
+                                            [html.P("RP limit", id="mw_fault_text_1_readout", style={"color":"#FF5E5E"})],
                                             className='three columns'
                                         ),
                                 ],
@@ -364,16 +317,16 @@ layout_sensor_readout = html.Div(
                         html.Div(
                                 [
                                     html.Div(
-                                            [html.P("Local mode", id="mw_fault_text_2", style={"color":"#FF5E5E"})],
+                                            [html.P("Local mode", id="mw_fault_text_2_readout", style={"color":"#FF5E5E"})],
                                             className='three columns',
                                             style={"margin-left": "4%"}
                                         ),
                                     html.Div(
-                                            [html.P("Gateway comm", id="mw_fault_text_3", style={"color":"#FF5E5E"})],
+                                            [html.P("Gateway comm", id="mw_fault_text_3_readout", style={"color":"#FF5E5E"})],
                                             className='three columns'
                                         ),
                                     html.Div(
-                                            [html.P("Temperature fault", id="mw_fault_text_4", style={"color":"#FF5E5E"})],
+                                            [html.P("Temperature fault", id="mw_fault_text_4_readout", style={"color":"#FF5E5E"})],
                                             className='three columns'
                                         ),
                                 ],
@@ -383,12 +336,12 @@ layout_sensor_readout = html.Div(
                         html.Div(
                                 [
                                     html.Div(
-                                            [html.P("Internal relay", id="mw_fault_text_5", style={"color":"#FF5E5E"})],
+                                            [html.P("Internal relay", id="mw_fault_text_5_readout", style={"color":"#FF5E5E"})],
                                             className='three columns',
                                             style={"margin-left": "4%"}
                                         ),
                                     html.Div(
-                                            [html.P("fault code: 107", id="mw_fault_text_code", style={"color":"#FF5E5E"})],
+                                            [html.P("fault code: 107", id="mw_fault_text_code_readout", style={"color":"#FF5E5E"})],
                                             className='three columns'
                                         ),
                                 ],
@@ -406,7 +359,7 @@ layout_sensor_readout = html.Div(
                             [
                                 html.Div(
                                     [daq.Indicator(
-                                            id='idc_mw_sensor',
+                                            id='idc_mw_sensor_readout',
                                             color="#39ff14",
                                             size=30,
                                             value=True
@@ -415,15 +368,15 @@ layout_sensor_readout = html.Div(
                                     style={"margin-left": "3%"}
                                 ),
                                 html.Div(
-                                    [html.P("FP: 200 W", id="FP_text")],
+                                    [html.P("FP: 200 W", id="FP_text_readout")],
                                     className="mini_container",
                                 ),
                                 html.Div(
-                                    [html.P("RP: 10 W", id="RP_text")],
+                                    [html.P("RP: 10 W", id="RP_text_readout")],
                                     className="mini_container",
                                 ),
                                 html.Div(
-                                    [html.P("f: 2445.6 MHz", id="freq_text")],
+                                    [html.P("f: 2445.6 MHz", id="freq_text_readout")],
                                     className="mini_container",
                                 ),
                                 html.Div(
@@ -433,7 +386,7 @@ layout_sensor_readout = html.Div(
                                 ),
                                 html.Div(
                                     [daq.Indicator(
-                                            id='idc_leak1_sensor',
+                                            id='idc_leak1_sensor_readout',
                                             color="#39ff14",
                                             size=30,
                                             value=True
@@ -442,7 +395,7 @@ layout_sensor_readout = html.Div(
                                 ),
                                 html.Div(
                                     [daq.Indicator(
-                                            id='idc_leak2_sensor',
+                                            id='idc_leak2_sensor_readout',
                                             color="#39ff14",
                                             size=30,
                                             value=True
@@ -451,7 +404,7 @@ layout_sensor_readout = html.Div(
                                 ),
                                 html.Div(
                                     [daq.Indicator(
-                                            id='idc_leak3_sensor',
+                                            id='idc_leak3_sensor_readout',
                                             color="#39ff14",
                                             size=30,
                                             value=True
@@ -464,7 +417,7 @@ layout_sensor_readout = html.Div(
                         ),
                         html.Div(
                             [dcc.Graph(
-                                id="sensor_readout_graph_mw_power",
+                                id="sensor_readout_graph_mw_power_readout",
                                 figure={
                                     "data": [
                                         {"x": [1, 2, 3], "y": [4, 1, 2], "type": "scatter"},
@@ -477,7 +430,7 @@ layout_sensor_readout = html.Div(
                                 },
                             ),
                             dcc.Graph(
-                                id="sensor_readout_graph_mw_freq",
+                                id="sensor_readout_graph_mw_freq_readout",
                                 figure={
                                     "data": [
                                         {"x": [1, 2, 3], "y": [4, 1, 2], "type": "scatter"},

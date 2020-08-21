@@ -554,10 +554,7 @@ layout_sensor_control = html.Div(
                                                                             className="reag__select",
                                                                             style={"margin-left": "3%", "width": "120px"}
                                                                         ),
-                                                                        html.Div(
-                                                                                [html.Button('Refresh', id='btn_experiment_control_refresh', n_clicks=0)],
-                                                                                style={"margin-left": "6.5%"}
-                                                                            ),
+
                                                                     ],
                                                                     className='row container-display',
                                                                     style={"margin-bottom": "2%"}
