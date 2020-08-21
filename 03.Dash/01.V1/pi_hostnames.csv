@@ -1,0 +1,7 @@
+Hostname,Controls,Purpose
+twofast-rpi3-0,HV and dose, Host of the database and readout of the HV and dose
+twofast-rpi3-3,pressure, Reads pressure (next to the ion source)
+twofast-rpi3-4,d2flow, Reads and controls BROOKS mass flow meter
+twofast-rpi3-5,mw, Reads and controls microwave generator via MODBUS
+twofast-rpi3-7,leak, Reads the three water leakage sensors
+pi-neutimag-due4,refDet, Reads the reference detectors in Benoits box below the neutron source

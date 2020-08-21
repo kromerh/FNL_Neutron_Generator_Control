@@ -102,7 +102,7 @@ def edit_users(sql_engine, cur, modal_body, experiment_id, users):
 			df = pd.read_sql(query, sql_engine)
 
 			user_id = df['id'].values[0]
-			query = f"""INSERT INTO experiment_users (experiment_id, user_id) VALUES ((SELECT experiment.id FROM experiment ORDER BY id DESC LIMIT 1), "{user_id}\");"""
+			query = f"""INSERT INTO experiment_users (experiment_id, user_id) VALUES (\"{experiment_id}\", \"{user_id}\");"""
 			cur.execute(query)
 			modal_body.append(f'{user_name}, ')
 		modal_body[-1] = modal_body[-1].replace(',','.')
@@ -153,7 +153,8 @@ def edit_tags(sql_engine, cur, modal_body, experiment_id, tags):
 			df = pd.read_sql(query, sql_engine)
 
 			tag_id = df['id'].values[0]
-			query = f"""INSERT INTO experiment_tags (experiment_id, tag_id) VALUES ((SELECT experiment.id FROM experiment ORDER BY id DESC LIMIT 1), "{tag_id}\");"""
+			query = f"""INSERT INTO experiment_tags (experiment_id, tag_id) VALUES (\"{experiment_id}\", "{tag_id}\");"""
+			# print(query)
 			cur.execute(query)
 			modal_body.append(f'{tag_name}, ')
 		modal_body[-1] = modal_body[-1].replace(',','.')

@@ -11,6 +11,31 @@ import dash_bootstrap_components as dbc
 
 layout_experiment = html.Div(id='parent',children=
     [
+        html.Div(
+            [
+                html.Div(
+                    [
+
+                    ],
+                className="one-third column"
+                ),
+                html.Div(
+                    [
+                        html.H4("Experiment editor", style={"text-align":"center", "color":'gray'}),
+                        html.Br()
+                    ],
+                className="one-third column"
+                ),
+                html.Div(
+                    [
+
+                    ],
+                className="one-third column"
+                ),
+
+            ],
+            className="row flex-display"
+        ),
 		dcc.Tabs(
                     id="tabs",
                     value="new-experiment-tab",

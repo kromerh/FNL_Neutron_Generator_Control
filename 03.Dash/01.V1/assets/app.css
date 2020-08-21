@@ -1,7 +1,24 @@
+.js-plotly-plot .plotly .modebar {
+  padding-top: 5%;
+  margin-right: 3.5%;
+}
 
+body {
+  margin: 0.5%;
+}
+
+
+.two.columns {
+  width: 12.25%;
+}
+
+.column,
+.columns {
+  margin-left: 0.5%;
+}
 .container__1 {
     border: 1px solid #DCDCDC;
-    margin: 20px;  
+    margin: 20px;
     padding: 20px;
     margin-top: 20px;
 }
@@ -82,29 +99,36 @@
 
 .submit__button {
     margin-top: 20px;
-    background-color: white; 
+    background-color: white;
     color: #0066CC;
     border: 1px solid #0066CC;
     height: 35px;
-    
+
 }
 
 .add__button {
-    background-color: white; 
+    background-color: white;
     color: #0066CC;
     border: 1px solid #0066CC;
     height: 35px;
 }
 
+.dcc_control {
+  margin: 0;
+  padding: 5px;
+  width: calc(100%-40px);
+}
+
+
 .del__button {
-    background-color: white; 
+    background-color: white;
     color: #0066CC;
     border: 1px solid #0066CC;
     height: 35px;
 }
 
 .clear__button {
-    background-color: white; 
+    background-color: white;
     color: #0066CC;
     border: 1px solid #0066CC;
     height: 35px;
@@ -116,6 +140,44 @@
     margin: auto;
     overflow-y: auto;
     max-height: 30vh;
+}
+
+.container-display {
+  display: flex;
+}
+
+.flex-display {
+  display: flex;
+}
+
+.mini_container {
+  align-items: center;
+  border-radius: 5px;
+  background-color: #f9f9f9;
+  margin: 10px;
+  padding: 5px;
+  position: relative;
+  box-shadow: 2px 2px 2px lightgrey;
+}
+
+.mini_container2 {
+  align-items: center;
+  border-radius: 5px;
+  background-color: #f9f9f9;
+  margin: 10px;
+  padding: 5px;
+  padding-right: 100px;
+  position: relative;
+  box-shadow: 2px 2px 2px lightgrey;
+}
+
+.pretty_container {
+  border-radius: 5px;
+  background-color: #f9f9f9;
+  margin: 5px;
+  padding: 10px;
+  position: relative;
+  box-shadow: 2px 2px 2px lightgrey;
 }
 
 .table__container {
