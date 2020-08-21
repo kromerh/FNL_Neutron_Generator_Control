@@ -42,19 +42,19 @@ def read_experiment_id(sql_engine):
 	query = f"SELECT experiment_id FROM experiment_control;"
 	df = pd.read_sql(query, sql_engine)
 
-	experiment_id = df['experiment_id'].values
+	experiment_id = df['experiment_id'].values[0]
 
-	query = f"SELECT date FROM experiment WHERE experiment_id = {experiment_id};"
+	query = f"SELECT date FROM experiment WHERE id = {experiment_id};"
 	df = pd.read_sql(query, sql_engine)
-	date = df['date'].values[0]
+	date = df['date'].dt.strftime("%Y-%m-%d %H:%M").values[0]
 
 	return experiment_id, date
 
 # Refresh experiment id and date when clicking anywhere
 @app.callback(
 	[
-		Output('P_experiment_id_readout', 'children'),
 		Output('P_experiment_date_readout', 'children'),
+		Output('P_experiment_id_readout', 'children'),
 		],
 	[Input('sensor_readout_parent', 'n_clicks')])
 def click_anywhere(n_clicks):
@@ -64,4 +64,4 @@ def click_anywhere(n_clicks):
 	# read the experiment id table in the database
 	experiment_id, date = read_experiment_id(sql_engine)
 
-	return experiment_id, date
+	return f"Experiment date: {date}", f"Experiment ID: {experiment_id}"

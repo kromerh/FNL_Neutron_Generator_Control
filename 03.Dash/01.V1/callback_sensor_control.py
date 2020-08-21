@@ -83,7 +83,7 @@ def update_experiment_id_date(experiment_id):
 		date = df['date'].values[0]
 
 		# update in the control table
-		set_experiment_id(sql_engine, experiment_id, True)
+		set_experiment_id(sql_engine, experiment_id, verbose=False)
 
 		# set in the html.P
 		return f"Experiment date: {date}", f"Experiment ID: {experiment_id}"
