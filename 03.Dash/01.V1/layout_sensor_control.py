@@ -17,7 +17,7 @@ layout_sensor_control = html.Div(id='sensor_control_parent',children=
     [
         dcc.Store(id="aggregate_data"),
         # empty Div to trigger javascript file for graph resizing
-        html.Div(id="output-clientside"),
+        html.Div(id="output_mw_ip"), # empty to keep track of ip of mw changed
         html.Div(
             [
                 html.Div(
@@ -553,6 +553,10 @@ layout_sensor_control = html.Div(id='sensor_control_parent',children=
                                                                             className="reag__select",
                                                                             style={"margin-left": "3%", "width": "120px"}
                                                                         ),
+                                                                        html.Div(
+                                                                                [html.Button('Load current', id='btn_experiment_control_read_control', n_clicks=0)],
+                                                                                style={"margin-left": "6.5%"}
+                                                                            ),
 
                                                                     ],
                                                                     className='row container-display',
@@ -761,7 +765,8 @@ layout_sensor_control = html.Div(id='sensor_control_parent',children=
                                                                                 style={"margin-left": "4%"}
                                                                             ),
                                                                         html.Div(
-                                                                                [html.Button('Copy ssh', id='btn_copy_ssh_refDet', n_clicks=0)],
+                                                                                [html.Button('Copy ssh', id='btn_copy_ssh_refDet', n_clicks=0),
+                                                                                html.Div(id='btn_copy_ssh_refDet_output')],
                                                                                 style={"margin-left": "2.5%"}
                                                                             ),
                                                                         html.Div(

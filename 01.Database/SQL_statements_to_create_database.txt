@@ -471,8 +471,29 @@ counts_D4 FLOAT NOT NULL
 
 
 
+*****************************************
+CREATE CONTROL TABLES
+*****************************************
 
 
+
+*****************************************
+experiment_control (Control table for the experiment)
+*****************************************
+Columns:
+    - ID (Primay key)
+    - experiment_id (experiment_id that the sensors will use)
+    - mw_on (enable -1- or disable -0- microwave power)
+    - mw_ip (ip address of the microwave generator XXX.XXX.XXX.XXX)
+
+SQL statement:
+CREATE TABLE experiment_control
+(
+    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    experiment_id INT,
+    mw_on INT,
+    mw_ip TEXT
+);
 
 
 

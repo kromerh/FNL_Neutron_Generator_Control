@@ -2,6 +2,7 @@ import pymysql
 import sqlalchemy as sql
 import pandas as pd
 import datetime
+import re
 
 import dash
 import dash_core_components as dcc
@@ -67,7 +68,127 @@ def set_experiment_id(sql_engine, experiment_id, verbose=False):
 		if verbose: print(query)
 		sql_engine.execute(sql.text(query))
 
+
+
+
+def set_mw_ip(sql_engine, ip, verbose=False):
+	"""
+	Set ip of the microwave in the experiment control table
+	"""
+	if ip:
+		t_ = re.findall(r'([a-zA-z])+', ip)
+		if len(t_) > 0:
+			if verbose: print(t_)
+			if verbose: print(f"Non digits in ip! {ip}")
+
+			return -1
+
+		t_ = re.findall(r'(\d+)\.(\d+)\.(\d+)\.(\d+)', ip)
+		if len(t_[0]) != 4:
+			if verbose: print(t_[0])
+			if verbose: print(f"Not four digits between points! {ip}")
+			return -1
+		else:
+			for i in t_[0]:
+				if int(i) > 255:
+					if verbose: print(t_[0])
+					if verbose: print(f"IP contains number larger 255! {ip}")
+					return -1
+
+		query = f"""UPDATE experiment_control SET mw_ip=\"{ip}\";"""
+
+		if verbose: print(query)
+		sql_engine.execute(sql.text(query))
+
+
+def read_experiment_id(sql_engine):
+	"""
+	Reads the experiment_id from the experiment_control table and the corresponding date and returns both
+	"""
+
+	query = f"SELECT experiment_id FROM experiment_control;"
+	df = pd.read_sql(query, sql_engine)
+
+	experiment_id = df['experiment_id'].values[0]
+
+	query = f"SELECT date FROM experiment WHERE id = {experiment_id};"
+	df = pd.read_sql(query, sql_engine)
+	date = df['date'].dt.strftime("%Y-%m-%d %H:%M").values[0]
+
+	return experiment_id, date
+
+
+def read_mw_ip(sql_engine):
+	"""
+	Reads the microwave ip from the control table and returns it
+	"""
+
+	query = f"SELECT mw_ip FROM experiment_control;"
+	df = pd.read_sql(query, sql_engine)
+
+	ip = df['mw_ip'].values[0]
+
+	return ip
+
+
+
+
+
+
+
+
+
+
+
 # Callbacks
+
+
+
+# Copy SSH for reference detector
+@app.callback(
+	Output('btn_copy_ssh_refDet_output', 'value'),
+	[Input('btn_copy_ssh_refDet', 'n_clicks')],)
+def clipboard_refDet_ssh(n_clicks):
+	if n_clicks is None:
+		raise dash.exceptions.PreventUpdate
+
+	df=pd.DataFrame(['ssh pi@pi-neutimag-due4'])
+	df.to_clipboard(index=False,header=False)
+
+	return df.to_json()
+
+
+
+# Set the microwave generator ip address in the experiment control table
+@app.callback(
+	Output('output_mw_ip', 'value'),
+	[Input('btn_experiment_control_mw_ip', 'n_clicks')],
+	[State('sensor_control_mw_ip_input', 'value')])
+def update_mw_ip(n_clicks, ip):
+	if n_clicks is None:
+		raise dash.exceptions.PreventUpdate
+	if ip != "255.255.255.255":
+		set_mw_ip(sql_engine, ip, verbose=False)
+
+		return ip
+
+
+# Load the current settings from control table
+@app.callback(
+	[
+		Output('sensor_control_mw_ip_input', 'value'),
+		Output('sensor_control_dropdown_ID', 'value'),
+	],
+	[Input('btn_experiment_control_read_control', 'n_clicks')])
+def load_current_control(n_clicks):
+	if n_clicks is None:
+		raise dash.exceptions.PreventUpdate
+
+	experiment_id, date = read_experiment_id(sql_engine)
+
+	ip = read_mw_ip(sql_engine)
+
+	return ip, experiment_id
 
 # Refresh the current experiment id and date when it was selected in the dropdown
 @app.callback(
@@ -97,7 +218,7 @@ def update_experiment_id_date(experiment_id):
 		Output('experiment_id_table_sensor_control', 'columns'),
 		Output('experiment_id_table_sensor_control', 'data'),
 		Output('sensor_control_dropdown_ID', 'options'),
-		],
+	],
 	[Input('sensor_control_parent', 'n_clicks')])
 def click_anywhere(n_clicks):
 	if n_clicks is None:
