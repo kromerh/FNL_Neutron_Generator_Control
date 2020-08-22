@@ -16,6 +16,13 @@ df_hostnames = pd.read_csv('/Users/hkromer/02_PhD/01.github/FNL_Neutron_Generato
 layout_sensor_control = html.Div(id='sensor_control_parent',children=
     [
         dcc.Store(id="aggregate_data"),
+        dcc.Interval(
+            id='readout_interval',
+            interval=1*1000, # in milliseconds
+            n_intervals=0
+        ),
+        dcc.Store(id="live_hv_dose_data"),
+        dcc.Store(id="experiment_control_data"),
         # empty Div to trigger javascript file for graph resizing
         html.Div(id="output_mw_ip"), # empty to keep track of ip of mw changed
         html.Div(
@@ -214,7 +221,7 @@ layout_sensor_control = html.Div(id='sensor_control_parent',children=
                                         html.Div(
                                             [
                                                 dcc.Graph(
-                                                        id="sensor_readout_graph_HV",
+                                                        id="sensor_control_graph_HV",
                                                         figure={
                                                             "data": [
                                                                 {"x": [1, 2, 3], "y": [4, 1, 2], "type": "scatter"},
@@ -226,6 +233,7 @@ layout_sensor_control = html.Div(id='sensor_control_parent',children=
                                                             },
                                                         },
                                                     ),
+
                                             ],
                                             className="pretty_container five columns",
                                             style={"margin-left": "2%"}
@@ -233,7 +241,7 @@ layout_sensor_control = html.Div(id='sensor_control_parent',children=
                                         html.Div(
                                             [
                                                 dcc.Graph(
-                                                        id="sensor_readout_graph_dose",
+                                                        id="sensor_control_graph_dose",
                                                         figure={
                                                             "data": [
                                                                 {"x": [1, 2, 3], "y": [4, 1, 2], "type": "scatter"},
@@ -256,7 +264,7 @@ layout_sensor_control = html.Div(id='sensor_control_parent',children=
                                         html.Div(
                                             [
                                                 dcc.Graph(
-                                                        id="sensor_readout_graph_pressure",
+                                                        id="sensor_control_graph_pressure",
                                                         figure={
                                                             "data": [
                                                                 {"x": [1, 2, 3], "y": [4, 1, 2], "type": "scatter"},
@@ -275,7 +283,7 @@ layout_sensor_control = html.Div(id='sensor_control_parent',children=
                                         html.Div(
                                             [
                                                 dcc.Graph(
-                                                        id="sensor_readout_graph_d2flow",
+                                                        id="sensor_control_graph_d2flow",
                                                         figure={
                                                             "data": [
                                                                 {"x": [1, 2, 3], "y": [4, 1, 2], "type": "scatter"},
@@ -477,7 +485,7 @@ layout_sensor_control = html.Div(id='sensor_control_parent',children=
                                                 ),
                                                 html.Div(
                                                     [dcc.Graph(
-                                                        id="sensor_readout_graph_mw_power",
+                                                        id="sensor_control_graph_mw_power",
                                                         figure={
                                                             "data": [
                                                                 {"x": [1, 2, 3], "y": [4, 1, 2], "type": "scatter"},
@@ -490,7 +498,7 @@ layout_sensor_control = html.Div(id='sensor_control_parent',children=
                                                         },
                                                     ),
                                                     dcc.Graph(
-                                                        id="sensor_readout_graph_mw_freq",
+                                                        id="sensor_control_graph_mw_freq",
                                                         figure={
                                                             "data": [
                                                                 {"x": [1, 2, 3], "y": [4, 1, 2], "type": "scatter"},
