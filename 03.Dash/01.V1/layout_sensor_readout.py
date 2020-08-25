@@ -10,9 +10,13 @@ import dash_daq as daq
 
 layout_sensor_readout = html.Div(id='sensor_readout_parent',children=
     [
-        dcc.Store(id="aggregate_data"),
-        # empty Div to trigger javascript file for graph resizing
-        html.Div(id="output-clientside"),
+        dcc.Store(id="experiment_control_data_readout"),
+        dcc.Interval(
+            id='readout_interval_readout',
+            interval=1*1000, # in milliseconds
+            n_intervals=0
+        ),
+        dcc.Store(id="live_hv_dose_data_readout"),
         html.Div(
             [
                 html.Div(

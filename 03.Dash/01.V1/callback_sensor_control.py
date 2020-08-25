@@ -3,6 +3,7 @@ import sqlalchemy as sql
 import pandas as pd
 import datetime
 import re
+import numpy as np
 
 import dash
 import dash_core_components as dcc
@@ -174,6 +175,70 @@ def get_experiment_control_data(sql_engine, verbose=False):
 
 
 
+
+
+
+
+
+
+
+
+# check the state of the readout, if no new entry in past 15 seconds, make indicator red
+@app.callback(
+	Output('idc_HV_sensor', 'color'),
+	[Input('readout_interval', 'n_intervals')],
+	[State("live_hv_dose_data", "children")])
+def set_hv_indicator(readout_interval, live_hv_dose_data):
+	if live_hv_dose_data:
+		df = pd.read_json(live_hv_dose_data, orient='split')
+		if len(df) > 0:
+			df['time'] = pd.to_datetime(df['time'])
+			df['time'] = df['time'].dt.tz_localize(None)
+			# check last entry
+			current_time = datetime.datetime.now()
+			query_time = pd.to_datetime((current_time - datetime.timedelta(seconds=15)))
+
+			last_time = df['time'].values[-1]
+
+			if last_time < query_time:
+				return 'red'
+			else:
+				return "#39ff14"
+
+	return "#39ff14"
+
+
+
+
+
+# compute the mean of HV voltage and current for past 10 seconds
+@app.callback(
+	[Output('HV_kV_text', 'children'),Output('HV_mA_text', 'children')],
+	[Input('readout_interval', 'n_intervals')],
+	[State("live_hv_dose_data", "children")])
+def rolling_mean_hv(readout_interval, live_hv_dose_data):
+	if live_hv_dose_data:
+		df = pd.read_json(live_hv_dose_data, orient='split')
+		if len(df) > 0:
+			df['time'] = pd.to_datetime(df['time'])
+			df['time'] = df['time'].dt.tz_localize(None)
+			# take only last 10 s
+			current_time = datetime.datetime.now()
+			query_time = current_time - datetime.timedelta(seconds=10)
+
+			mean_HV = df[ df['time'] > query_time].loc[:, 'HV_voltage'].mean()
+			mean_I = df[ df['time'] > query_time].loc[:, 'HV_current'].mean()
+
+			return f"-{mean_HV:.1f} kV", f"{mean_I:.1f} mA"
+
+	else:
+		return f"-0 kV", f"0 mA"
+
+
+
+
+
+
 # callback to read the experiment_control table
 @app.callback(
 	Output('experiment_control_data', 'children'),
@@ -209,70 +274,99 @@ def plot_HV(json_data, experiment_control_data):
 
 	# print(state_dic)
 	traces = []
+	if len(experiment_control_data) > 0:
+		try:
+			df = pd.read_json(json_data, orient='split')
+			# HV voltage
+			traces.append(go.Scatter(
+				x=df['time'],
+				y=df['HV_voltage'],
+				text='HV_voltage [-kV]',
+				line=go.scatter.Line(
+					color='red',
+					width=1.5
+				),
+				opacity=0.7,
+				name='HV_voltage [-kV]'
+			))
+			# HV current
+			traces.append(go.Scatter(
+				x=df['time'],
+				y=df['HV_current'],
+				text='HV_current [-mA]',
+				line=go.scatter.Line(
+					color='blue',
+					width=1.5
+				),
+				opacity=0.7,
 
-	try:
-		df = pd.read_json(json_data, orient='split')
-		# HV voltage
-		traces.append(go.Scatter(
-			x=df['time'],
-			y=df['HV_voltage'],
-			text='HV_voltage [-kV]',
-			line=go.scatter.Line(
-				color='red',
-				width=1.5
-			),
-			opacity=0.7,
-			name='HV_voltage [-kV]'
-		))
-		# HV current
-		traces.append(go.Scatter(
-			x=df['time'],
-			y=df['HV_current'],
-			text='HV_current [-mA]',
-			line=go.scatter.Line(
-				color='blue',
-				width=1.5
-			),
-			opacity=0.7,
+				name='HV_current [-mA]',
+				yaxis='y2'
+			))
 
-			name='HV_current [-mA]',
-			yaxis='y2'
-		))
+		except:
+			traces.append(go.Scatter(
+				x=[],
+				y=[],
+				line=go.scatter.Line(
+					color='#42C4F7',
+					width=1.0
+				),
+				text='HV',
+				# mode='markers',
+				opacity=1,
+				marker={
+					 'size': 15,
+					 'line': {'width': 1, 'color': '#42C4F7'}
+				},
+				mode='lines',
+				name='HV',
 
-	except:
-		traces.append(go.Scatter(
-			x=[],
-			y=[],
-			line=go.scatter.Line(
-				color='#42C4F7',
-				width=1.0
-			),
-			text='HV',
-			# mode='markers',
-			opacity=1,
-			marker={
-				 'size': 15,
-				 'line': {'width': 1, 'color': '#42C4F7'}
-			},
-			mode='lines',
-			name='HV',
+			))
 
-		))
+		return {
+			'data': traces,
+			'layout': go.Layout(
+				# xaxis={'title': 'Time'},
+				yaxis={'title': 'HV [-kV]', 'range': [lim_hv_min, lim_hv_max], 'titlefont': {'color': "red"}},
+				yaxis2={'title': 'I [-mA]', 'range': [lim_I_min, lim_I_max], "overlaying": "y", 'side': "right", 'titlefont': {'color': "blue"}},
+	            height=200,  # px
+	            showlegend=False,
+	            margin=dict(t=10, b=15, l=50, r=50),
+				hovermode='closest'
+			)
+		}
 
-	return {
-		'data': traces,
-		'layout': go.Layout(
-			# xaxis={'title': 'Time'},
-			yaxis={'title': 'HV [-kV]', 'range': [lim_hv_min, lim_hv_max], 'titlefont': {'color': "red"}},
-			yaxis2={'title': 'I [-mA]', 'range': [lim_I_min, lim_I_max], "overlaying": "y", 'side': "right", 'titlefont': {'color': "blue"}},
-            height=200,  # px
-            showlegend=False,
-            margin=dict(t=10, b=15, l=50, r=50),
-			hovermode='closest'
-		)
-	}
+	traces.append(go.Scatter(
+		x=[],
+		y=[],
+		line=go.scatter.Line(
+			color='#42C4F7',
+			width=1.0
+		),
+		text='HV',
+		# mode='markers',
+		opacity=1,
+		marker={
+			 'size': 15,
+			 'line': {'width': 1, 'color': '#42C4F7'}
+		},
+		mode='lines',
+		name='HV',
 
-
+	))
+	return 	{
+			'data': traces,
+			'layout': go.Layout(
+				# xaxis={'title': 'Time'},
+				yaxis={'title': 'HV [-kV]', 'range': [lim_hv_min, lim_hv_max], 'titlefont': {'color': "red"}},
+				yaxis2={'title': 'I [-mA]', 'range': [lim_I_min, lim_I_max], "overlaying": "y", 'side': "right", 'titlefont': {'color': "blue"}},
+	            height=200,  # px
+	            showlegend=False,
+	            margin=dict(t=10, b=15, l=50, r=50),
+				hovermode='closest'
+			)
+		}
 
 
 
