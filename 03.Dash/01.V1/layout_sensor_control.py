@@ -22,6 +22,7 @@ layout_sensor_control = html.Div(id='sensor_control_parent',children=
             n_intervals=0
         ),
         dcc.Store(id="live_hv_dose_data"),
+        dcc.Store(id="live_pressure_data"),
         dcc.Store(id="experiment_control_data"),
         # empty Div to trigger javascript file for graph resizing
         html.Div(id="output_mw_ip"), # empty to keep track of ip of mw changed
@@ -140,7 +141,7 @@ layout_sensor_control = html.Div(id='sensor_control_parent',children=
                                                                     value=True
                                                                 )],
                                                             className="mini_container",
-                                                            style={"margin-left": "3%"}
+                                                            style={"margin-left": "2%"}
                                                         ),
                                                         html.Div(
                                                             [html.P("1000 muSv/h", id="dose_text")],
@@ -241,7 +242,7 @@ layout_sensor_control = html.Div(id='sensor_control_parent',children=
                                         html.Div(
                                             [
                                                 dcc.Graph(
-                                                        id="sensor_control_graph_dose",
+                                                        id="sensor_control_graph_pressure",
                                                         figure={
                                                             "data": [
                                                                 {"x": [1, 2, 3], "y": [4, 1, 2], "type": "scatter"},
@@ -264,7 +265,7 @@ layout_sensor_control = html.Div(id='sensor_control_parent',children=
                                         html.Div(
                                             [
                                                 dcc.Graph(
-                                                        id="sensor_control_graph_pressure",
+                                                        id="sensor_control_graph_dose",
                                                         figure={
                                                             "data": [
                                                                 {"x": [1, 2, 3], "y": [4, 1, 2], "type": "scatter"},
