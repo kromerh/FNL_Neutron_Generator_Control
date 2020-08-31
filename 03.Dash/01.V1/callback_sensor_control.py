@@ -41,7 +41,8 @@ VERBOSE = False
 VERBOSE_READ_HV = False
 VERBOSE_READ_PRESSURE = False
 VERBOSE_READ_REFDET = False
-
+VERBOSE_SET_D2FLOW = False
+VERBOSE_READ_D2FLOW = False
 
 # after this many seconds indicator will turn red
 READOUT_DEADTIME = 5
@@ -186,6 +187,18 @@ def get_live_refDet(sql_engine, query_time, verbose=False):
 	return df
 
 
+def get_live_d2flow(sql_engine, query_time, verbose=False):
+	"""
+	Read live_d2flow table and return data for that query_time
+	"""
+	query = f"SELECT * FROM live_d2flow WHERE time > \"{query_time}\";"
+	df = pd.read_sql(query, sql_engine)
+
+	if verbose: print(f'Reading live_d2flow, retrieved {df.shape} entries. \n {df.head()}')
+
+	return df
+
+
 
 
 
@@ -221,6 +234,19 @@ interp_dose = interp1d(data_mcnp_LUT.index, data_mcnp_LUT['E'].values, fill_valu
 
 
 
+# set the d2flow setpoint in the control table
+def set_d2flow(sql_engine, d2flow_input, verbose=False):
+	"""
+	Updates the d2flow setpoint in the control table
+	"""
+	if d2flow_input >= 0:
+		d2flow_input = min(d2flow_input, 5000)
+		query = f"""UPDATE experiment_control SET d2flow_set={d2flow_input};"""
+
+		if verbose: print(query)
+		sql_engine.execute(sql.text(query))
+
+
 
 
 # Callbacks
@@ -254,6 +280,31 @@ def set_pressure_indicator(readout_interval, live_pressure_data):
 				return "#39ff14"
 
 	return "#39ff14"
+
+# check the state of the pressure readout, if no new entry in past READOUT_DEADTIME seconds, make indicator red
+@app.callback(
+	Output('idc_d2flow_sensor', 'color'),
+	[Input('readout_interval', 'n_intervals')],
+	[State("live_d2flow_data", "children")])
+def set_pressure_indicator(readout_interval, live_d2flow_data):
+	if live_d2flow_data:
+		df = pd.read_json(live_d2flow_data, orient='split')
+		if len(df) > 0:
+			df['time'] = pd.to_datetime(df['time'])
+			df['time'] = df['time'].dt.tz_localize(None)
+			# check last entry
+			current_time = datetime.datetime.now()
+			query_time = pd.to_datetime((current_time - datetime.timedelta(seconds=READOUT_DEADTIME)))
+
+			last_time = df['time'].values[-1]
+
+			if last_time < query_time:
+				return 'red'
+			else:
+				return "#39ff14"
+
+	return "#39ff14"
+
 
 
 # check the state of the refDet readout, if no new entry in past READOUT_DEADTIME seconds, make indicator red
@@ -393,6 +444,35 @@ def rolling_mean_pressure(readout_interval, live_pressure_data):
 
 
 	return f"0 mbar"
+
+# compute the mean of flow for past 10 seconds
+@app.callback(
+	Output('d2flow_text', 'children'),
+	[Input('readout_interval', 'n_intervals')],
+	[State("live_d2flow_data", "children")])
+def rolling_mean_d2flow(readout_interval, live_d2flow_data):
+	if live_d2flow_data:
+		df = pd.read_json(live_d2flow_data, orient='split')
+		if len(df) > 0:
+			df['time'] = pd.to_datetime(df['time'])
+			df['time'] = df['time'].dt.tz_localize(None)
+
+
+			# take only last 10 s
+			current_time = datetime.datetime.now()
+			query_time = current_time - datetime.timedelta(seconds=10)
+
+			mean = df[ df['time'] > query_time].loc[:, 'voltage_flow'].mean()
+
+			return f"{mean:.0f} mV"
+
+	else:
+		return f"0 mV"
+
+
+	return f"0 mV"
+
+
 
 
 # compute the mean of refDet counts for past 60 seconds
@@ -673,6 +753,88 @@ def plot_HV(json_data, experiment_control_data):
 			)
 		}
 
+
+# d2flow graph
+@app.callback(
+	Output("sensor_control_graph_d2flow", "figure"),
+	[Input("live_d2flow_data", "children")],
+	[State('experiment_control_data', 'children')]
+)
+# def plot_graph_data(df, figure, command, start, start_button, PID):
+def plot_d2flow(live_d2flow_data, experiment_control_data):
+
+	# y limits for the graph
+	# experiment_control_data = pd.read_json(experiment_control_data, orient='split')
+	# lim_hv_max = float(experiment_control_data['hv_HV_plot_max'].values[0])
+	# lim_hv_min = float(experiment_control_data['hv_HV_plot_min'].values[0])
+
+
+	# print(state_dic)
+	traces = []
+
+	try:
+		df = pd.read_json(live_d2flow_data, orient='split')
+		# HV voltage
+		traces.append(go.Scatter(
+			x=df['time'],
+			y=df['voltage_flow'],
+			text='Flow measured [mV]',
+			line=go.scatter.Line(
+				color='red',
+				width=1.5
+			),
+			opacity=0.7,
+			name='Flow measured [mV]'
+		))
+		# HV current
+		traces.append(go.Scatter(
+			x=df['time'],
+			y=df['voltage_flow_set'],
+			text='Flow set [mV]',
+			line=go.scatter.Line(
+				color='green',
+				width=1.5
+			),
+			opacity=0.7,
+
+			name='Flow set [mV]',
+			yaxis='y2'
+		))
+
+	except:
+		traces.append(go.Scatter(
+			x=[],
+			y=[],
+			line=go.scatter.Line(
+				color='#42C4F7',
+				width=1.0
+			),
+			text='Flow set [mV]',
+			# mode='markers',
+			opacity=1,
+			marker={
+				 'size': 15,
+				 'line': {'width': 1, 'color': '#42C4F7'}
+			},
+			mode='lines',
+			name='Flow set [mV]',
+
+		))
+
+	return {
+		'data': traces,
+		'layout': go.Layout(
+			# xaxis={'title': 'Time'},
+			yaxis={'title': 'Flow measured [mV]', 'titlefont': {'color': "red"}},
+			yaxis2={'title': 'Flow set [mV]',  "range": [0, 1000], "overlaying": "y", 'side': "right", 'titlefont': {'color': "green"}},
+            height=200,  # px
+            showlegend=False,
+            margin=dict(t=10, b=15, l=50, r=50),
+			hovermode='closest'
+		)
+	}
+
+
 # Pressure graph
 @app.callback(
 	Output("sensor_control_graph_pressure", "figure"),
@@ -776,7 +938,8 @@ def plot_pressure(json_data, experiment_control_data):
 	[
 		Output('live_hv_dose_data', 'children'),
 		Output('live_pressure_data', 'children'),
-		Output('live_refDet_data', 'children')
+		Output('live_refDet_data', 'children'),
+		Output("live_d2flow_data", "children")
 
 	],
 	[Input('readout_interval', 'n_intervals')])
@@ -804,16 +967,18 @@ def read_live_hv_dose(n):
 
 		df_pressure = get_live_pressure(sql_engine, query_time, verbose=VERBOSE_READ_PRESSURE)
 		if len(df_pressure) > 0:
-
 			df_pressure['pressure_IS'] = 10**(1.667*df_pressure['voltage_IS']-11.33)
 
 		df_refDet = get_live_refDet(sql_engine, query_time, verbose=VERBOSE_READ_REFDET)
 
+		df_d2flow = get_live_d2flow(sql_engine, query_time, verbose=VERBOSE_READ_D2FLOW)
+
 		json_hv_dose = df_hv_dose.to_json(date_format='iso', orient='split')
 		json_pressure = df_pressure.to_json(date_format='iso', orient='split')
-		df_refDet = df_refDet.to_json(date_format='iso', orient='split')
+		json_refDet = df_refDet.to_json(date_format='iso', orient='split')
+		json_d2flow = df_d2flow.to_json(date_format='iso', orient='split')
 
-		return json_hv_dose, json_pressure, df_refDet
+		return json_hv_dose, json_pressure, json_refDet, json_d2flow
 
 
 
@@ -883,6 +1048,21 @@ def update_experiment_id_date(experiment_id):
 		# set in the html.P
 		return f"Experiment date: {date}", f"Experiment ID: {experiment_id}"
 
+# Update the d2flow setpoint to the value in the numeric edit
+@app.callback(
+	Output('d2flow_set', 'children'),
+	[Input('btn_d2flow_set', 'n_clicks')],
+	[State('d2flow_input', 'value')])
+def update_d2flow(n_clicks, d2flow_input):
+	if n_clicks is None:
+		raise dash.exceptions.PreventUpdate
+	d2flow_input = int(d2flow_input)
+	if d2flow_input >= 0:
+		set_d2flow(sql_engine, d2flow_input, VERBOSE_SET_D2FLOW)
+
+	return None
+
+
 
 
 # Refresh experiment id and date table when clicking anywhere
@@ -891,10 +1071,11 @@ def update_experiment_id_date(experiment_id):
 	[
 		Output('experiment_id_table_sensor_control', 'columns'),
 		Output('experiment_id_table_sensor_control', 'data'),
-		Output('sensor_control_dropdown_ID', 'options'),
+		Output('sensor_control_dropdown_ID', 'options')
 	],
-	[Input('sensor_control_parent', 'n_clicks')])
-def click_anywhere(n_clicks):
+	[Input('sensor_control_parent', 'n_clicks')],
+	[State('experiment_control_data', 'children')])
+def click_anywhere(n_clicks, experiment_control_data):
 	if n_clicks is None:
 		raise dash.exceptions.PreventUpdate
 
@@ -908,5 +1089,6 @@ def click_anywhere(n_clicks):
 	options_ids=[
 				{'label': i, 'value': i} for i in df['id'].values
 			]
+
 
 	return columns, data, options_ids

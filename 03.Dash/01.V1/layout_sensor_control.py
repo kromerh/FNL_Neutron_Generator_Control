@@ -16,6 +16,7 @@ df_hostnames = pd.read_csv('/Users/hkromer/02_PhD/01.github/FNL_Neutron_Generato
 layout_sensor_control = html.Div(id='sensor_control_parent',children=
     [
         dcc.Store(id="aggregate_data"),
+        dcc.Store(id="d2flow_set"),
         dcc.Interval(
             id='readout_interval',
             interval=1*1000, # in milliseconds
@@ -24,6 +25,7 @@ layout_sensor_control = html.Div(id='sensor_control_parent',children=
         dcc.Store(id="live_hv_dose_data"),
         dcc.Store(id="live_pressure_data"),
         dcc.Store(id="live_refDet_data"),
+        dcc.Store(id="live_d2flow_data"),
         dcc.Store(id="experiment_control_data"),
         # empty Div to trigger javascript file for graph resizing
         html.Div(id="output_mw_ip"), # empty to keep track of ip of mw changed
@@ -195,7 +197,7 @@ layout_sensor_control = html.Div(id='sensor_control_parent',children=
                                                             className="mini_container",
                                                         ),
                                                         html.Div(
-                                                            [daq.NumericInput(id='d2flow_input',value=1000, max=4000, min=0, size=120,label='mV', labelPosition='right')],
+                                                            [daq.NumericInput(id='d2flow_input',value=0, max=4000, min=0, size=120,label='mV', labelPosition='right')],
                                                             className="mini_container",
                                                             style={"margin-left": "3%"}
                                                         ),
