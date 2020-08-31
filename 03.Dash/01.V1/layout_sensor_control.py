@@ -23,6 +23,7 @@ layout_sensor_control = html.Div(id='sensor_control_parent',children=
         ),
         dcc.Store(id="live_hv_dose_data"),
         dcc.Store(id="live_pressure_data"),
+        dcc.Store(id="live_refDet_data"),
         dcc.Store(id="experiment_control_data"),
         # empty Div to trigger javascript file for graph resizing
         html.Div(id="output_mw_ip"), # empty to keep track of ip of mw changed

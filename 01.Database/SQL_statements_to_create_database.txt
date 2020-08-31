@@ -508,8 +508,10 @@ CREATE TABLE experiment_control
 
 
 ALTER TABLE experiment_control
-ADD COLUMN hv_plot_min DOUBLE,
-ADD COLUMN hv_plot_max DOUBLE,
+ADD COLUMN hv_HV_plot_min DOUBLE,
+ADD COLUMN hv_HV_plot_max DOUBLE,
+ADD COLUMN hv_I_plot_min DOUBLE,
+ADD COLUMN hv_I_plot_max DOUBLE,
 ADD COLUMN pressure_plot_min DOUBLE,
 ADD COLUMN pressure_plot_max DOUBLE,
 ADD COLUMN dose_plot_min DOUBLE,
@@ -524,8 +526,8 @@ ADD COLUMN mw_freq_plot_max DOUBLE
 
 
 ALTER TABLE experiment_control
-DROP COLUMN hv_dose_plot_min,
-DROP COLUMN hv_dose_plot_max,
+DROP COLUMN hv_plot_min,
+DROP COLUMN hv_plot_max,
 DROP COLUMN pressure_plot_min,
 DROP COLUMN pressure_plot_max,
 DROP COLUMN dose_plot_min,

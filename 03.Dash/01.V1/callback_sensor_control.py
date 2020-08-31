@@ -40,7 +40,7 @@ sql_engine = sql.create_engine(connect_string)
 VERBOSE = False
 VERBOSE_READ_HV = False
 VERBOSE_READ_PRESSURE = False
-
+VERBOSE_READ_REFDET = False
 
 
 # after this many seconds indicator will turn red
@@ -173,6 +173,21 @@ def get_live_pressure(sql_engine, query_time, verbose=False):
 	return df
 
 
+def get_live_refDet(sql_engine, query_time, verbose=False):
+	"""
+	Read live_ref_det table and return data for that query_time
+	"""
+	query = f"SELECT * FROM live_ref_det WHERE time > \"{query_time}\";"
+	df = pd.read_sql(query, sql_engine)
+	df['sum_counts'] = df[['counts_D1', 'counts_D2', 'counts_D3', 'counts_D4']].sum(axis=1)
+
+	if verbose: print(f'Reading live_ref_det, retrieved {df.shape} entries. \n {df.head()}')
+
+	return df
+
+
+
+
 
 def get_experiment_control_data(sql_engine, verbose=False):
 	query = f"SELECT * FROM experiment_control;"
@@ -230,6 +245,31 @@ def set_pressure_indicator(readout_interval, live_pressure_data):
 			# check last entry
 			current_time = datetime.datetime.now()
 			query_time = pd.to_datetime((current_time - datetime.timedelta(seconds=READOUT_DEADTIME)))
+
+			last_time = df['time'].values[-1]
+
+			if last_time < query_time:
+				return 'red'
+			else:
+				return "#39ff14"
+
+	return "#39ff14"
+
+
+# check the state of the refDet readout, if no new entry in past READOUT_DEADTIME seconds, make indicator red
+@app.callback(
+	Output('idc_refDet_sensor', 'color'),
+	[Input('readout_interval', 'n_intervals')],
+	[State("live_refDet_data", "children")])
+def set_refDet_indicator(readout_interval, live_refDet_data):
+	if live_refDet_data:
+		df = pd.read_json(live_refDet_data, orient='split')
+		if len(df) > 0:
+			df['time'] = pd.to_datetime(df['time'])
+			df['time'] = df['time'].dt.tz_localize(None)
+			# check last entry
+			current_time = datetime.datetime.now()
+			query_time = pd.to_datetime((current_time - datetime.timedelta(seconds=35+READOUT_DEADTIME)))
 
 			last_time = df['time'].values[-1]
 
@@ -349,23 +389,51 @@ def rolling_mean_pressure(readout_interval, live_pressure_data):
 			return f"{mean:.2E} mbar"
 
 	else:
-		return f"7 E7 mbar"
+		return f"0 mbar"
 
 
-	return f"7 E7 mbar"
+	return f"0 mbar"
+
+
+# compute the mean of refDet counts for past 60 seconds
+@app.callback(
+	Output('refDet_text', 'children'),
+	[Input('readout_interval', 'n_intervals')],
+	[State("live_refDet_data", "children")])
+def rolling_mean_refDet(readout_interval, live_refDet_data):
+	if live_refDet_data:
+		df = pd.read_json(live_refDet_data, orient='split')
+		if len(df) > 0:
+			df['time'] = pd.to_datetime(df['time'])
+			df['time'] = df['time'].dt.tz_localize(None)
+
+
+			# take only last 10 s
+			current_time = datetime.datetime.now()
+			query_time = current_time - datetime.timedelta(seconds=60)
+
+			mean = df[ df['time'] > query_time].loc[:, 'sum_counts'].mean()
+			if np.isnan(mean): mean = 0
+			return f"{int(mean)} /30s"
+
+	else:
+		return f"0 /30s"
+
+
+	return f"0 /30s"
 
 # dose graph
 @app.callback(
 	Output("sensor_control_graph_dose", "figure"),
-	[Input("live_hv_dose_data", "children")],
+	[Input("live_hv_dose_data", "children"), Input("live_refDet_data", "children")],
 	[State('experiment_control_data', 'children')]
 )
-def plot_dose(json_data_hv_dose, experiment_control_data):
+def plot_dose(json_data_hv_dose, json_data_refDet, experiment_control_data):
 
 	# y limits for the graph
 	experiment_control_data = pd.read_json(experiment_control_data, orient='split')
-	lim_dose_max = float(experiment_control_data['dose_plot_max'].values[0])
-	lim_dose_min = float(experiment_control_data['dose_plot_min'].values[0])
+	lim_refDet_max = float(experiment_control_data['refDet_plot_max'].values[0])
+	lim_refDet_min = float(experiment_control_data['refDet_plot_min'].values[0])
 
 	lim_yield_max = float(experiment_control_data['yield_plot_max'].values[0])
 	lim_yield_min = float(experiment_control_data['yield_plot_min'].values[0])
@@ -375,23 +443,30 @@ def plot_dose(json_data_hv_dose, experiment_control_data):
 	traces = []
 	if len(experiment_control_data) > 0:
 		try:
-			df = pd.read_json(json_data_hv_dose, orient='split')
-			# Dose
+			df_dose = pd.read_json(json_data_hv_dose, orient='split')
+			df_refDet = pd.read_json(json_data_refDet, orient='split')
+			if len(df_dose) == 0:
+				df_dose['time'] = datetime.datetime.now()
+				df_dose['neutron_yield'] = -1
+			if len(df_refDet) == 0:
+				df_refDet['time'] = datetime.datetime.now()
+				df_refDet['sum_counts'] = -1
+			# refDet
 			traces.append(go.Scatter(
-				x=df['time'],
-				y=df['dose'],
-				text='Dose [muSv/hr]',
+				x=df_refDet['time'],
+				y=df_refDet['sum_counts'],
+				text='Counts [30s]',
 				line=go.scatter.Line(
 					color='orange',
 					width=1.5
 				),
 				opacity=0.7,
-				name='Dose [muSv/hr]'
+				name='Counts [30s]'
 			))
 			# Output
 			traces.append(go.Scatter(
-				x=df['time'],
-				y=df['neutron_yield'],
+				x=df_dose['time'],
+				y=df_dose['neutron_yield'],
 				text='Neutron yield',
 				line=go.scatter.Line(
 					color='blue',
@@ -411,7 +486,7 @@ def plot_dose(json_data_hv_dose, experiment_control_data):
 					color='orange',
 					width=1.0
 				),
-				text='Dose [muSv/hr]',
+				text='Counts [30s]',
 				# mode='markers',
 				opacity=1,
 				marker={
@@ -419,7 +494,7 @@ def plot_dose(json_data_hv_dose, experiment_control_data):
 					 'line': {'width': 1, 'color': 'orange'}
 				},
 				mode='lines',
-				name='Dose [muSv/hr]',
+				name='Counts [30s]',
 
 			))
 
@@ -427,7 +502,7 @@ def plot_dose(json_data_hv_dose, experiment_control_data):
 			'data': traces,
 			'layout': go.Layout(
 				# xaxis={'title': 'Time'},
-				yaxis={'title': 'Dose [muSv/hr]', 'range': [lim_dose_min, lim_dose_max], 'side': "left" ,'titlefont': {'color': "orange"}},
+				yaxis={'title': 'Counts [30s]', 'range': [lim_refDet_min, lim_refDet_max], 'side': "left" ,'titlefont': {'color': "orange"}},
 				yaxis2={'title': 'Neutron yield', 'range': [lim_yield_min, lim_yield_max], 'exponentformat':'e', "overlaying": "y", 'side': "right", 'titlefont': {'color': "blue"}},
 
 	            height=200,  # px
@@ -444,7 +519,7 @@ def plot_dose(json_data_hv_dose, experiment_control_data):
 			color='#42C4F7',
 			width=1.0
 		),
-		text='Dose [muSv/hr]',
+		text='Counts [30s]',
 		# mode='markers',
 		opacity=1,
 		marker={
@@ -452,7 +527,7 @@ def plot_dose(json_data_hv_dose, experiment_control_data):
 			 'line': {'width': 1, 'color': 'orange'}
 		},
 		mode='lines',
-		name='Dose [muSv/hr]',
+		name='Counts [30s]',
 
 	))
 	return 	{
@@ -700,7 +775,9 @@ def plot_pressure(json_data, experiment_control_data):
 @app.callback(
 	[
 		Output('live_hv_dose_data', 'children'),
-		Output('live_pressure_data', 'children')
+		Output('live_pressure_data', 'children'),
+		Output('live_refDet_data', 'children')
+
 	],
 	[Input('readout_interval', 'n_intervals')])
 def read_live_hv_dose(n):
@@ -712,24 +789,31 @@ def read_live_hv_dose(n):
 	if sql_engine:
 
 		df_hv_dose = get_live_hv_dose(sql_engine, query_time, verbose=VERBOSE_READ_HV)
-		df_hv_dose['dose'] = df_hv_dose['dose_voltage'] * 3000 / 5.5
+		if len(df_hv_dose) > 0:
+			df_hv_dose['dose'] = df_hv_dose['dose_voltage'] * 3000 / 5.5
 
-		# leakage current correction
-		df_hv_dose['HV_current'] = df_hv_dose['HV_current'] - interp_leak(df_hv_dose['HV_voltage'].values)
-		idx = df_hv_dose[df_hv_dose['HV_current'] < 0].index # set negative current values to 0
-		df_hv_dose.loc[idx, 'HV_current'] = 0
+			# leakage current correction
+			df_hv_dose['HV_current'] = df_hv_dose['HV_current'] - interp_leak(df_hv_dose['HV_voltage'].values)
 
-		# compute neutron output from dose
-		df_hv_dose['neutron_yield'] = df_hv_dose['dose'].values * (interp_dose(df_hv_dose['HV_voltage'].values) / 100)
+			idx = df_hv_dose[df_hv_dose['HV_current'] < 0].index # set negative current values to 0
+			df_hv_dose.loc[idx, 'HV_current'] = 0
+
+			# compute neutron output from dose
+			df_hv_dose['neutron_yield'] = df_hv_dose['dose'].values * (interp_dose(df_hv_dose['HV_voltage'].values) / 100)
 
 
 		df_pressure = get_live_pressure(sql_engine, query_time, verbose=VERBOSE_READ_PRESSURE)
-		df_pressure['pressure_IS'] = 10**(1.667*df_pressure['voltage_IS']-11.33)
+		if len(df_pressure) > 0:
+
+			df_pressure['pressure_IS'] = 10**(1.667*df_pressure['voltage_IS']-11.33)
+
+		df_refDet = get_live_refDet(sql_engine, query_time, verbose=VERBOSE_READ_REFDET)
 
 		json_hv_dose = df_hv_dose.to_json(date_format='iso', orient='split')
 		json_pressure = df_pressure.to_json(date_format='iso', orient='split')
+		df_refDet = df_refDet.to_json(date_format='iso', orient='split')
 
-		return json_hv_dose, json_pressure
+		return json_hv_dose, json_pressure, df_refDet
 
 
 
