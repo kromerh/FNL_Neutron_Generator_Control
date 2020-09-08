@@ -742,9 +742,9 @@ def plot_dose(json_data_hv_dose, json_data_refDet, experiment_control_data):
 				yaxis={'title': 'Counts [30s]', 'range': [lim_refDet_min, lim_refDet_max], 'side': "left" ,'titlefont': {'color': "orange"}},
 				yaxis2={'title': 'Neutron yield', 'range': [lim_yield_min, lim_yield_max], 'exponentformat':'e', "overlaying": "y", 'side': "right", 'titlefont': {'color': "blue"}},
 
-	            height=200,  # px
-	            showlegend=False,
-	            margin=dict(t=10, b=15, l=50, r=50),
+				height=200,  # px
+				showlegend=False,
+				margin=dict(t=10, b=15, l=50, r=50),
 				hovermode='closest'
 			)
 		}
@@ -774,9 +774,9 @@ def plot_dose(json_data_hv_dose, json_data_refDet, experiment_control_data):
 				yaxis={'title': 'Dose [muSv/hr]', 'range': [lim_dose_min, lim_dose_max], 'side': "left", 'titlefont': {'color': "orange"}},
 				yaxis2={'title': 'Neutron yield', 'range': [lim_yield_min, lim_yield_max], 'exponentformat':'e', "overlaying": "y", 'side': "right", 'titlefont': {'color': "blue"}},
 
-	            height=200,  # px
-	            showlegend=False,
-	            margin=dict(t=10, b=15, l=50, r=50),
+				height=200,  # px
+				showlegend=False,
+				margin=dict(t=10, b=15, l=50, r=50),
 				hovermode='closest'
 			)
 		}
@@ -872,9 +872,9 @@ def plot_HV(json_data, experiment_control_data):
 				# xaxis={'title': 'Time'},
 				yaxis={'title': 'HV [-kV]', 'range': [lim_hv_min, lim_hv_max], 'titlefont': {'color': "red"}},
 				yaxis2={'title': 'I [-mA]', 'range': [lim_I_min, lim_I_max], "overlaying": "y", 'side': "right", 'titlefont': {'color': "blue"}},
-	            height=200,  # px
-	            showlegend=False,
-	            margin=dict(t=10, b=15, l=50, r=50),
+				height=200,  # px
+				showlegend=False,
+				margin=dict(t=10, b=15, l=50, r=50),
 				hovermode='closest'
 			)
 		}
@@ -903,9 +903,9 @@ def plot_HV(json_data, experiment_control_data):
 				# xaxis={'title': 'Time'},
 				yaxis={'title': 'HV [-kV]', 'range': [lim_hv_min, lim_hv_max], 'titlefont': {'color': "red"}},
 				yaxis2={'title': 'I [-mA]', 'range': [lim_I_min, lim_I_max], "overlaying": "y", 'side': "right", 'titlefont': {'color': "blue"}},
-	            height=200,  # px
-	            showlegend=False,
-	            margin=dict(t=10, b=15, l=50, r=50),
+				height=200,  # px
+				showlegend=False,
+				margin=dict(t=10, b=15, l=50, r=50),
 				hovermode='closest'
 			)
 		}
@@ -984,9 +984,9 @@ def plot_d2flow(live_d2flow_data, experiment_control_data):
 			# xaxis={'title': 'Time'},
 			yaxis={'title': 'Flow measured [mV]', 'titlefont': {'color': "red"}},
 			yaxis2={'title': 'Flow set [mV]',  "range": [0, 1000], "overlaying": "y", 'side': "right", 'titlefont': {'color': "green"}},
-            height=200,  # px
-            showlegend=False,
-            margin=dict(t=10, b=15, l=50, r=50),
+			height=200,  # px
+			showlegend=False,
+			margin=dict(t=10, b=15, l=50, r=50),
 			hovermode='closest'
 		)
 	}
@@ -1079,9 +1079,9 @@ def plot_mw_power(live_mw_data, experiment_control_data):
 			# xaxis={'title': 'Time'},
 			yaxis={'title': 'FP [W]', "range": [0, 205], 'side': "right", 'titlefont': {'color': "black"}},
 			yaxis2={'title': 'RP [W]',  "range": [0, 100], "overlaying": "y", 'side': "left", 'titlefont': {'color': "red"}},
-            height=150,  # px
-            showlegend=False,
-            margin=dict(t=10, b=15, l=50, r=50),
+			height=150,  # px
+			showlegend=False,
+			margin=dict(t=10, b=15, l=50, r=50),
 			hovermode='closest'
 		)
 	}
@@ -1160,9 +1160,9 @@ def plot_mw_freq(live_mw_data, experiment_control_data):
 		'layout': go.Layout(
 			# xaxis={'title': 'Time'},
 			yaxis={'title': 'Frequency [MHz]', "range": [2350, 2550], 'side': "right", 'titlefont': {'color': "black"}},
-            height=150,  # px
-            showlegend=False,
-            margin=dict(t=10, b=15, l=50, r=50),
+			height=150,  # px
+			showlegend=False,
+			margin=dict(t=10, b=15, l=50, r=50),
 			hovermode='closest'
 		)
 	}
@@ -1226,9 +1226,9 @@ def plot_pressure(json_data, experiment_control_data):
 				# xaxis={'title': 'Time'},
 				yaxis={'title': 'Pressure [mbar]', 'titlefont': {'color': "red"},
 				'type': "log", 'exponentformat':'e', 'side': "right"},
-	            height=200,  # px
-	            showlegend=False,
-	            margin=dict(t=10, b=15, l=50, r=50),
+				height=200,  # px
+				showlegend=False,
+				margin=dict(t=10, b=15, l=50, r=50),
 				hovermode='closest'
 			)
 		}
@@ -1257,9 +1257,9 @@ def plot_pressure(json_data, experiment_control_data):
 				# xaxis={'title': 'Time'},
 				yaxis={'title': 'Pressure [mbar]', 'titlefont': {'color': "red"},
 				'type': "log", 'exponentformat':'e', 'side': "right"},
-	            height=200,  # px
-	            showlegend=False,
-	            margin=dict(t=10, b=15, l=50, r=50),
+				height=200,  # px
+				showlegend=False,
+				margin=dict(t=10, b=15, l=50, r=50),
 				hovermode='closest'
 			)
 		}
@@ -1302,7 +1302,7 @@ def read_live_hv_dose(n):
 		df_pressure = get_live_pressure(sql_engine, query_time, verbose=VERBOSE_READ_PRESSURE)
 		if len(df_pressure) > 0:
 			df_pressure['pressure_IS'] = 10**(1.667*df_pressure['voltage_IS']-11.33)
-        	df_pressure['pressure_IS'] = interp_pressure_IS(df_pressure['pressure_IS'])
+			df_pressure['pressure_IS'] = interp_pressure_IS(df_pressure['pressure_IS'])
 
 		df_refDet = get_live_refDet(sql_engine, query_time, verbose=VERBOSE_READ_REFDET)
 
