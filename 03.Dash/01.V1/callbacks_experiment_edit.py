@@ -248,6 +248,7 @@ def update_experiment_edit_dropdown(n_clicks_anywhere, date_value):
 
 			# connect to database and read all
 			df = read_experiments(sql_engine, 'experiment')
+			# print(df)
 			dates = list(df['date'].dt.strftime('%Y-%m-%d').unique()) # select only the dates as string
 
 			ids = df['id'].values
