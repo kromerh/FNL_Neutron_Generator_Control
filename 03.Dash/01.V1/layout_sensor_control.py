@@ -11,7 +11,8 @@ import dash_bootstrap_components as dbc
 import dash_daq as daq
 
 df = pd.read_csv('https://raw.githubusercontent.com/plotly/datasets/master/solar.csv')
-df_hostnames = pd.read_csv('/Users/hkromer/02_PhD/01.github/FNL_Neutron_Generator_Control/03.Dash/01.V1/pi_hostnames.csv')
+cwd = os.getcwd()
+df_hostnames = pd.read_csv(f'{cwd}/pi_hostnames.csv')
 
 layout_sensor_control = html.Div(id='sensor_control_parent',children=
     [
