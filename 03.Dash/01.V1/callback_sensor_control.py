@@ -43,6 +43,9 @@ VERBOSE_READ_PRESSURE = False
 VERBOSE_READ_REFDET = False
 VERBOSE_SET_D2FLOW = False
 VERBOSE_READ_D2FLOW = False
+VERBOSE_SET_FP_SET = False
+VERBOSE_READ_MW = False
+VERBOSE_SET_FREQ_SET = False
 
 # after this many seconds indicator will turn red
 READOUT_DEADTIME = 5
@@ -199,6 +202,18 @@ def get_live_d2flow(sql_engine, query_time, verbose=False):
 	return df
 
 
+def get_live_mw(sql_engine, query_time, verbose=False):
+	"""
+	Read live_d2flow table and return data for that query_time
+	"""
+	query = f"SELECT * FROM live_mw WHERE time > \"{query_time}\";"
+	df = pd.read_sql(query, sql_engine)
+
+	if verbose: print(f'Reading live_mw, retrieved {df.shape} entries. \n {df.head()}')
+
+	return df
+
+
 
 
 
@@ -232,6 +247,15 @@ data_mcnp_LUT = pd.read_csv(f'{cwd}/calibration/LUT_dose_neutron_output.csv', in
 interp_dose = interp1d(data_mcnp_LUT.index, data_mcnp_LUT['E'].values, fill_value='extrapolate')
 
 
+# pressure calibration
+# correct the pressure that the arduino reads. This is done using the dose_lookup_table which relates the pi dose with the displayed dose.
+cwd = os.getcwd()
+df_LT_pressure = pd.read_csv(f"{cwd}/calibration/LUT_pressure_ion_source.txt", delimiter="\t")
+
+# interpolation function
+interp_pressure_IS = interp1d(pd.to_numeric(df_LT_pressure['pressure_IS_pi']).values, pd.to_numeric(df_LT_pressure['pressure_IS_display']).values, fill_value='extrapolate')
+
+
 
 
 # set the d2flow setpoint in the control table
@@ -245,6 +269,41 @@ def set_d2flow(sql_engine, d2flow_input, verbose=False):
 
 		if verbose: print(query)
 		sql_engine.execute(sql.text(query))
+
+
+
+# set the mw fp setpoint in the control table
+def set_FP_setpoint(sql_engine, FP_input, verbose=False):
+	"""
+	Updates the d2flow setpoint in the control table
+	"""
+	if FP_input >= 0:
+		FP_input = min(FP_input, 200)
+		query = f"""UPDATE experiment_control SET mw_fp_set={FP_input};"""
+
+		if verbose: print(query)
+		sql_engine.execute(sql.text(query))
+
+
+
+# set the mw freq setpoint in the control table
+def set_freq_setpoint(sql_engine, freq_input, verbose=False):
+	"""
+	Updates the mw freq setpoint in the control table
+	"""
+	if freq_input >= 0:
+		freq_input = min(freq_input, 2500.0)
+		query = f"""UPDATE experiment_control SET mw_freq_set={freq_input};"""
+
+		if verbose: print(query)
+		sql_engine.execute(sql.text(query))
+
+
+
+
+
+
+
 
 
 
@@ -362,6 +421,32 @@ def set_hv_indicator(readout_interval, live_hv_dose_data):
 	return ["#39ff14", "#39ff14"]
 
 
+# check the state of the mw readout, if no new entry in past READOUT_DEADTIME seconds, make indicator red
+@app.callback(
+	Output('idc_mw_sensor', 'color'),
+	[Input('readout_interval', 'n_intervals')],
+	[State("live_mw_data", "children")])
+def set_mw_indicator(readout_interval, live_mw_data):
+	if live_mw_data:
+		df = pd.read_json(live_mw_data, orient='split')
+		if len(df) > 0:
+			df['time'] = pd.to_datetime(df['time'])
+			df['time'] = df['time'].dt.tz_localize(None)
+			# check last entry
+			current_time = datetime.datetime.now()
+			query_time = pd.to_datetime((current_time - datetime.timedelta(seconds=READOUT_DEADTIME)))
+
+			last_time = df['time'].values[-1]
+
+			if last_time < query_time:
+				return 'red'
+			else:
+				return "#39ff14"
+
+	return "#39ff14"
+
+
+
 
 
 
@@ -390,6 +475,35 @@ def rolling_mean_hv(readout_interval, live_hv_dose_data):
 
 
 	return f"-0 kV", f"0 mA"
+
+
+
+# compute the mean of mw power and freq for past 10 seconds
+@app.callback(
+	[Output('FP_text', 'children'),Output('RP_text', 'children'),Output('freq_text', 'children')],
+	[Input('readout_interval', 'n_intervals')],
+	[State("live_mw_data", "children")])
+def rolling_mean_mw(readout_interval, live_mw_data):
+	if live_mw_data:
+		df = pd.read_json(live_mw_data, orient='split')
+		if len(df) > 0:
+			df['time'] = pd.to_datetime(df['time'])
+			df['time'] = df['time'].dt.tz_localize(None)
+			# take only last 10 s
+			current_time = datetime.datetime.now()
+			query_time = current_time - datetime.timedelta(seconds=10)
+
+			mean_fp = df[ df['time'] > query_time].loc[:, 'FP'].mean()
+			mean_rp = df[ df['time'] > query_time].loc[:, 'RP'].mean()
+			mean_freq = df[ df['time'] > query_time].loc[:, 'Freq'].mean()
+
+			return f"{mean_fp:.1f} W", f"{mean_rp:.1f} W", f"{mean_freq:.1f} MHz"
+
+	else:
+		return f"0 W", f"0 W",  f"0 MHz"
+
+
+	return f"0 W", f"0 W", f"0 MHz"
 
 
 # compute the mean of dose and neutron yield for past 10 seconds
@@ -444,6 +558,49 @@ def rolling_mean_pressure(readout_interval, live_pressure_data):
 
 
 	return f"0 mbar"
+
+# read back the FP setpoint and display it
+@app.callback(
+	Output('mw_setpoint_FP_text', 'children'),
+	[Input('readout_interval', 'n_intervals')],
+	[State("experiment_control_data", "children")])
+def set_FP_setpoint_text(readout_interval, experiment_control_data):
+	if experiment_control_data:
+		df = pd.read_json(experiment_control_data, orient='split')
+		if len(df) > 0:
+			fp_set = int(df['mw_fp_set'].values[0])
+
+			return f"FP setpoint {fp_set} W"
+
+	else:
+		return f"FP setpoint 0 W"
+
+
+	return f"FP setpoint 0 W"
+
+
+
+# read back the freq setpoint and display it
+@app.callback(
+	Output('mw_setpoint_freq_text', 'children'),
+	[Input('readout_interval', 'n_intervals')],
+	[State("experiment_control_data", "children")])
+def set_FREQ_setpoint_text(readout_interval, experiment_control_data):
+	if experiment_control_data:
+		df = pd.read_json(experiment_control_data, orient='split')
+		if len(df) > 0:
+			mw_freq_set = float(df['mw_freq_set'].values[0])
+
+			return f"Freq setpoint {mw_freq_set:.1f} MHz"
+
+	else:
+		return f"Freq setpoint 0 MHz"
+
+
+	return f"Freq setpoint 0 MHz"
+
+
+
 
 # compute the mean of flow for past 10 seconds
 @app.callback(
@@ -835,6 +992,182 @@ def plot_d2flow(live_d2flow_data, experiment_control_data):
 	}
 
 
+
+# mw power graph
+@app.callback(
+	Output("sensor_control_graph_mw_power", "figure"),
+	[Input("live_mw_data", "children")],
+	[State('experiment_control_data', 'children')]
+)
+# def plot_graph_data(df, figure, command, start, start_button, PID):
+def plot_mw_power(live_mw_data, experiment_control_data):
+
+	# y limits for the graph
+	# experiment_control_data = pd.read_json(experiment_control_data, orient='split')
+	# lim_hv_max = float(experiment_control_data['hv_HV_plot_max'].values[0])
+	# lim_hv_min = float(experiment_control_data['hv_HV_plot_min'].values[0])
+
+
+	# print(state_dic)
+	traces = []
+
+	try:
+		df = pd.read_json(live_mw_data, orient='split')
+		# FP
+		traces.append(go.Scatter(
+			x=df['time'],
+			y=df['FP'],
+			text='Forward power [W]',
+			line=go.scatter.Line(
+				color='blue',
+				width=1.5
+			),
+			opacity=0.7,
+			name='Forward power [W]'
+		))
+		# FP set
+		traces.append(go.Scatter(
+			x=df['time'],
+			y=df['FP_set'],
+			text='Forward power setpoint [W]',
+			line=go.scatter.Line(
+				color='green',
+				width=1.5
+			),
+			opacity=0.7,
+
+			name='Forward power setpoint [W]',
+		))
+		# RP
+		traces.append(go.Scatter(
+			x=df['time'],
+			y=df['RP'],
+			text='Reflected power [W]',
+			line=go.scatter.Line(
+				color='red',
+				width=1.5
+			),
+			opacity=0.7,
+
+			name='Reflected power [W]',
+			yaxis='y2'
+		))
+
+	except:
+		traces.append(go.Scatter(
+			x=[],
+			y=[],
+			line=go.scatter.Line(
+				color='#42C4F7',
+				width=1.0
+			),
+			text='MW power',
+			# mode='markers',
+			opacity=1,
+			marker={
+				 'size': 15,
+				 'line': {'width': 1, 'color': '#42C4F7'}
+			},
+			mode='lines',
+			name='MW power',
+
+		))
+
+	return {
+		'data': traces,
+		'layout': go.Layout(
+			# xaxis={'title': 'Time'},
+			yaxis={'title': 'FP [W]', "range": [0, 205], 'side': "right", 'titlefont': {'color': "black"}},
+			yaxis2={'title': 'RP [W]',  "range": [0, 100], "overlaying": "y", 'side': "left", 'titlefont': {'color': "red"}},
+            height=150,  # px
+            showlegend=False,
+            margin=dict(t=10, b=15, l=50, r=50),
+			hovermode='closest'
+		)
+	}
+
+
+
+# mw freq graph
+@app.callback(
+	Output("sensor_control_graph_mw_freq", "figure"),
+	[Input("live_mw_data", "children")],
+	[State('experiment_control_data', 'children')]
+)
+# def plot_graph_data(df, figure, command, start, start_button, PID):
+def plot_mw_freq(live_mw_data, experiment_control_data):
+
+	# y limits for the graph
+	# experiment_control_data = pd.read_json(experiment_control_data, orient='split')
+	# lim_hv_max = float(experiment_control_data['hv_HV_plot_max'].values[0])
+	# lim_hv_min = float(experiment_control_data['hv_HV_plot_min'].values[0])
+
+
+	# print(state_dic)
+	traces = []
+
+	try:
+		df = pd.read_json(live_mw_data, orient='split')
+		# FP
+		traces.append(go.Scatter(
+			x=df['time'],
+			y=df['Freq'],
+			text='Frequency [MHz]',
+			line=go.scatter.Line(
+				color='blue',
+				width=1.5
+			),
+			opacity=0.7,
+			name='Frequency [MHz]'
+		))
+		# FP set
+		traces.append(go.Scatter(
+			x=df['time'],
+			y=df['Freq_set'],
+			text='Frequency setpoint [MHz]',
+			line=go.scatter.Line(
+				color='green',
+				width=1.5
+			),
+			opacity=0.7,
+
+			name='Frequency setpoint [MHz]',
+		))
+
+
+	except:
+		traces.append(go.Scatter(
+			x=[],
+			y=[],
+			line=go.scatter.Line(
+				color='#42C4F7',
+				width=1.0
+			),
+			text='MW frequency',
+			# mode='markers',
+			opacity=1,
+			marker={
+				 'size': 15,
+				 'line': {'width': 1, 'color': '#42C4F7'}
+			},
+			mode='lines',
+			name='MW frequency',
+
+		))
+
+	return {
+		'data': traces,
+		'layout': go.Layout(
+			# xaxis={'title': 'Time'},
+			yaxis={'title': 'Frequency [MHz]', "range": [2350, 2550], 'side': "right", 'titlefont': {'color': "black"}},
+            height=150,  # px
+            showlegend=False,
+            margin=dict(t=10, b=15, l=50, r=50),
+			hovermode='closest'
+		)
+	}
+
+
 # Pressure graph
 @app.callback(
 	Output("sensor_control_graph_pressure", "figure"),
@@ -939,7 +1272,8 @@ def plot_pressure(json_data, experiment_control_data):
 		Output('live_hv_dose_data', 'children'),
 		Output('live_pressure_data', 'children'),
 		Output('live_refDet_data', 'children'),
-		Output("live_d2flow_data", "children")
+		Output("live_d2flow_data", "children"),
+		Output("live_mw_data", "children")
 
 	],
 	[Input('readout_interval', 'n_intervals')])
@@ -968,17 +1302,21 @@ def read_live_hv_dose(n):
 		df_pressure = get_live_pressure(sql_engine, query_time, verbose=VERBOSE_READ_PRESSURE)
 		if len(df_pressure) > 0:
 			df_pressure['pressure_IS'] = 10**(1.667*df_pressure['voltage_IS']-11.33)
+        	df_pressure['pressure_IS'] = interp_pressure_IS(df_pressure['pressure_IS'])
 
 		df_refDet = get_live_refDet(sql_engine, query_time, verbose=VERBOSE_READ_REFDET)
 
 		df_d2flow = get_live_d2flow(sql_engine, query_time, verbose=VERBOSE_READ_D2FLOW)
 
+		df_mw = get_live_mw(sql_engine, query_time, verbose=VERBOSE_READ_MW)
+
 		json_hv_dose = df_hv_dose.to_json(date_format='iso', orient='split')
 		json_pressure = df_pressure.to_json(date_format='iso', orient='split')
 		json_refDet = df_refDet.to_json(date_format='iso', orient='split')
 		json_d2flow = df_d2flow.to_json(date_format='iso', orient='split')
+		json_mw = df_mw.to_json(date_format='iso', orient='split')
 
-		return json_hv_dose, json_pressure, json_refDet, json_d2flow
+		return json_hv_dose, json_pressure, json_refDet, json_d2flow, json_mw
 
 
 
@@ -1059,6 +1397,36 @@ def update_d2flow(n_clicks, d2flow_input):
 	d2flow_input = int(d2flow_input)
 	if d2flow_input >= 0:
 		set_d2flow(sql_engine, d2flow_input, VERBOSE_SET_D2FLOW)
+
+	return None
+
+
+# Update the mw fp setpoint to the value in the numeric edit
+@app.callback(
+	Output('mw_set', 'children'),
+	[Input('btn_FP_set', 'n_clicks')],
+	[State('FP_input', 'value')])
+def update_mw_fp_set(n_clicks, FP_input):
+	if n_clicks is None:
+		raise dash.exceptions.PreventUpdate
+	FP_input = int(FP_input)
+	if FP_input >= 0:
+		set_FP_setpoint(sql_engine, FP_input, VERBOSE_SET_FP_SET)
+
+	return None
+
+
+# Update the mw freq setpoint to the value in the numeric edit
+@app.callback(
+	Output('mw_freq_set', 'children'),
+	[Input('btn_freq_set', 'n_clicks')],
+	[State('freq_input', 'value')])
+def update_mw_freq_set(n_clicks, freq_input):
+	if n_clicks is None:
+		raise dash.exceptions.PreventUpdate
+	freq_input = float(freq_input)
+	if freq_input >= 0:
+		set_freq_setpoint(sql_engine, freq_input, VERBOSE_SET_FREQ_SET)
 
 	return None
 

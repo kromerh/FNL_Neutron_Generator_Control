@@ -17,6 +17,8 @@ layout_sensor_control = html.Div(id='sensor_control_parent',children=
     [
         dcc.Store(id="aggregate_data"),
         dcc.Store(id="d2flow_set"),
+        dcc.Store(id="mw_set"),
+        dcc.Store(id="mw_freq_set"),
         dcc.Interval(
             id='readout_interval',
             interval=1*1000, # in milliseconds
@@ -26,6 +28,7 @@ layout_sensor_control = html.Div(id='sensor_control_parent',children=
         dcc.Store(id="live_pressure_data"),
         dcc.Store(id="live_refDet_data"),
         dcc.Store(id="live_d2flow_data"),
+        dcc.Store(id="live_mw_data"),
         dcc.Store(id="experiment_control_data"),
         # empty Div to trigger javascript file for graph resizing
         html.Div(id="output_mw_ip"), # empty to keep track of ip of mw changed
@@ -333,7 +336,7 @@ layout_sensor_control = html.Div(id='sensor_control_parent',children=
                                                                     style={"margin-left": "21.5%", "margin-top": "1%"}
                                                                 ),
                                                             html.Div(
-                                                                    [daq.NumericInput(id='FP_input',value=200, max=200, min=0, size=80,label='W', labelPosition='right')],
+                                                                    [daq.NumericInput(id='FP_input',value=0, max=200, min=0, size=80,label='W', labelPosition='right')],
                                                                     # style={"margin-left": "80%"}
                                                                 ),
                                                         html.Div(
@@ -348,7 +351,7 @@ layout_sensor_control = html.Div(id='sensor_control_parent',children=
                                                 html.Div(
                                                         [
                                                             html.Div(
-                                                                    [html.P("freq setpoint 2450.0 MHz", id="mw_setpoint_freq_text")],
+                                                                    [html.P("Freq setpoint 0.0 MHz", id="mw_setpoint_freq_text")],
                                                                     style={"margin-left": "4%", "margin-top": "1%"}
                                                                 ),
                                                             html.Div(
@@ -356,12 +359,12 @@ layout_sensor_control = html.Div(id='sensor_control_parent',children=
                                                                     style={"margin-left": "10%", "margin-top": "1%"}
                                                                 ),
                                                             html.Div(
-                                                                    [daq.NumericInput(id='freq_input',value=2450, max=2500, min=2400, size=80,label='MHz', labelPosition='right')],
+                                                                    [daq.NumericInput(id='freq_input',value=2400, max=2500, min=2400, size=80,label='MHz', labelPosition='right')],
                                                                     # style={"margin-left": "80%"}
                                                                 ),
                                                         html.Div(
                                                             [html.Button('Send', id='btn_freq_set', n_clicks=0)],
-                                                            style={"margin-left": "4%"}
+                                                            style={"margin-left": "3.5%"}
 
                                                         ),
                                                         ],
