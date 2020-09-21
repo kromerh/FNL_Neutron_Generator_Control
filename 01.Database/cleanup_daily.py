@@ -85,7 +85,7 @@ def cleanup_live_hv_dose(sql_engine):
 
 		# compute neutron output from dose_rate
 		interp_dose = dose_to_output(path_LUT_dose_neutron_output)
-		df['neutron_output'] = df['dose_rate'].values * (interp_dose(df_hv_dose['HV_voltage'].values) / 100)
+		df['neutron_output'] = df['dose_rate'].values * (interp_dose(df['HV_voltage'].values) / 100)
 
 		print(df)
 		# save to the storage
