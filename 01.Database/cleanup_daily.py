@@ -4,7 +4,8 @@ import pymysql
 import sqlalchemy as sql
 import pandas as pd
 import datetime
-
+import numpy as np
+from scipy.interpolate import interp1d
 
 # Connect to the database
 
