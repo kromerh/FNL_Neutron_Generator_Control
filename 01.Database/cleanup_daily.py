@@ -25,7 +25,7 @@ sql_engine = sql.create_engine(connect_string)
 
 
 
-
+print(user, pw, host, db)
 
 
 
