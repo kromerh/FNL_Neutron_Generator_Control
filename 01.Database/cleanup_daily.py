@@ -88,15 +88,17 @@ def cleanup_live_hv_dose(sql_engine):
 		interp_dose = dose_to_output(path_LUT_dose_neutron_output)
 		df['neutron_output'] = df['dose_rate'].values * (interp_dose(df['HV_voltage'].values) / 100)
 
-		print(df)
 		# save to the storage
+        if len(df) > 0:
+            df = df.replace(np.inf, 0)
+            df = df.replace(np.nan, 0)
+			df.to_sql(name='storage_hv_dose', con=sql_engine, if_exists='append', index=False)
 
-		df.to_sql(name='storage_hv_dose', con=sql_engine, if_exists='append', index=False)
-
+		# truncate live table
+   		cur.execute("""TRUNCATE TABLE live_hv_dose""")
 		connection.commit()
 	except Exception as e:
 		connection.rollback()
-		modal_body = 'There was an error.'
 		raise e
 
 
