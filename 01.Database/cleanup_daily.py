@@ -25,6 +25,7 @@ sql_engine = sql.create_engine(connect_string)
 
 
 
+
 # Path to leakage current correction data file
 path_LUT_leakage_current = '/home/pi/FNL_Neutron_Generator_Control/03.Dash/01.V1/calibration/LUT_leakage_current.csv'
 
@@ -89,7 +90,8 @@ def cleanup_live_hv_dose(sql_engine):
 
 		print(df)
 		# save to the storage
-		df.to_sql(name='storage_hv_dose', con=connection, if_exists='append', index=False)
+
+		df.to_sql(name='storage_hv_dose', con=sql_engine, if_exists='append', index=False)
 
 		connection.commit()
 	except Exception as e:
