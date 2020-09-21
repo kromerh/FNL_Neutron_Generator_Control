@@ -38,8 +38,8 @@ VERBOSE = True
 
 credentials = pd.read_csv(PATH_CREDENTIALS, header=0)
 
-user = credentials['username'].values[0]
-pw = credentials['password'].values[0]
+user = str(credentials['username'].values[0])
+pw = str(credentials['password'].values[0])
 host = str(credentials['hostname'].values[0])
 db = str(credentials['db'].values[0])
 
@@ -47,8 +47,6 @@ connect_string = 'mysql+pymysql://%(user)s:%(pw)s@%(host)s:3306/%(db)s'% {"user"
 
 sql_engine = sql.create_engine(connect_string)
 
-
-print(user, pw, host, db)
 
 
 def get_experiment_id(sql_engine, verbose=False):
