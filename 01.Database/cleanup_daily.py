@@ -39,7 +39,7 @@ def read_table(sql_engine, table):
 	"""
 	query = f"SELECT * FROM {table};"
 	df = pd.read_sql(query, sql_engine)
-	df['date'] = pd.to_datetime(df['date'].values)
+	df['time'] = pd.to_datetime(df['time'].values)
 
 	return df
 
