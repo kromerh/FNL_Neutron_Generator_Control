@@ -89,7 +89,7 @@ def cleanup_live_hv_dose(sql_engine):
 
 		print(df)
 		# save to the storage
-		# df.to_sql(name=myName, con=connection, if_exists='append', index=False)
+		df.to_sql(name='storage_hv_dose', con=connection, if_exists='append', index=False)
 
 		connection.commit()
 	except Exception as e:
