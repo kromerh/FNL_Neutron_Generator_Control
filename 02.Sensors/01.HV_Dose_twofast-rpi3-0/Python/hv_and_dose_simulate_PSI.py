@@ -44,9 +44,8 @@ host = str(credentials['hostname'].values[0])
 db = str(credentials['db'].values[0])
 
 connect_string = 'mysql+pymysql://%(user)s:%(pw)s@%(host)s:3306/%(db)s'% {"user": user, "pw": pw, "host": host, "db": db}
+
 sql_engine = sql.create_engine(connect_string)
-
-
 
 
 
