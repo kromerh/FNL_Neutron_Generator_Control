@@ -48,7 +48,7 @@ connect_string = 'mysql+pymysql://%(user)s:%(pw)s@%(host)s:3306/%(db)s'% {"user"
 sql_engine = sql.create_engine(connect_string)
 
 
-
+print(user, pw, host, db)
 
 
 def get_experiment_id(sql_engine, verbose=False):
