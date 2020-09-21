@@ -37,7 +37,7 @@ def read_table(sql_engine, table):
 	"""
 	Reads all entries from the table and returns as dataframe
 	"""
-	query = f"SELECT * FROM \"{table}\";"
+	query = f"SELECT * FROM {table};"
 	df = pd.read_sql(query, sql_engine)
 	df['date'] = pd.to_datetime(df['date'].values)
 
