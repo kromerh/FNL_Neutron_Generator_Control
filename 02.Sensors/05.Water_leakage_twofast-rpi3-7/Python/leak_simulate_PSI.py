@@ -52,7 +52,7 @@ def get_experiment_id(sql_engine, verbose=False):
 
 def saveDB(experiment_id, s1, s2, s3, verbose=False):
 	# Create a Cursor object to execute queries.
-	query = f"""INSERT INTO live_leak (experiment_id, s1, s2, s3) VALUES (\"{s1}\", \"{s2}\", \"{s3}\");"""
+	query = f"""INSERT INTO live_leak (experiment_id, s1, s2, s3) VALUES ({s1}, {s2}, {s3});"""
 	sql_engine.execute(sql.text(query))
 
 	if verbose: print(query)
