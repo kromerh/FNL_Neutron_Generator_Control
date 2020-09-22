@@ -39,18 +39,18 @@ class HV_Dose_Simulator(object):
 		self.VERBOSE = True
 
 
-	# read password and user to database
+		# read password and user to database
 
-	credentials = pd.read_csv(self.PATH_CREDENTIALS, header=0)
+		credentials = pd.read_csv(self.PATH_CREDENTIALS, header=0)
 
-	user = str(credentials['username'].values[0])
-	pw = str(credentials['password'].values[0])
-	host = str(credentials['hostname'].values[0])
-	db = str(credentials['db'].values[0])
+		user = str(credentials['username'].values[0])
+		pw = str(credentials['password'].values[0])
+		host = str(credentials['hostname'].values[0])
+		db = str(credentials['db'].values[0])
 
-	connect_string = 'mysql+pymysql://%(user)s:%(pw)s@%(host)s:3306/%(db)s'% {"user": user, "pw": pw, "host": host, "db": db}
+		connect_string = 'mysql+pymysql://%(user)s:%(pw)s@%(host)s:3306/%(db)s'% {"user": user, "pw": pw, "host": host, "db": db}
 
-	sql_engine = sql.create_engine(connect_string)
+		self.sql_engine = sql.create_engine(connect_string)
 
 
 
@@ -69,7 +69,7 @@ class HV_Dose_Simulator(object):
 	def saveDB(self, experiment_id, dose_voltage, HV_current, HV_voltage, verbose=False):
 	    # Create a Cursor object to execute queries.
 	    query = f"""INSERT INTO live_hv_dose (experiment_id, HV_voltage, HV_current, dose_voltage) VALUES (\"{experiment_id}\", \"{HV_voltage}\", \"{HV_current}\", \"{dose_voltage}\");"""
-	    sql_engine.execute(sql.text(query))
+	    self.sql_engine.execute(sql.text(query))
 
 	    if verbose: print(query)
 
@@ -111,7 +111,7 @@ class HV_Dose_Simulator(object):
 		                DOSE_VOLTAGE = self.DOSE_VOLTAGE_2
 		                alternate = True
 
-		        experiment_id = get_experiment_id(sql_engine, self.VERBOSE)
+		        experiment_id = get_experiment_id(self.sql_engine, self.VERBOSE)
 		        dose_voltage = float(DOSE_VOLTAGE)
 		        HV_current = float(HV_CURRENT)  # 0 - 2 mA
 		        HV_voltage = float(HV_VOLTAGE)  # -(0-150) kV
