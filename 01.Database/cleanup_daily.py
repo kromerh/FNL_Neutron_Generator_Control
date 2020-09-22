@@ -131,6 +131,9 @@ def cleanup_live_hv_dose(sql_engine):
 		# load the live_hv_dose
 		df = read_table(sql_engine, table='live_hv_dose')
 
+		# remove id from the table
+		df = df.drop(columns=['id'])
+
 		# calculate dose_rate
 		df['dose_rate'] = df['dose_voltage'] * 3000 / 5.5
 
