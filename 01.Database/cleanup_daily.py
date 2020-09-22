@@ -120,7 +120,39 @@ def cleanup_live_pressure(sql_engine):
 		cur.execute("""TRUNCATE TABLE live_pressure""")
 		connection.commit()
 
-		print(f"Inserted {df.shape[0]} into the pressure table.")
+		print(f"Inserted {df.shape[0]} entries into the pressure table.")
+
+	except Exception as e:
+		connection.rollback()
+		raise e
+
+
+def cleanup_live_mw(sql_engine):
+	"""
+	Cleans up the live_mw and copies it into the storage table.
+	"""
+	connection = sql_engine.raw_connection()
+	cur = connection.cursor()
+
+	try:
+		# load the live_hv_dose
+		df = read_table(sql_engine, table='live_mw')
+
+		# remove id from the table
+		df = df.drop(columns=['id'])
+
+
+		# save to the storage
+		if len(df) > 0:
+			df = df.replace(np.inf, 0)
+			df = df.replace(np.nan, 0)
+			df.to_sql(name='storage_mw', con=sql_engine, if_exists='append', index=False)
+
+		# truncate live table
+		cur.execute("""TRUNCATE TABLE live_mw""")
+		connection.commit()
+
+		print(f"Inserted {df.shape[0]} entries into the mw table.")
 
 	except Exception as e:
 		connection.rollback()
@@ -152,7 +184,7 @@ def cleanup_live_d2flow(sql_engine):
 		cur.execute("""TRUNCATE TABLE live_d2flow""")
 		connection.commit()
 
-		print(f"Inserted {df.shape[0]} into the d2flow table.")
+		print(f"Inserted {df.shape[0]} entries into the d2flow table.")
 
 	except Exception as e:
 		connection.rollback()
@@ -197,7 +229,7 @@ def cleanup_live_hv_dose(sql_engine):
 		cur.execute("""TRUNCATE TABLE live_hv_dose""")
 		connection.commit()
 
-		print(f"Inserted {df.shape[0]} into the hv_dose table.")
+		print(f"Inserted {df.shape[0]} entries into the hv_dose table.")
 
 	except Exception as e:
 		connection.rollback()
@@ -207,4 +239,5 @@ def cleanup_live_hv_dose(sql_engine):
 
 # cleanup_live_hv_dose(sql_engine)
 # cleanup_live_pressure(sql_engine)
-cleanup_live_d2flow(sql_engine)
+# cleanup_live_d2flow(sql_engine)
+cleanup_live_mw(sql_engine)
