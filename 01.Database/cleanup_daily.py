@@ -99,6 +99,10 @@ def cleanup_live_pressure(sql_engine):
 		# load the live_pressure
 		df = read_table(sql_engine, table='live_pressure')
 
+		# remove id from the table
+		df = df.drop(columns=['id'])
+
+		print(df)
 		# calculate pressure
 		df['pressure_IS'] = 10**(1.667*df['voltage_IS']-11.33)
 		df['pressure_VC'] = 0 # no values available
