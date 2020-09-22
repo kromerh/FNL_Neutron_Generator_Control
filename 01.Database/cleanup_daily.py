@@ -191,6 +191,38 @@ def cleanup_live_d2flow(sql_engine):
 		raise e
 
 
+def cleanup_live_ref_det(sql_engine):
+	"""
+	Cleans up the live_ref_det and copies it into the storage table.
+	"""
+	connection = sql_engine.raw_connection()
+	cur = connection.cursor()
+
+	try:
+		# load the live_hv_dose
+		df = read_table(sql_engine, table='live_ref_det')
+
+		# remove id from the table
+		df = df.drop(columns=['id'])
+
+
+		# save to the storage
+		if len(df) > 0:
+			df = df.replace(np.inf, 0)
+			df = df.replace(np.nan, 0)
+			df.to_sql(name='storage_ref_det', con=sql_engine, if_exists='append', index=False)
+
+		# truncate live table
+		cur.execute("""TRUNCATE TABLE live_ref_det""")
+		connection.commit()
+
+		print(f"Inserted {df.shape[0]} entries into the ref_det table.")
+
+	except Exception as e:
+		connection.rollback()
+		raise e
+
+
 def cleanup_live_hv_dose(sql_engine):
 	"""
 	Cleans up the live_hv_dose and copies it into the storage table.
@@ -240,4 +272,5 @@ def cleanup_live_hv_dose(sql_engine):
 # cleanup_live_hv_dose(sql_engine)
 # cleanup_live_pressure(sql_engine)
 # cleanup_live_d2flow(sql_engine)
-cleanup_live_mw(sql_engine)
+# cleanup_live_mw(sql_engine)
+cleanup_live_ref_det(sql_engine)
