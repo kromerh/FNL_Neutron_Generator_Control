@@ -33,6 +33,12 @@ path_LUT_leakage_current = '/home/pi/FNL_Neutron_Generator_Control/03.Dash/01.V1
 path_LUT_dose_neutron_output = '/home/pi/FNL_Neutron_Generator_Control/03.Dash/01.V1/calibration/LUT_dose_neutron_output.csv'
 
 
+# Path to LUT for pressure calibration in ion source
+path_LUT_calib_pressure_IS = '/home/pi/FNL_Neutron_Generator_Control/03.Dash/01.V1/calibration/LUT_pressure_ion_source.txt'
+
+
+
+
 
 
 def read_table(sql_engine, table):
@@ -44,6 +50,12 @@ def read_table(sql_engine, table):
 	df['time'] = pd.to_datetime(df['time'].values)
 
 	return df
+
+
+
+
+
+
 
 def leakage_current_correction(path_LUT):
 
@@ -62,6 +74,52 @@ def dose_to_output(path_LUT):
 
 	return interp_dose
 
+
+def calibrate_pressure_IS(path_LUT):
+	# pressure calibration
+	df_LT_pressure = pd.read_csv(path_LUT, delimiter="\t")
+
+	# interpolation function
+	interp_pressure_IS = interp1d(pd.to_numeric(df_LT_pressure['pressure_IS_pi']).values, pd.to_numeric(df_LT_pressure['pressure_IS_display']).values, fill_value='extrapolate')
+
+	return interp_pressure_IS
+
+
+
+
+
+def cleanup_live_pressure(sql_engine):
+	"""
+	Cleans up the live_pressure and copies it into the storage table.
+	"""
+	connection = sql_engine.raw_connection()
+	cur = connection.cursor()
+
+	try:
+		# load the live_pressure
+		df = read_table(sql_engine, table='live_pressure')
+
+		time	voltage_IS	voltage_VC	pressure_IS	pressure_VC	pressure_IS_calib
+		# calculate pressure
+		df['pressure_IS'] = 10**(1.667*df['voltage_IS']-11.33)
+		df['pressure_VC'] = 0 # no values available
+
+		# apply calibration
+		interp_pressure_IS = calibrate_pressure_IS(path_LUT_calib_pressure_IS)
+		df['pressure_IS_calib'] = interp_pressure_IS(df['pressure_IS'])
+
+		# save to the storage
+		if len(df) > 0:
+			df = df.replace(np.inf, 0)
+			df = df.replace(np.nan, 0)
+			df.to_sql(name='storage_pressure', con=sql_engine, if_exists='append', index=False)
+
+		# truncate live table
+		cur.execute("""TRUNCATE TABLE live_pressure""")
+		connection.commit()
+	except Exception as e:
+		connection.rollback()
+		raise e
 
 def cleanup_live_hv_dose(sql_engine):
 	"""
@@ -102,4 +160,7 @@ def cleanup_live_hv_dose(sql_engine):
 		raise e
 
 
+
+
 cleanup_live_hv_dose(sql_engine)
+cleanup_live_pressure(sql_engine)
