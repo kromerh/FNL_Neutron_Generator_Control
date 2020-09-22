@@ -41,7 +41,7 @@ class HV_Dose_Simulator(object):
 
 	# read password and user to database
 
-	credentials = pd.read_csv(PATH_CREDENTIALS, header=0)
+	credentials = pd.read_csv(self.PATH_CREDENTIALS, header=0)
 
 	user = str(credentials['username'].values[0])
 	pw = str(credentials['password'].values[0])
