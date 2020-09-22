@@ -223,6 +223,26 @@ def cleanup_live_ref_det(sql_engine):
 		raise e
 
 
+def cleanup_leak(sql_engine):
+	"""
+	Cleans up the live_leak.
+	"""
+	connection = sql_engine.raw_connection()
+	cur = connection.cursor()
+
+	try:
+		# truncate live table
+		cur.execute("""TRUNCATE TABLE live_leak""")
+		connection.commit()
+
+		print(f"Truncated leak table.")
+
+	except Exception as e:
+		connection.rollback()
+		raise e
+
+
+
 def cleanup_live_hv_dose(sql_engine):
 	"""
 	Cleans up the live_hv_dose and copies it into the storage table.
@@ -268,9 +288,9 @@ def cleanup_live_hv_dose(sql_engine):
 		raise e
 
 
-
-# cleanup_live_hv_dose(sql_engine)
-# cleanup_live_pressure(sql_engine)
-# cleanup_live_d2flow(sql_engine)
-# cleanup_live_mw(sql_engine)
+cleanup_leak(sql_engine)
+cleanup_live_hv_dose(sql_engine)
+cleanup_live_pressure(sql_engine)
+cleanup_live_d2flow(sql_engine)
+cleanup_live_mw(sql_engine)
 cleanup_live_ref_det(sql_engine)
