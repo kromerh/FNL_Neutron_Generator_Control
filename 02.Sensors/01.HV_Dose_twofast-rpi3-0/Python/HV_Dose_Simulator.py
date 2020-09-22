@@ -9,9 +9,8 @@ import pandas as pd
 
 class HV_Dose_Simulator(object):
 	"""docstring for HV_Dose_Simulator"""
-	def __init__(self, arg):
+	def __init__(self):
 		super(HV_Dose_Simulator, self).__init__()
-		self.arg = arg
 
 
 	# Settings for the simulator
