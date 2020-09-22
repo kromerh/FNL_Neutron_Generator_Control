@@ -111,7 +111,7 @@ class HV_Dose_Simulator(object):
 		                DOSE_VOLTAGE = self.DOSE_VOLTAGE_2
 		                alternate = True
 
-		        experiment_id = get_experiment_id(self.sql_engine, self.VERBOSE)
+		        experiment_id = self.get_experiment_id(self.sql_engine, self.VERBOSE)
 		        dose_voltage = float(DOSE_VOLTAGE)
 		        HV_current = float(HV_CURRENT)  # 0 - 2 mA
 		        HV_voltage = float(HV_VOLTAGE)  # -(0-150) kV
