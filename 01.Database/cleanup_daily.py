@@ -99,7 +99,6 @@ def cleanup_live_pressure(sql_engine):
 		# load the live_pressure
 		df = read_table(sql_engine, table='live_pressure')
 
-		time	voltage_IS	voltage_VC	pressure_IS	pressure_VC	pressure_IS_calib
 		# calculate pressure
 		df['pressure_IS'] = 10**(1.667*df['voltage_IS']-11.33)
 		df['pressure_VC'] = 0 # no values available
@@ -162,5 +161,5 @@ def cleanup_live_hv_dose(sql_engine):
 
 
 
-cleanup_live_hv_dose(sql_engine)
+# cleanup_live_hv_dose(sql_engine)
 cleanup_live_pressure(sql_engine)
