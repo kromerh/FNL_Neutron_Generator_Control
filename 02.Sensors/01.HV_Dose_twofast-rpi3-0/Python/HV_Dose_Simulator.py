@@ -117,7 +117,7 @@ class HV_Dose_Simulator(object):
 		        HV_voltage = float(HV_VOLTAGE)  # -(0-150) kV
 		        HV_voltage = float(interp_HV_voltage(HV_VOLTAGE))
 		        HV_current = float(interp_HV_current(HV_CURRENT))
-		        saveDB(experiment_id, dose_voltage, HV_current, HV_voltage, VERBOSE)
+		        self.saveDB(experiment_id, dose_voltage, HV_current, HV_voltage, VERBOSE)
 
 		        sleep(self.FREQUENCY)
 		        cnt += 1
