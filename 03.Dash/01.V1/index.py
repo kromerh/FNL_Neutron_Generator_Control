@@ -8,6 +8,7 @@ from app import app # calls the app
 from apps import app_experiment # input data for the experiment (admin stuff) and edit existing experiment data
 from apps import app_sensor_readout # show sensor data. This is the main feature
 from apps import app_sensor_control # show sensor data. This is the main feature
+from apps import app_arc_control # show arc control data. This is the main feature
 
 app.layout = html.Div(
 	[
@@ -15,7 +16,7 @@ app.layout = html.Div(
 	    [
 	        # html.Img(src="assets/logo.png", className="app__logo"),
 	        html.Img(src=app.get_asset_url('logo.png'), className="app__logo"),
-	        html.H4("Version 2020.08.003", className="header__text"),
+	        html.H4("Version 2020.09.003", className="header__text"),
 	    ],
 	    className="app__header",
 		),
@@ -49,6 +50,8 @@ index_page = html.Div(
 							html.Br(),
 							html.A('Go to Sensor control', href='/apps/app_sensor_control', target="_blank", style={"font-size": "1.6em"}),
 							html.Hr(),
+							html.A('Go to Arc control', href='/apps/app_arc_control', target="_blank", style={"font-size": "1.6em"}),
+							html.Hr(),
 							html.A('Go to Operation report', href='/apps/app_experiment', target="_blank", style={"font-size": "1.6em"}),
 						],
                     className="one-third column"
@@ -74,6 +77,8 @@ def display_page(pathname):
 		return app_sensor_readout.layout_sensor_readout
 	elif pathname == '/apps/app_sensor_control':
 		return app_sensor_control.layout_sensor_control
+	elif pathname == '/apps/app_arc_control':
+		return app_arc_control.layout_arc_control
 	else:
 		return index_page
 	# You could also return a 404 "URL not found" page here
