@@ -18,8 +18,6 @@ ARDUINO_PORT = '/dev/ttyACM0'
 VERBOSE = True
 
 
-
-
 # connect to database
 credentials = pd.read_csv(PATH_CREDENTIALS, header=0)
 
