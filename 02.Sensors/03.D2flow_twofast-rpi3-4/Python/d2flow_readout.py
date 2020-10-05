@@ -36,6 +36,11 @@ serialArduino = serial.Serial(port=ARDUINO_PORT, baudrate=9600)
 
 
 
+def pi_flush(serial_port):
+    serialArduino = serial.Serial(port=serial_port, baudrate=9600)
+    serialArduino.flushInput()  #flush input buffer, discarding all its contents
+    serialArduino.flushOutput() #flush output buffer, aborting current output and discard all that is in buffer
+
 
 def get_flow_meter_control_values(sql_engine, verbose=False):
 
