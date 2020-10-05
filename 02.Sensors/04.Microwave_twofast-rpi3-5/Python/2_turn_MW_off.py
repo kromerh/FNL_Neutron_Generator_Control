@@ -135,7 +135,7 @@ def read_freq(ModbusClient):
 def live(ip_address):
 	while True:
 		c = ModbusClient(host=f"{ip_address}", port=502, auto_open=True, auto_close=True)
-
+		print(ip_address)
 		# sent hearbeat
 		send_heartbeat(c)
 
