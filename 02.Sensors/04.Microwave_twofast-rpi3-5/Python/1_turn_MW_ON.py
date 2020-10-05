@@ -19,15 +19,6 @@ from time import sleep
 # 	if not None in returnlist:
 # 		print(ii, returnlist)
 
-# bool to store if all the settings are set
-RAMP_SET = False
-RAMP_TIME_SET = False
-FP_SET = False
-RP_SET = False
-MODE_SET = False
-MW_ON = False
-FREQ_SET = False
-
 def send_heartbeat(ModbusClient):
 	# sends MODBUS heart beat
 	# c is ModbusClient
@@ -133,6 +124,15 @@ def read_freq(ModbusClient):
 def live(ip_address):
 	while True:
 		c = ModbusClient(host=f"{ip_address}", port=502, auto_open=True, auto_close=True)
+
+		# bool to store if all the settings are set
+		RAMP_SET = False
+		RAMP_TIME_SET = False
+		FP_SET = False
+		RP_SET = False
+		MODE_SET = False
+		MW_ON = False
+		FREQ_SET = False
 
 		# sent hearbeat
 		send_heartbeat(c)
