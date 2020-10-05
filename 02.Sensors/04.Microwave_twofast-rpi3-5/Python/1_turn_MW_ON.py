@@ -240,7 +240,7 @@ def live(mw_ip):
 		status.insert(2, ', 105:')
 		status = [str(s) for s in status]
 		print(status)
-		saveDB(experiment_id, forward_power[0], mw_fp_set, reflected_power[0], frequency_read[0], mw_freq_set, status[0], verbose=False)
+		saveDB(experiment_id, forward_power[0], mw_fp_set, reflected_power[0], frequency_read[0], mw_freq_set, status, verbose=False)
 		sleep(0.1)
 
 
