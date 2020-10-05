@@ -120,8 +120,8 @@ def read_live():
 
                 voltage_IS = float(volt_1)
                 voltage_VC = float(volt_2)
-
-                saveDB(experiment_id, voltage_IS, voltage_VC, VERBOSE)
+                print(voltage_IS, voltage_VC)
+                # saveDB(experiment_id, voltage_IS, voltage_VC, VERBOSE)
             sleep(0.1)
 
         except KeyboardInterrupt:
