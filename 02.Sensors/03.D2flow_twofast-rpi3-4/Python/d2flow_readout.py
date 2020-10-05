@@ -87,7 +87,7 @@ def read_live():
 
 			if len(t) > 0:
 				voltage = t[0]
-				sys.stdout.write(f" {voltage} V")
+				sys.stdout.write(f" {voltage} V \n")
 	# 			saveFlowMeterVoltageToDB(voltage, setpoint_voltage) # save into DB
 
 
