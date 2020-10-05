@@ -47,7 +47,7 @@ def get_flow_meter_control_values(sql_engine, verbose=False):
 	query = "SELECT experiment_id, d2flow_set FROM experiment_control"
 	df = pd.read_sql(query, sql_engine)
 
-	setpoint_voltage = df['d2flow_set'].values[0]
+	setpoint_voltage = (df['d2flow_set'].values[0] / 1000) # in mV
 	experiment_id = df['experiment_id'].values[0]
 
 	if verbose: sys.stdout.write(f"Experiment id: {experiment_id}, Setpoint: {setpoint_voltage} " )
