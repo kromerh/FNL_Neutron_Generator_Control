@@ -13,7 +13,7 @@ import pandas as pd
 import getopt
 
 
-PATH_CREDENTIALS = r'../../credentials.pw'
+PATH_CREDENTIALS = r'/home/pi/credentials.pw' # on the RPi3
 ARDUINO_PORT = '/dev/ttyACM0'
 VERBOSE = True
 

@@ -1,45 +1,130 @@
 import serial
+import serial.tools.list_ports
 import re
 import sys
 import pymysql
-import time
 from time import sleep
-from scipy.interpolate import interp1d
 import pandas as pd
-
-db = pymysql.connect(host="twofast-RPi3-0",  # your host
-                     user="writer",  # username
-                     passwd="heiko",  # password
-                     db="NG_twofast_DB")  # name of the database
-
-arduinoPort = '/dev/ttyACM0'  # might need to be changed if another arduino is plugged in or other serial
-serialArduino = serial.Serial(port=arduinoPort, baudrate=9600)
+import numpy as np
+import sqlalchemy as sql
+import datetime
+import time
+import pandas as pd
+import getopt
 
 
+PATH_CREDENTIALS = r'../../credentials.pw'
+ARDUINO_PORT = '/dev/ttyACM0'
+VERBOSE = True
 
-# read password and user to database
-credentials_file = r'~/credentials.pw'
 
-credentials = pd.read_csv(credentials_file, header=0)
+
+
+# connect to database
+credentials = pd.read_csv(PATH_CREDENTIALS, header=0)
+
 user = credentials['username'].values[0]
 pw = credentials['password'].values[0]
+host = str(credentials['hostname'].values[0])
+db = str(credentials['db'].values[0])
+
+connect_string = 'mysql+pymysql://%(user)s:%(pw)s@%(host)s:3306/%(db)s'% {"user": user, "pw": pw, "host": host, "db": db}
+sql_engine = sql.create_engine(connect_string)
+
+# connect to arduino
+serialArduino = serial.Serial(port=ARDUINO_PORT, baudrate=9600)
 
 
+def get_experiment_id(sql_engine, verbose=False):
+    query = f"SELECT experiment_id FROM experiment_control;"
+    df = pd.read_sql(query, sql_engine)
+
+    experiment_id = df['experiment_id'].values[0]
+
+    if verbose: print(f"Experiment id is {experiment_id}")
+
+    return experiment_id
 
 
-def saveDB(experiment_iddose_voltage, HV_current, HV_voltage):
+def saveDB(experiment_id, voltage_IS, voltage_VC, verbose=False):
     # Create a Cursor object to execute queries.
-    cur = db.cursor()
-    try:
-        cur.execute("""INSERT INTO HBox_Uno (dose_voltage, HV_current, HV_voltage) VALUES (%s, %s, %s)""", (dose_voltage, HV_current, HV_voltage))
-    except:
-        cur.rollback()
+    query = f"""INSERT INTO live_pressure (experiment_id, voltage_IS, voltage_VC) VALUES (\"{experiment_id}\", \"{voltage_IS}\", \"{voltage_VC}\");"""
+    sql_engine.execute(sql.text(query))
 
-    db.commit()
-    cur.close()
+    if verbose: print(query)
 
 def fun_read_serial_ports():
     return list(serial.tools.list_ports.comports())
+
+def pi_flush(serial_port):
+    serialArduino = serial.Serial(port=serial_port, baudrate=9600)
+    serialArduino.flushInput()  #flush input buffer, discarding all its contents
+    serialArduino.flushOutput() #flush output buffer, aborting current output and discard all that is in buffer
+
+def pi_read():
+    serialArduino = serial.Serial(port=arduinoPort, baudrate=9600)
+    while (serialArduino.inWaiting() == 0):  # wait for incoming data
+        pass
+    valueRead = serialArduino.readline()
+    # print(valueRead)
+    try:
+        valueRead = (valueRead.decode('utf-8')).strip()
+        serialArduino.flushInput()  #flush input buffer, discarding all its contents
+        serialArduino.flushOutput() #flush output buffer, aborting current output and discard all that is in buffer
+       # print(valueRead)
+    except UnicodeDecodeError:
+        valueRead = '-1'
+    return valueRead
+
+def read_live():
+    while True:
+        try:
+            # read arduino
+            ardRead = pi_read()
+            s = ardRead.rstrip().split()
+            sys.stdout.write('... reading out pressure ...')
+            sys.stdout.write(f'{s}')
+            if len(s) == 5:  # V1 V2 extractionOn
+                print(s)
+                volt_1 = s[0]
+                volt_2 = s[1]
+
+                voltage_IS = float(volt_1)
+                voltage_VC = float(volt_2)
+                print(voltage_IS, voltage_VC)
+                # saveDB(experiment_id, voltage_IS, voltage_VC, VERBOSE)
+            sleep(0.1)
+
+        except KeyboardInterrupt:
+            print('Ctrl + C. Exiting. Flushing serial connection.')
+            pi_flush(arduinoPort)
+            sys.exit(1)
+        finally:
+            pi_flush(arduinoPort)
+
+if __name__ == '__main__':
+    # Get the arguments from the command-line except the filename
+    argv = sys.argv[1:]
+
+    try:
+        if len(argv) == 1:
+            MODE = argv[0]
+            if MODE == '--live':
+                read_live()
+            else:
+                print('Error! usage: hv_and_dose_readout.py --MODE. MODE can only be live')
+                sys.exit(2)
+        else:
+            print('Error! usage: hv_and_dose_readout.py --MODE. MODE can only be live')
+            sys.exit(2)
+
+    except getopt.GetoptError:
+        # Print something useful
+        print('Error! usage: hv_and_dose_readout.py --MODE. MODE can only be live')
+        sys.exit(2)
+
+
+
 
 def pi_flush(serial_port):
     serialArduino = serial.Serial(port=serial_port, baudrate=9600)
@@ -70,33 +155,4 @@ df_HV_I_LT = pd.read_csv('/home/pi/Documents/I_readout_calibration.txt', delimit
 # interpolation function
 interp_HV_current = interp1d(df_HV_I_LT['Current_read'], df_HV_I_LT['HV_current'])
 
-counts_WS = 0
-counts_BS = 0
-# readout of the arduino
-# pi_flush(arduinoPort)
-while True:
-    try:
-        # t0 = time.time()
-        ardRead = pi_read()
-        # print(time.time() - t0)
-        pi_flush(arduinoPort)
-        s = ardRead.rstrip().split()
-        print(s)
-        if len(s) == 5:  # V1  V2  Abs(V2 - V1) V3  V4
-            voltage_dose = float(s[2])
-            HV_current = float(s[3])  # 0 - 2 mA
-            HV_voltage = float(s[4])  # -(0-150) kV
-            HV_voltage = float(interp_HV_voltage(HV_voltage))
-            HV_current = float(interp_HV_current(HV_current))
-            # print(HV_voltage)
-            saveDB(voltage_dose, HV_current, HV_voltage)
-
-
-        sleep(0.01)
-    except KeyboardInterrupt:
-        print('Ctrl + C. Exiting. Flushing serial connection.')
-        pi_flush(arduinoPort)
-        sys.exit(1)
-    finally:
-        pi_flush(arduinoPort)
 
