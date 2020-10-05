@@ -129,6 +129,8 @@ def live(ip_address):
 	while True:
 		ip_address = str(ip_address)
 		c = ModbusClient(host=f"{ip_address}", port=502, auto_open=True, auto_close=True)
+		print(ip_address)
+		print(c)
 		# sent hearbeat
 		send_heartbeat(c)
 
