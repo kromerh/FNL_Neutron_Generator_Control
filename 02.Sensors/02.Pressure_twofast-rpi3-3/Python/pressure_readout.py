@@ -61,8 +61,8 @@ def pi_flush(serial_port):
     serialArduino.flushInput()  #flush input buffer, discarding all its contents
     serialArduino.flushOutput() #flush output buffer, aborting current output and discard all that is in buffer
 
-def pi_read():
-    serialArduino = serial.Serial(port=arduinoPort, baudrate=9600)
+def pi_read(serial_port):
+    serialArduino = serial.Serial(port=serial_port, baudrate=9600)
     while (serialArduino.inWaiting() == 0):  # wait for incoming data
         pass
     valueRead = serialArduino.readline()
@@ -109,7 +109,7 @@ def read_live():
     while True:
         try:
             # read arduino
-            ardRead = pi_read()
+            ardRead = pi_read(ARDUINO_PORT)
             s = ardRead.rstrip().split()
             sys.stdout.write('... reading out pressure ...')
             sys.stdout.write(f'{s}')
@@ -126,7 +126,7 @@ def read_live():
 
         except KeyboardInterrupt:
             print('Ctrl + C. Exiting. Flushing serial connection.')
-            pi_flush(arduinoPort)
+            pi_flush(ARDUINO_PORT)
             sys.exit(1)
         finally:
             pi_flush(arduinoPort)
