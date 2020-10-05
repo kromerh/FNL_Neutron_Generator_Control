@@ -77,26 +77,25 @@ def pi_read(serial_port):
 def read_live():
     while True:
         try:
-            experiment_id = get_experiment_id(sql_engine, VERBOSE)
+            # experiment_id = get_experiment_id(sql_engine, VERBOSE)
 
             # read arduino
             ardRead = pi_read(ARDUINO_PORT)
             s = ardRead.rstrip().split()
             now = datetime.datetime.now()
             now = now.strftime(format='%Y-%m-%d %H:%M:%S')
-            print("in loop")
+            print(f"{now}")
             print(s)
-            print(' ')
             if len(s) == 7:
                 ard_time = s[1]
                 counts_D1 = s[3]
                 counts_D2 = s[4]
                 counts_D3 = s[5]
                 counts_D4 = s[6]
-                if float(ard_time) >= 30000.0:
-                    sys.stdout.write('Reading reference detectors  ...')
-                    sys.stdout.write(f'{now}, D1: {counts_D1}, D2: {counts_D2}, D3: {counts_D3}, D4: {counts_D4} ')
-                    # saveDB(experiment_id, ard_time, counts_D1, counts_D2, counts_D3, counts_D4, VERBOSE)
+                # if float(ard_time) >= 30000.0:
+                #     sys.stdout.write('Reading reference detectors  ...')
+                #     sys.stdout.write(f'{now}, D1: {counts_D1}, D2: {counts_D2}, D3: {counts_D3}, D4: {counts_D4} ')
+                #     # saveDB(experiment_id, ard_time, counts_D1, counts_D2, counts_D3, counts_D4, VERBOSE)
             sleep(0.1)
 
         except KeyboardInterrupt:
