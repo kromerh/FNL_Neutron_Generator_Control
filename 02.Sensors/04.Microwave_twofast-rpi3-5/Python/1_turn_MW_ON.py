@@ -171,7 +171,7 @@ def live(ip_address):
 		if MW_ON == False:
 			MW_ON = set_microwave_ON(c)
 
-		sleep(0.01)
+
 
 if __name__ == '__main__':
 	# Get the arguments from the command-line except the filename
