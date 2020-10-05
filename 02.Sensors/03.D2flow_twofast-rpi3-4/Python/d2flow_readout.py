@@ -95,6 +95,7 @@ def read_live():
 			if len(t) > 0:
 				voltage = float(t[0]) * 1000
 				sys.stdout.write(f"Measured flow voltage {voltage} mV \n")
+				setpoint_voltage = float(setpoint_voltage) * 1000 # convert setpoint to mV
 				saveDB(experiment_id, voltage, setpoint_voltage, VERBOSE) # save into DB
 
 			sleep(0.1)
