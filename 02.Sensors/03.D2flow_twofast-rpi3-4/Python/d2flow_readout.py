@@ -76,7 +76,7 @@ def read_live():
 			valueRead = serialArduino.readline(500) # b'V_1 1.30, 4.20, V_out 215.04\r\n'
 			#     sys.stdout.write('Reading hv and dose voltages  ...')
 			#     sys.stdout.write(f'{now}, HV: {HV_voltage}, I: {HV_current}, dose: {dose_voltage} ')
-			sys.stdout.write('Raw reading from Arduino :' + str(valueRead)) # Read the newest output from the Arduino
+			print('Raw reading from Arduino :' + str(valueRead)) # Read the newest output from the Arduino
 			voltageStr = str(valueRead).split(',')
 
 			voltageStr = voltageStr[0]
