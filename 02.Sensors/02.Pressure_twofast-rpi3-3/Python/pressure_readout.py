@@ -41,7 +41,7 @@ def get_experiment_id(sql_engine, verbose=False):
 
     experiment_id = df['experiment_id'].values[0]
 
-    if verbose: print(f"Experiment id is {experiment_id}")
+    if verbose: sys.stdout.write(f"Experiment id is {experiment_id}")
 
     return experiment_id
 
@@ -51,7 +51,7 @@ def saveDB(experiment_id, voltage_IS, voltage_VC, verbose=False):
     query = f"""INSERT INTO live_pressure (experiment_id, voltage_IS, voltage_VC) VALUES (\"{experiment_id}\", \"{voltage_IS}\", \"{voltage_VC}\");"""
     sql_engine.execute(sql.text(query))
 
-    if verbose: print(query)
+    if verbose: sys.stdout.write(query)
 
 def fun_read_serial_ports():
     return list(serial.tools.list_ports.comports())
