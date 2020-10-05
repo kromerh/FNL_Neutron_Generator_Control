@@ -13,7 +13,7 @@ import getopt
 # for ii in range(0,65535):
 # 	returnlist = []
 # 	for jj in range(0,2000):
-# 		regs_list_1 = c.read_holding_registers(ii, jj)
+# 		regs_list_1 = ModbusClient.read_holding_registers(ii, jj)
 # 		returnlist.append(regs_list_1)
 # 	if not None in returnlist:
 # 		print(ii, returnlist)
@@ -92,7 +92,7 @@ def set_microwave_ON(ModbusClient):
 
 def read_fault_present(ModbusClient):
 	# reads if fault present
-	r0 = c.read_holding_registers(105, 1)
+	r0 = ModbusClient.read_holding_registers(105, 1)
 	if (len(r0) > 0) and (r0[0] == 128):
 		# something returned and message is Moduel Ready for Microwaves
 		print('Ready for microwaves ')
@@ -101,31 +101,31 @@ def read_fault_present(ModbusClient):
 		print('Fault present:')
 		print(r0)
 		# read the type of fault
-		r1 = c.read_holding_registers(104, 1)
+		r1 = ModbusClient.read_holding_registers(104, 1)
 		print('Type of fault:')
 		print(r1)
 
 def read_FP(ModbusClient):
 	# reads forward power
-	r0 = c.read_holding_registers(102, 10)
+	r0 = ModbusClient.read_holding_registers(102, 10)
 	print('read_FP :')
 	print(r0)
 
 def read_RP(ModbusClient):
 	# reads reflected power
-	r0 = c.read_holding_registers(103, 10)
+	r0 = ModbusClient.read_holding_registers(103, 10)
 	print('read_RP:')
 	print(r0)
 
 def read_set_FP(ModbusClient):
 	# reads setpoint power
-	r0 = c.read_holding_registers(100, 10)
+	r0 = ModbusClient.read_holding_registers(100, 10)
 	print('read_set_FP')
 	print(r0)
 
 def read_freq(ModbusClient):
 	# reads current frequency
-	r0 = c.read_holding_registers(112, 10)
+	r0 = ModbusClient.read_holding_registers(112, 10)
 	print('read_freq:')
 	print(r0)
 

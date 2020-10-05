@@ -96,7 +96,7 @@ def read_fault_present(ModbusClient):
 		print('Fault present:')
 		print(r0)
 		# read the type of fault
-		r1 = c.read_holding_registers(104, 1)
+		r1 = ModbusClient.read_holding_registers(104, 1)
 		print('Type of fault:')
 		print(r1)
 
