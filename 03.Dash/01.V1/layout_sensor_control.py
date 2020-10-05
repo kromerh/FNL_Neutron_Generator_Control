@@ -15,6 +15,32 @@ df = pd.read_csv('https://raw.githubusercontent.com/plotly/datasets/master/solar
 cwd = os.getcwd()
 df_hostnames = pd.read_csv(f'{cwd}/pi_hostnames.csv')
 
+
+# Connect to the database
+
+# read password and user to database
+credentials_file = r'../../credentials.pw'
+
+credentials = pd.read_csv(credentials_file, header=0)
+user = credentials['username'].values[0]
+pw = credentials['password'].values[0]
+host = str(credentials['hostname'].values[0])
+db = str(credentials['db'].values[0])
+
+connect_string = 'mysql+pymysql://%(user)s:%(pw)s@%(host)s:3306/%(db)s'% {"user": user, "pw": pw, "host": host, "db": db}
+
+sql_engine = sql.create_engine(connect_string)
+
+query = f"SELECT * FROM experiment_control;"
+df = pd.read_sql(query, sql_engine)
+
+# read microwave settings from database
+mw_fp_set = df['mw_fp_set'].values[0]
+mw_freq_set = df['mw_freq_set'].values[0]
+
+# flow meter settings
+d2flow_set = df['d2flow_set'].values[0]
+
 layout_sensor_control = html.Div(id='sensor_control_parent',children=
     [
         dcc.Store(id="aggregate_data"),
@@ -202,7 +228,7 @@ layout_sensor_control = html.Div(id='sensor_control_parent',children=
                                                             className="mini_container",
                                                         ),
                                                         html.Div(
-                                                            [daq.NumericInput(id='d2flow_input',value=0, max=4000, min=0, size=120,label='mV', labelPosition='right')],
+                                                            [daq.NumericInput(id='d2flow_input',value=int(d2flow_set), max=4000, min=0, size=120,label='mV', labelPosition='right')],
                                                             className="mini_container",
                                                             style={"margin-left": "3%"}
                                                         ),
@@ -338,7 +364,7 @@ layout_sensor_control = html.Div(id='sensor_control_parent',children=
                                                                     style={"margin-left": "21.5%", "margin-top": "1%"}
                                                                 ),
                                                             html.Div(
-                                                                    [daq.NumericInput(id='FP_input',value=0, max=200, min=0, size=80,label='W', labelPosition='right')],
+                                                                    [daq.NumericInput(id='FP_input',value=int(mw_fp_set), max=200, min=0, size=80,label='W', labelPosition='right')],
                                                                     # style={"margin-left": "80%"}
                                                                 ),
                                                         html.Div(
@@ -361,7 +387,7 @@ layout_sensor_control = html.Div(id='sensor_control_parent',children=
                                                                     style={"margin-left": "10%", "margin-top": "1%"}
                                                                 ),
                                                             html.Div(
-                                                                    [daq.NumericInput(id='freq_input',value=2400, max=2500, min=2400, size=80,label='MHz', labelPosition='right')],
+                                                                    [daq.NumericInput(id='freq_input',value=value=int(mw_freq_set), max=2500, min=2400, size=80,label='MHz', labelPosition='right')],
                                                                     # style={"margin-left": "80%"}
                                                                 ),
                                                         html.Div(
