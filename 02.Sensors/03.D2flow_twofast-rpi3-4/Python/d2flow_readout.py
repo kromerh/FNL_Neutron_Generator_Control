@@ -54,11 +54,42 @@ def get_flow_meter_control_values(sql_engine, verbose=False):
 
 	return experiment_id, setpoint_voltage
 
+def send_voltage_flowmeter(serialArduino, setpoint_voltage):
+	sys.stdout.write(f"Sending voltage: {setpoint_voltage} to Arduino " )
+
+	# send
+	setpoint_voltage = str(setpoint_voltage)
+	serialArduino.write(setpoint_voltage.encode()) # Convert the decimal number to ASCII then send it to the Arduino
+
+
 def read_live():
 	while True:
 		try:
 			experiment_id, setpoint_voltage = get_flow_meter_control_values(sql_engine, VERBOSE)
 			print(' ')
+
+			# send voltage to arduino
+			send_voltage_flowmeter(serialArduino, setpoint_voltage)
+			sleep(0.5) # Delay
+
+			# read setpoint from arduino
+			valueRead = serialArduino.readline(500) # b'V_1 1.30, 4.20, V_out 215.04\r\n'
+			#     sys.stdout.write('Reading hv and dose voltages  ...')
+			#     sys.stdout.write(f'{now}, HV: {HV_voltage}, I: {HV_current}, dose: {dose_voltage} ')
+			sys.stdout.write('Raw reading from Arduino :' + str(valueRead)) # Read the newest output from the Arduino
+			voltageStr = str(valueRead).split(',')
+
+			voltageStr = voltageStr[0]
+
+	# 		t = re.findall(r'V_1 (.+)', voltageStr)
+
+	# 		if len(t) > 0:
+	# 			voltage = t[0]
+	# 			# print(voltage)
+	# 			saveFlowMeterVoltageToDB(voltage, setpoint_voltage) # save into DB
+
+
+
 			# # read arduino
 			# ardRead = pi_read(ARDUINO_PORT)
 			# s = ardRead.rstrip().split()
