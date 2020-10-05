@@ -129,7 +129,7 @@ def read_live():
             pi_flush(ARDUINO_PORT)
             sys.exit(1)
         finally:
-            pi_flush(arduinoPort)
+            pi_flush(ARDUINO_PORT)
 
 if __name__ == '__main__':
     # Get the arguments from the command-line except the filename
