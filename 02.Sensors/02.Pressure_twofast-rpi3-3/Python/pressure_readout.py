@@ -111,16 +111,11 @@ def read_live():
             # read arduino
             ardRead = pi_read(ARDUINO_PORT)
             s = ardRead.rstrip().split()
-            sys.stdout.write('... reading out pressure ...')
-            sys.stdout.write(f'{s}')
+            now = datetime.datetime.now()
+            now = now.strftime(format='%Y-%m-%d %H:%M:%S')
             if len(s) == 5:  # V1 V2 extractionOn
-                print(s)
-                volt_1 = s[0]
-                volt_2 = s[1]
-
-                voltage_IS = float(volt_1)
-                voltage_VC = float(volt_2)
-                print(voltage_IS, voltage_VC)
+                sys.stdout.write('Reading pressure ...')
+                sys.stdout.write(f'{now}, {voltage_IS}, {voltage_VC}')
                 # saveDB(experiment_id, voltage_IS, voltage_VC, VERBOSE)
             sleep(0.1)
 
