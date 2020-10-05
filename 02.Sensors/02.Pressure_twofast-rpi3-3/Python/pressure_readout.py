@@ -113,8 +113,7 @@ def read_live():
             s = ardRead.rstrip().split()
             now = datetime.datetime.now()
             now = now.strftime(format='%Y-%m-%d %H:%M:%S')
-            sys.stdout.write('Reading pressure ...')
-            print(1)
+            print(' ')
             if len(s) == 5:  # V1 V2 extractionOn
                 voltage_IS = float(s[0])
                 voltage_VC = float(s[1])
