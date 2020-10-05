@@ -15,6 +15,44 @@ import re
 # sudo tcpdump -i eth1
 
 
+PATH_CREDENTIALS = r'/home/pi/credentials.pw' # on the RPi3
+VERBOSE = True
+
+
+# connect to database
+credentials = pd.read_csv(PATH_CREDENTIALS, header=0)
+
+user = credentials['username'].values[0]
+pw = credentials['password'].values[0]
+host = str(credentials['hostname'].values[0])
+db = str(credentials['db'].values[0])
+
+connect_string = 'mysql+pymysql://%(user)s:%(pw)s@%(host)s:3306/%(db)s'% {"user": user, "pw": pw, "host": host, "db": db}
+sql_engine = sql.create_engine(connect_string)
+
+
+def saveDB(experiment_id, FP, FP_set, RP, Freq, Freq_set, code, verbose=False):
+	# Create a Cursor object to execute queries.
+	query = f"""INSERT INTO live_mw (experiment_id, FP, FP_set, RP, Freq, Freq_set, code) VALUES (\"{experiment_id}\", \"{FP}\", \"{FP_set}\", \"{RP}\", \"{Freq}\", \"{Freq_set}\", \"{code}\");"""
+	sql_engine.execute(sql.text(query))
+
+	if verbose: sys.stdout.write(query)
+
+
+def get_experiment_id(sql_engine, verbose=False):
+	query = f"SELECT mw_fp_set, mw_freq_set, experiment_id FROM experiment_control;"
+	df = pd.read_sql(query, sql_engine)
+
+	experiment_id = df['experiment_id'].values[0]
+	mw_fp_set = df['mw_fp_set'].values[0]
+	mw_freq_set = df['mw_freq_set'].values[0]
+
+	if verbose: sys.stdout.write(f"Experiment id is {experiment_id}")
+
+	return experiment_id, mw_fp_set, mw_freq_set
+
+
+
 def live(mw_ip):
 
 	mw_ip = str(mw_ip)
@@ -30,40 +68,6 @@ def live(mw_ip):
 		print("Error with host or port params")
 
 
-	# def save_power_to_DB(FP, RP, power_setpoint):
-	# 	# Create a Cursor object to execute queries.
-	# 	cur = db.cursor()
-	# 	try:
-	# 		cur.execute("""INSERT INTO microwave_generator_power (FP, RP, power_setpoint) VALUES (%(FP)s, %(RP)s, %(power_setpoint)s)""" % {"FP": FP, "RP": RP, "power_setpoint": power_setpoint})
-	# 	except:
-	# 		cur.rollback()
-
-	# 	db.commit()
-	# 	cur.close()
-
-	# def save_freq_to_DB(frequency, frequency_setpoint):
-	# 	# Create a Cursor object to execute queries.
-	# 	cur = db.cursor()
-	# 	try:
-	# 		cur.execute("""INSERT INTO microwave_generator_frequency (frequency, frequency_setpoint) VALUES (%(frequency)s, %(frequency_setpoint)s)""" % {"frequency": frequency, "frequency_setpoint": frequency_setpoint})
-	# 	except:
-	# 		cur.rollback()
-
-	# 	db.commit()
-	# 	cur.close()
-
-	# def save_status_to_DB(status):
-	# 	print(status)
-	# 	# Create a Cursor object to execute queries.
-	# 	cur = db.cursor()
-	# 	try:
-	# 		cur.execute("""INSERT INTO microwave_generator_state (status) VALUES (\"%(status)s\")""" % {"status": status})
-	# 	except:
-	# 		cur.rollback()
-
-	# 	db.commit()
-	# 	cur.close()
-
 
 	# bool to store if all the settings are set
 	RAMP_SET = False
@@ -74,7 +78,6 @@ def live(mw_ip):
 	MW_ON = False
 	FREQ_SET = False
 
-	FREQUENCY_SETPOINT = 24400
 
 	def send_heartbeat(ModbusClient):
 		# sends MODBUS heart beat
@@ -95,11 +98,11 @@ def live(mw_ip):
 		# print('set_start_time:' + str(int(wr)))
 		return wr
 
-	def set_FW_power(ModbusClient):
+	def set_FW_power(ModbusClient, mw_fp_set):
 		# Sets the forward power set point to 200 W
 		# c is ModbusClient
 		# wr = ModbusClient.write_single_register(0,200)
-		wr = ModbusClient.write_single_register(0,10)
+		wr = ModbusClient.write_single_register(0,mw_fp_set)
 		# print('set_FW_power:' + str(int(wr)))
 		return wr
 
@@ -110,10 +113,10 @@ def live(mw_ip):
 		# print('set_RP:' + str(int(wr)))
 		return wr
 
-	def set_freq(ModbusClient):
+	def set_freq(ModbusClient, mw_freq_set):
 		# Sets the frequency before the autotuning
 		# c is ModbusClient
-		wr = ModbusClient.write_single_register(9,FREQUENCY_SETPOINT)
+		wr = ModbusClient.write_single_register(9,mw_freq_set)
 		# print('set_freq:' + str(int(wr)))
 		return wr
 
@@ -180,52 +183,63 @@ def live(mw_ip):
 		# sent hearbeat
 		send_heartbeat(c)
 
-		# set start mode to tamp
-		if RAMP_SET == False:
-			RAMP_SET = set_start_mode_ramp(c)
+		# read settings from database
+		experiment_id, mw_fp_set, mw_freq_set = get_experiment_id(sql_engine, verbose=True)
+		mw_fp_set = min(mw_fp_set, 200) # maximum 200
+		mw_fp_set = max(mw_fp_set, 0) # avoid negative numbers
 
-		# set start time 60 s
-		if RAMP_TIME_SET == False:
-			RAMP_TIME_SET = set_start_time(c)
+		mw_freq_set = 10 * mw_freq_set # convert to 10 times MHz
+		mw_freq_set = min(mw_fp_set, 25000) # maximum 2.5 GHz
+		mw_freq_set = max(mw_fp_set, 0) # avoid negative numbers
 
-		# set the forward power set point to 200 W
-		if FP_SET == False:
-			FP_SET = set_FW_power(c)
+		print(mw_fp_set, mw_freq_set)
 
-		# set the reflected power set point to 100 W
-		if RP_SET == False:
-			RP_SET = set_RP(c)
+		# # set start mode to tamp
+		# if RAMP_SET == False:
+		# 	RAMP_SET = set_start_mode_ramp(c)
 
-		# set the reflected power set point to 100 W
-		if FREQ_SET == False:
-			FREQ_SET = set_freq(c)
+		# # set start time 60 s
+		# if RAMP_TIME_SET == False:
+		# 	RAMP_TIME_SET = set_start_time(c)
 
-		# set the microwave mode:
-		if MODE_SET == False:
-			 MODE_SET = set_microwave_mode(c)
+		# # set the forward power set point to 200 W
+		# if FP_SET == False:
+		# 	FP_SET = set_FW_power(c, mw_fp_set)
 
-		status = read_fault_present(c)
-		forward_power = read_FP(c)
-		reflected_power = read_RP(c)
-		setpoint_power = read_set_FP(c)
-		frequency_read = read_freq(c)
+		# # set the reflected power set point to 100 W
+		# if RP_SET == False:
+		# 	RP_SET = set_RP(c)
+
+		# # set the reflected power set point to 100 W
+		# if FREQ_SET == False:
+		# 	FREQ_SET = set_freq(c, mw_freq_set)
+
+		# # set the microwave mode:
+		# if MODE_SET == False:
+		# 	 MODE_SET = set_microwave_mode(c)
+
+		# status = read_fault_present(c)
+		# forward_power = read_FP(c)
+		# reflected_power = read_RP(c)
+		# setpoint_power = read_set_FP(c)
+		# frequency_read = read_freq(c)
 
 
-		# set the microwaves ON:
-		if MW_ON == False:
-			MW_ON = set_microwave_ON(ModbusClient)
+		# # set the microwaves ON:
+		# if MW_ON == False:
+		# 	MW_ON = set_microwave_ON(ModbusClient)
 
-		print(status, forward_power, reflected_power, setpoint_power, frequency_read)
+		# print(status, forward_power, reflected_power, setpoint_power, frequency_read)
 
-		# save to DB
-		# save_power_to_DB(forward_power[0], reflected_power[0], setpoint_power[0])
-		# save_freq_to_DB(frequency_read[0], FREQUENCY_SETPOINT/10)
+		# # save to DB
+		# # save_power_to_DB(forward_power[0], reflected_power[0], setpoint_power[0])
+		# # save_freq_to_DB(frequency_read[0], FREQUENCY_SETPOINT/10)
 
-		status.insert(0, '104:')
-		status.insert(2, ', 105:')
-		status = [str(s) for s in status]
-		# save_status_to_DB(' '.join(status))
-		print(status)
+		# status.insert(0, '104:')
+		# status.insert(2, ', 105:')
+		# status = [str(s) for s in status]
+		# # save_status_to_DB(' '.join(status))
+		# print(status)
 		sleep(0.1)
 
 
