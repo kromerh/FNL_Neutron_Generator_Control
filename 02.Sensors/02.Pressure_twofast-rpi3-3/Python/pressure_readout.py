@@ -108,6 +108,8 @@ def simulate(FREQUENCY=1, VOLTAGE_IS_1=1, VOLTAGE_IS_2=3, VOLTAGE_VC=0, ALTERNAT
 def read_live():
     while True:
         try:
+            experiment_id = get_experiment_id(sql_engine, VERBOSE)
+
             # read arduino
             ardRead = pi_read(ARDUINO_PORT)
             s = ardRead.rstrip().split()
