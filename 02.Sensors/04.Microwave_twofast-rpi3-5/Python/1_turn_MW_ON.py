@@ -1,6 +1,7 @@
 from pyModbusTCP.client import ModbusClient
 from time import sleep
 import sys
+import getopt
 
 # MAC Address of the microwave generator
 # MAC Address: 00:80:A3:C2:AB:65 (Lantronix)
