@@ -114,6 +114,8 @@ def read_live():
             now = datetime.datetime.now()
             now = now.strftime(format='%Y-%m-%d %H:%M:%S')
             if len(s) == 5:  # V1 V2 extractionOn
+                voltage_IS = float(s[0])
+                voltage_VC = float(s[1])
                 sys.stdout.write('Reading pressure ...')
                 sys.stdout.write(f'{now}, {voltage_IS}, {voltage_VC}')
                 # saveDB(experiment_id, voltage_IS, voltage_VC, VERBOSE)
