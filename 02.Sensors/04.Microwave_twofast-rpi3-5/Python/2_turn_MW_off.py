@@ -179,7 +179,7 @@ if __name__ == '__main__':
         if len(argv) == 1:
         	ip_address = argv[0]
         	live(ip_address)
-
+        	print(ip_address)
         else:
             print('Error! usage: .py --ip_address. ip_address must be provided!')
             sys.exit(2)
