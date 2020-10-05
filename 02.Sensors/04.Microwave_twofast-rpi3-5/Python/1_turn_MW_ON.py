@@ -187,11 +187,9 @@ def live(mw_ip):
 		# read settings from database
 		experiment_id, mw_fp_set, mw_freq_set = get_experiment_id(sql_engine, verbose=True)
 		mw_fp_set = min(mw_fp_set, 200) # maximum 200
-		mw_fp_set = max(mw_fp_set, 0) # avoid negative numbers
 
 		mw_freq_set = 10 * mw_freq_set # convert to 10 times MHz
 		mw_freq_set = min(mw_fp_set, 25000) # maximum 2.5 GHz
-		mw_freq_set = max(mw_fp_set, 0) # avoid negative numbers
 		print(' ')
 		sys.stdout.write(f"\n {mw_fp_set}, {mw_freq_set} ")
 
