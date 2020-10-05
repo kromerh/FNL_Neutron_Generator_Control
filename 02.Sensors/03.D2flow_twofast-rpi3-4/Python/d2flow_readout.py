@@ -93,8 +93,8 @@ def read_live():
 			t = re.findall(r'V_1 (.+)', voltageStr)
 
 			if len(t) > 0:
-				voltage = t[0]
-				sys.stdout.write(f"Measured flow voltage {voltage} V \n")
+				voltage = t[0] * 1000
+				sys.stdout.write(f"Measured flow voltage {voltage} mV \n")
 				saveDB(experiment_id, voltage, setpoint_voltage, VERBOSE) # save into DB
 
 			sleep(0.1)
