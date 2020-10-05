@@ -37,9 +37,9 @@ serialArduino = serial.Serial(port=ARDUINO_PORT, baudrate=9600)
 
 
 def pi_flush(serial_port):
-    serialArduino = serial.Serial(port=serial_port, baudrate=9600)
-    serialArduino.flushInput()  #flush input buffer, discarding all its contents
-    serialArduino.flushOutput() #flush output buffer, aborting current output and discard all that is in buffer
+	serialArduino = serial.Serial(port=serial_port, baudrate=9600)
+	serialArduino.flushInput()  #flush input buffer, discarding all its contents
+	serialArduino.flushOutput() #flush output buffer, aborting current output and discard all that is in buffer
 
 
 def get_flow_meter_control_values(sql_engine, verbose=False):
@@ -76,8 +76,8 @@ def read_live():
 			valueRead = serialArduino.readline(500) # b'V_1 1.30, 4.20, V_out 215.04\r\n'
 			now = datetime.datetime.now()
 			now = now.strftime(format='%Y-%m-%d %H:%M:%S')
-		    sys.stdout.write('Reading d2flow voltages  ...')
-		    sys.stdout.write(f'{now}, HV: {HV_voltage}, I: {HV_current}, dose: {dose_voltage} ')
+			sys.stdout.write('Reading d2flow voltages  ...')
+			sys.stdout.write(f'{now}, HV: {HV_voltage}, I: {HV_current}, dose: {dose_voltage} ')
 			sys.stdout.write('Raw reading from Arduino :' + str(valueRead)) # Read the newest output from the Arduino
 			voltageStr = str(valueRead).split(',')
 
