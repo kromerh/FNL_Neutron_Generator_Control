@@ -135,7 +135,6 @@ def read_freq(ModbusClient):
 def live(ip_address):
 	while True:
 		c = ModbusClient(host=f"{ip_address}", port=502, auto_open=True, auto_close=True)
-		print(ip_address)
 		# sent hearbeat
 		send_heartbeat(c)
 
@@ -178,8 +177,9 @@ if __name__ == '__main__':
     try:
         if len(argv) == 1:
         	ip_address = argv[0]
-        	live(ip_address)
         	print(ip_address)
+
+        	live(ip_address)
         else:
             print('Error! usage: .py --ip_address. ip_address must be provided!')
             sys.exit(2)
