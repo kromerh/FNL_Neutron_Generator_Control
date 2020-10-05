@@ -62,6 +62,13 @@ def send_voltage_flowmeter(serialArduino, setpoint_voltage):
 	serialArduino.write(setpoint_voltage.encode()) # Convert the decimal number to ASCII then send it to the Arduino
 
 
+def saveDB(experiment_id, voltage, setpoint_voltage, verbose=False):
+    # Create a Cursor object to execute queries.
+    query = f"""INSERT INTO live_d2flow (experiment_id, voltage, setpoint_voltage) VALUES (\"{experiment_id}\", \"{voltage}\",  \"{setpoint_voltage}\");"""
+    sql_engine.execute(sql.text(query))
+
+    if verbose: sys.stdout.write(query)
+
 def read_live():
 	while True:
 		try:
@@ -78,7 +85,7 @@ def read_live():
 			now = now.strftime(format='%Y-%m-%d %H:%M:%S')
 			sys.stdout.write('Reading d2flow voltages  ... ')
 			sys.stdout.write(f'{now} ')
-			sys.stdout.write('Raw reading from Arduino :' + str(valueRead)) # Read the newest output from the Arduino
+			sys.stdout.write('Raw reading from Arduino :' + str(valueRead) + "\n") # Read the newest output from the Arduino
 			voltageStr = str(valueRead).split(',')
 
 			voltageStr = voltageStr[0]
@@ -87,30 +94,9 @@ def read_live():
 
 			if len(t) > 0:
 				voltage = t[0]
-				sys.stdout.write(f" {voltage} V \n")
-	# 			saveFlowMeterVoltageToDB(voltage, setpoint_voltage) # save into DB
+				sys.stdout.write(f"Measured flow voltage {voltage} V \n")
+				saveDB(experiment_id, voltage, setpoint_voltage, VERBOSE) # save into DB
 
-
-
-			# # read arduino
-			# ardRead = pi_read(ARDUINO_PORT)
-			# s = ardRead.rstrip().split()
-			# now = datetime.datetime.now()
-			# now = now.strftime(format='%Y-%m-%d %H:%M:%S')
-			# print(' ')
-			# if len(s) == 5:
-			#     dose_voltage = float(s[2])
-			#     HV_current = float(s[3])  # 0 - 2 mA
-			#     HV_voltage = float(s[4])  # -(0-150) kV
-			#     # HV_voltage = float(interp_HV_voltage(HV_voltage))
-			#     # HV_current = float(interp_HV_current(HV_current))
-			#     # print(HV_voltage)
-
-			#     voltage_IS = float(s[0])
-			#     voltage_VC = float(s[1])
-			#     sys.stdout.write('Reading hv and dose voltages  ...')
-			#     sys.stdout.write(f'{now}, HV: {HV_voltage}, I: {HV_current}, dose: {dose_voltage} ')
-			#     saveDB(experiment_id, HV_voltage, HV_current, dose_voltage, VERBOSE)
 			sleep(0.1)
 
 		except KeyboardInterrupt:
