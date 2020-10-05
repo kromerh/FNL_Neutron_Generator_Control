@@ -387,7 +387,7 @@ layout_sensor_control = html.Div(id='sensor_control_parent',children=
                                                                     style={"margin-left": "10%", "margin-top": "1%"}
                                                                 ),
                                                             html.Div(
-                                                                    [daq.NumericInput(id='freq_input',value=value=int(mw_freq_set), max=2500, min=2400, size=80,label='MHz', labelPosition='right')],
+                                                                    [daq.NumericInput(id='freq_input',value=int(mw_freq_set), max=2500, min=2400, size=80,label='MHz', labelPosition='right')],
                                                                     # style={"margin-left": "80%"}
                                                                 ),
                                                         html.Div(
