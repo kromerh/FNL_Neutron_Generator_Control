@@ -189,7 +189,7 @@ def live(mw_ip):
 		mw_fp_set = min(mw_fp_set, 200) # maximum 200
 
 		mw_freq_set = 10 * mw_freq_set # convert to 10 times MHz
-		mw_freq_set = min(mw_fp_set, 25000) # maximum 2.5 GHz
+		mw_freq_set = min(mw_freq_set, 25000) # maximum 2.5 GHz
 		print(' ')
 		sys.stdout.write(f"\n {mw_fp_set}, {mw_freq_set} ")
 
