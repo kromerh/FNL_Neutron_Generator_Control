@@ -119,7 +119,7 @@ def read_live():
                 voltage_VC = float(s[1])
                 sys.stdout.write('Reading pressure ...')
                 sys.stdout.write(f'{now}, {voltage_IS}, {voltage_VC}')
-                # saveDB(experiment_id, voltage_IS, voltage_VC, VERBOSE)
+                saveDB(experiment_id, voltage_IS, voltage_VC, VERBOSE)
             sleep(0.1)
 
         except KeyboardInterrupt:
