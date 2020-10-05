@@ -48,7 +48,7 @@ def get_experiment_id(sql_engine, verbose=False):
 	mw_fp_set = df['mw_fp_set'].values[0]
 	mw_freq_set = df['mw_freq_set'].values[0]
 
-	if verbose: sys.stdout.write(f"Experiment id is {experiment_id}")
+	if verbose: sys.stdout.write(f"Experiment id {experiment_id}, {mw_fp_set}, {mw_freq_set} ")
 
 	return experiment_id, mw_fp_set, mw_freq_set
 
@@ -192,8 +192,8 @@ def live(mw_ip):
 		mw_freq_set = 10 * mw_freq_set # convert to 10 times MHz
 		mw_freq_set = min(mw_fp_set, 25000) # maximum 2.5 GHz
 		mw_freq_set = max(mw_fp_set, 0) # avoid negative numbers
-
-		print(mw_fp_set, mw_freq_set)
+		print(' ')
+		sys.stdout.write(f"\n {mw_fp_set}, {mw_freq_set} ")
 
 		# # set start mode to tamp
 		# if RAMP_SET == False:
