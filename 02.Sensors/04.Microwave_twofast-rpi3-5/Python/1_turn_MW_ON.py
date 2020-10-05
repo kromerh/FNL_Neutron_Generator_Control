@@ -41,7 +41,7 @@ def set_start_time(ModbusClient):
 def set_FW_power(ModbusClient):
 	# Sets the forward power set point to 200 W
 	# c is ModbusClient
-	wr = ModbusClient.write_single_register(0,1)
+	wr = ModbusClient.write_single_register(0,30)
 	# wr = ModbusClient.write_single_register(0,200)
 	print('set_FW_power:' + str(int(wr)))
 	return wr
@@ -90,7 +90,7 @@ def read_fault_present(ModbusClient):
 		print('Ready for microwaves ')
 		print(r0)
 	else:
-		print('Fault present:')
+		print('Fault present (105):')
 		print(r0)
 		# read the type of fault
 		r1 = ModbusClient.read_holding_registers(104, 1)
