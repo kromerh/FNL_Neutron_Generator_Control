@@ -45,7 +45,7 @@ def pi_flush(serial_port):
 def get_flow_meter_control_values(sql_engine, verbose=False):
 
 	query = "SELECT experiment_id, d2flow_set FROM experiment_control"
-	df = pd.read_sql(sql_engine, mysql_connection)
+	df = pd.read_sql(query, sql_engine)
 
 	setpoint_voltage = df.loc[:,'d2flow_set'].values[0]
 	experiment_id = df['experiment_id'].values[0]
