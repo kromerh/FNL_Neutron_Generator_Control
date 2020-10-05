@@ -191,54 +191,54 @@ def live(mw_ip):
 		mw_freq_set = 10 * mw_freq_set # convert to 10 times MHz
 		mw_freq_set = min(mw_freq_set, 25000) # maximum 2.5 GHz
 		print(' ')
-		sys.stdout.write(f"\n {mw_fp_set}, {mw_freq_set} ")
+		# sys.stdout.write(f"\n {mw_fp_set}, {mw_freq_set} ")
+#
+		# set start mode to tamp
+		if RAMP_SET == False:
+			RAMP_SET = set_start_mode_ramp(c)
 
-		# # set start mode to tamp
-		# if RAMP_SET == False:
-		# 	RAMP_SET = set_start_mode_ramp(c)
+		# set start time 60 s
+		if RAMP_TIME_SET == False:
+			RAMP_TIME_SET = set_start_time(c)
 
-		# # set start time 60 s
-		# if RAMP_TIME_SET == False:
-		# 	RAMP_TIME_SET = set_start_time(c)
+		# set the forward power set point to 200 W
+		if FP_SET == False:
+			FP_SET = set_FW_power(c, mw_fp_set)
 
-		# # set the forward power set point to 200 W
-		# if FP_SET == False:
-		# 	FP_SET = set_FW_power(c, mw_fp_set)
+		# set the reflected power set point to 100 W
+		if RP_SET == False:
+			RP_SET = set_RP(c)
 
-		# # set the reflected power set point to 100 W
-		# if RP_SET == False:
-		# 	RP_SET = set_RP(c)
+		# set the reflected power set point to 100 W
+		if FREQ_SET == False:
+			FREQ_SET = set_freq(c, mw_freq_set)
 
-		# # set the reflected power set point to 100 W
-		# if FREQ_SET == False:
-		# 	FREQ_SET = set_freq(c, mw_freq_set)
+		# set the microwave mode:
+		if MODE_SET == False:
+			 MODE_SET = set_microwave_mode(c)
 
-		# # set the microwave mode:
-		# if MODE_SET == False:
-		# 	 MODE_SET = set_microwave_mode(c)
-
-		# status = read_fault_present(c)
-		# forward_power = read_FP(c)
-		# reflected_power = read_RP(c)
-		# setpoint_power = read_set_FP(c)
-		# frequency_read = read_freq(c)
+		status = read_fault_present(c)
+		forward_power = read_FP(c)
+		reflected_power = read_RP(c)
+		setpoint_power = read_set_FP(c)
+		frequency_read = read_freq(c)
 
 
-		# # set the microwaves ON:
-		# if MW_ON == False:
-		# 	MW_ON = set_microwave_ON(ModbusClient)
+		# set the microwaves ON:
+		if MW_ON == False:
+			MW_ON = set_microwave_ON(ModbusClient)
 
-		# print(status, forward_power, reflected_power, setpoint_power, frequency_read)
+		print(status, forward_power, reflected_power, setpoint_power, frequency_read)
 
-		# # save to DB
-		# # save_power_to_DB(forward_power[0], reflected_power[0], setpoint_power[0])
-		# # save_freq_to_DB(frequency_read[0], FREQUENCY_SETPOINT/10)
+		# save to DB
+		# save_power_to_DB(forward_power[0], reflected_power[0], setpoint_power[0])
+		# save_freq_to_DB(frequency_read[0], FREQUENCY_SETPOINT/10)
 
-		# status.insert(0, '104:')
-		# status.insert(2, ', 105:')
-		# status = [str(s) for s in status]
-		# # save_status_to_DB(' '.join(status))
-		# print(status)
+		status.insert(0, '104:')
+		status.insert(2, ', 105:')
+		status = [str(s) for s in status]
+		# save_status_to_DB(' '.join(status))
+		print(status)
 		sleep(0.1)
 
 
