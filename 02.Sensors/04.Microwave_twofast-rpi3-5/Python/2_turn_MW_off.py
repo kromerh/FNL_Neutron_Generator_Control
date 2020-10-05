@@ -69,7 +69,7 @@ def set_microwave_mode(ModbusClient):
 	# c is ModbusClient
 	bit_addr = 2
 	bit_value = 0 # 0 0 0 0 0 0 0 0
-	wr = c.write_single_register(bit_addr, bit_value)
+	wr = ModbusClient.write_single_register(bit_addr, bit_value)
 	print('set_microwave_mode:' + str(int(wr)))
 	return wr
 
@@ -79,7 +79,7 @@ def set_microwave_ON(ModbusClient):
 	# c is ModbusClient
 	bit_addr = 2
 	bit_value = 210 # 0 1 0 0 1 0 1 1
-	wr = c.write_single_register(bit_addr, bit_value)
+	wr = ModbusClient.write_single_register(bit_addr, bit_value)
 	print('set_microwave_ON:' + str(int(wr)))
 	return wr
 
@@ -87,7 +87,7 @@ def set_microwave_ON(ModbusClient):
 
 def read_fault_present(ModbusClient):
 	# reads if fault present
-	r0 = c.read_holding_registers(105, 1)
+	r0 = ModbusClient.read_holding_registers(105, 1)
 	if (len(r0) > 0) and (r0[0] == 128):
 		# something returned and message is Moduel Ready for Microwaves
 		print('Ready for microwaves ')
@@ -102,25 +102,25 @@ def read_fault_present(ModbusClient):
 
 def read_FP(ModbusClient):
 	# reads forward power
-	r0 = c.read_holding_registers(102, 10)
+	r0 = ModbusClient.read_holding_registers(102, 10)
 	print('read_FP :')
 	print(r0)
 
 def read_RP(ModbusClient):
 	# reads reflected power
-	r0 = c.read_holding_registers(103, 10)
+	r0 = ModbusClient.read_holding_registers(103, 10)
 	print('read_RP:')
 	print(r0)
 
 def read_set_FP(ModbusClient):
 	# reads setpoint power
-	r0 = c.read_holding_registers(100, 10)
+	r0 = ModbusClient.read_holding_registers(100, 10)
 	print('read_set_FP')
 	print(r0)
 
 def read_freq(ModbusClient):
 	# reads current frequency
-	r0 = c.read_holding_registers(112, 10)
+	r0 = ModbusClient.read_holding_registers(112, 10)
 	print('read_freq:')
 	print(r0)
 
