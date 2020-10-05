@@ -62,7 +62,7 @@ def pi_read(serial_port):
     serialArduino = serial.Serial(port=serial_port, baudrate=9600)
     while (serialArduino.inWaiting() == 0):  # wait for incoming data
         pass
-    valueRead = serialArduino.readline()
+    valueRead = serialArduino.readline(500)
     # print(valueRead)
     try:
         valueRead = (valueRead.decode('utf-8')).strip()
