@@ -173,20 +173,20 @@ def live(ip_address):
 		sleep(0.01)
 
 if __name__ == '__main__':
-    # Get the arguments from the command-line except the filename
-    argv = sys.argv[1:]
+	# Get the arguments from the command-line except the filename
+	argv = sys.argv[1:]
 
-    try:
-        if len(argv) == 1:
-        	ip_address = argv[0]
-        	live(ip_address)
+	try:
+		if len(argv) == 1:
+			ip_address = argv[0][2:]
+			live(ip_address)
 
-        else:
-            print('Error! usage: .py --ip_address. ip_address must be provided!')
-            sys.exit(2)
+		else:
+			print('Error! usage: .py --ip_address. ip_address must be provided!')
+			sys.exit(2)
 
-    except getopt.GetoptError:
-        # Print something useful
-        print('Error! usage: .py --ip_address. ip_address must be provided!')
-        sys.exit(2)
+	except getopt.GetoptError:
+		# Print something useful
+		print('Error! usage: .py --ip_address. ip_address must be provided!')
+		sys.exit(2)
 

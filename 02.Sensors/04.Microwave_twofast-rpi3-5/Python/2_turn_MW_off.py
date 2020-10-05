@@ -21,14 +21,7 @@ import getopt
 # 	if not None in returnlist:
 # 		print(ii, returnlist)
 
-# bool to store if all the settings are set
-RAMP_SET = False
-RAMP_TIME_SET = False
-FP_SET = False
-RP_SET = False
-MODE_SET = False
-MW_ON = False
-FREQ_SET = False
+
 
 def send_heartbeat(ModbusClient):
 	# sends MODBUS heart beat
@@ -138,6 +131,15 @@ def live(ip_address):
 		# sent hearbeat
 		send_heartbeat(c)
 
+		# bool to store if all the settings are set
+		RAMP_SET = False
+		RAMP_TIME_SET = False
+		FP_SET = False
+		RP_SET = False
+		MODE_SET = False
+		MW_ON = False
+		FREQ_SET = False
+
 		# set start mode to tamp
 		if RAMP_SET == False:
 			RAMP_SET = set_start_mode_ramp(c)
@@ -177,8 +179,6 @@ if __name__ == '__main__':
     try:
         if len(argv) == 1:
         	ip_address = argv[0][2:]
-        	print(ip_address)
-
         	live(ip_address)
         else:
             print('Error! usage: .py --ip_address. ip_address must be provided!')
