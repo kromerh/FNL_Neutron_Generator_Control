@@ -50,7 +50,7 @@ def get_flow_meter_control_values(sql_engine, verbose=False):
 	setpoint_voltage = df['d2flow_set'].values[0]
 	experiment_id = df['experiment_id'].values[0]
 
-
+	print(df)
 	if verbose: sys.stdout.write(f"Experiment id: {experiment_id}, Setpoint: {setpoint_voltage} " )
 
 	return experiment_id, setpoint_voltage
