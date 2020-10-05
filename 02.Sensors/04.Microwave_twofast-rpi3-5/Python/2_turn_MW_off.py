@@ -176,7 +176,7 @@ if __name__ == '__main__':
 
     try:
         if len(argv) == 1:
-        	ip_address = argv[0]
+        	ip_address = argv[0][2:]
         	print(ip_address)
 
         	live(ip_address)
