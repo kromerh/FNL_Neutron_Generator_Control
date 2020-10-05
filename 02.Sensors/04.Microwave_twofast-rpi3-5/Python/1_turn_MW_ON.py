@@ -168,8 +168,7 @@ def live(ip_address):
 		read_freq(c)
 
 		# set the microwaves ON:
-		if MW_ON == False:
-			MW_ON = set_microwave_ON(c)
+		MW_ON = set_microwave_ON(c)
 
 
 
