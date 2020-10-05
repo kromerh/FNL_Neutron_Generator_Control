@@ -43,7 +43,7 @@ def get_flow_meter_control_values(sql_engine, verbose=False):
 	df = pd.read_sql(sql_engine, mysql_connection)
 
 	setpoint_voltage = df.loc[:,'d2flow_set'].values[0]
-    experiment_id = df['experiment_id'].values[0]
+	experiment_id = df['experiment_id'].values[0]
 
 
 	if verbose: sys.stdout.write(f"Experiment id: {experiment_id}, Setpoint: {setpoint_voltage} " )
@@ -51,60 +51,60 @@ def get_flow_meter_control_values(sql_engine, verbose=False):
 	return experiment_id, setpoint_voltage
 
 def read_live():
-    while True:
-        try:
-            experiment_id, setpoint_voltage = get_flow_meter_control_values(sql_engine, VERBOSE)
-            print(experiment_id, setpoint_voltage)
-            # # read arduino
-            # ardRead = pi_read(ARDUINO_PORT)
-            # s = ardRead.rstrip().split()
-            # now = datetime.datetime.now()
-            # now = now.strftime(format='%Y-%m-%d %H:%M:%S')
-            # print(' ')
-            # if len(s) == 5:
-            #     dose_voltage = float(s[2])
-            #     HV_current = float(s[3])  # 0 - 2 mA
-            #     HV_voltage = float(s[4])  # -(0-150) kV
-            #     # HV_voltage = float(interp_HV_voltage(HV_voltage))
-            #     # HV_current = float(interp_HV_current(HV_current))
-            #     # print(HV_voltage)
+	while True:
+		try:
+			experiment_id, setpoint_voltage = get_flow_meter_control_values(sql_engine, VERBOSE)
+			print(experiment_id, setpoint_voltage)
+			# # read arduino
+			# ardRead = pi_read(ARDUINO_PORT)
+			# s = ardRead.rstrip().split()
+			# now = datetime.datetime.now()
+			# now = now.strftime(format='%Y-%m-%d %H:%M:%S')
+			# print(' ')
+			# if len(s) == 5:
+			#     dose_voltage = float(s[2])
+			#     HV_current = float(s[3])  # 0 - 2 mA
+			#     HV_voltage = float(s[4])  # -(0-150) kV
+			#     # HV_voltage = float(interp_HV_voltage(HV_voltage))
+			#     # HV_current = float(interp_HV_current(HV_current))
+			#     # print(HV_voltage)
 
-            #     voltage_IS = float(s[0])
-            #     voltage_VC = float(s[1])
-            #     sys.stdout.write('Reading hv and dose voltages  ...')
-            #     sys.stdout.write(f'{now}, HV: {HV_voltage}, I: {HV_current}, dose: {dose_voltage} ')
-            #     saveDB(experiment_id, HV_voltage, HV_current, dose_voltage, VERBOSE)
-            sleep(0.1)
+			#     voltage_IS = float(s[0])
+			#     voltage_VC = float(s[1])
+			#     sys.stdout.write('Reading hv and dose voltages  ...')
+			#     sys.stdout.write(f'{now}, HV: {HV_voltage}, I: {HV_current}, dose: {dose_voltage} ')
+			#     saveDB(experiment_id, HV_voltage, HV_current, dose_voltage, VERBOSE)
+			sleep(0.1)
 
-        except KeyboardInterrupt:
-            print('Ctrl + C. Exiting. Flushing serial connection.')
-            pi_flush(ARDUINO_PORT)
-            sys.exit(1)
-        finally:
-            pi_flush(ARDUINO_PORT)
+		except KeyboardInterrupt:
+			print('Ctrl + C. Exiting. Flushing serial connection.')
+			pi_flush(ARDUINO_PORT)
+			sys.exit(1)
+		finally:
+			pi_flush(ARDUINO_PORT)
 
 
 
 if __name__ == '__main__':
-    # Get the arguments from the command-line except the filename
-    argv = sys.argv[1:]
+	# Get the arguments from the command-line except the filename
+	argv = sys.argv[1:]
 
-    try:
-        if len(argv) == 1:
-            MODE = argv[0]
-            if MODE == '--live':
-                read_live()
-            else:
-                print('Error! usage: d2flow_readout.py --MODE. MODE can only be live')
-                sys.exit(2)
-        else:
-            print('Error! usage: d2flow_readout.py --MODE. MODE can only be live')
-            sys.exit(2)
+	try:
+		if len(argv) == 1:
+			MODE = argv[0]
+			if MODE == '--live':
+				read_live()
+			else:
+				print('Error! usage: d2flow_readout.py --MODE. MODE can only be live')
+				sys.exit(2)
+		else:
+			print('Error! usage: d2flow_readout.py --MODE. MODE can only be live')
+			sys.exit(2)
 
-    except getopt.GetoptError:
-        # Print something useful
-        print('Error! usage: d2flow_readout.py --MODE. MODE can only be live')
-        sys.exit(2)
+	except getopt.GetoptError:
+		# Print something useful
+		print('Error! usage: d2flow_readout.py --MODE. MODE can only be live')
+		sys.exit(2)
 
 
 
