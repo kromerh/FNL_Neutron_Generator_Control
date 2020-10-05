@@ -64,7 +64,7 @@ def send_voltage_flowmeter(serialArduino, setpoint_voltage):
 
 def saveDB(experiment_id, voltage, setpoint_voltage, verbose=False):
     # Create a Cursor object to execute queries.
-    query = f"""INSERT INTO live_d2flow (experiment_id, voltage, setpoint_voltage) VALUES (\"{experiment_id}\", \"{voltage}\",  \"{setpoint_voltage}\");"""
+    query = f"""INSERT INTO live_d2flow (experiment_id, voltage_flow, voltage_flow_set) VALUES (\"{experiment_id}\", \"{voltage}\",  \"{setpoint_voltage}\");"""
     sql_engine.execute(sql.text(query))
 
     if verbose: sys.stdout.write(query)
