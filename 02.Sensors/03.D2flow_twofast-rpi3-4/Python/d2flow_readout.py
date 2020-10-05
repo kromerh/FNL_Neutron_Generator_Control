@@ -14,7 +14,7 @@ import getopt
 
 
 PATH_CREDENTIALS = r'/home/pi/credentials.pw' # on the RPi3
-ARDUINO_PORT = '/dev/ttyAMA0'
+ARDUINO_PORT = '/dev/ttyACM0'
 VERBOSE = True
 
 
