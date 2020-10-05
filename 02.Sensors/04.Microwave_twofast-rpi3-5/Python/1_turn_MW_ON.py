@@ -1,10 +1,12 @@
 from pyModbusTCP.client import ModbusClient
 from time import sleep
+import sys
 
 # MAC Address of the microwave generator
 # MAC Address: 00:80:A3:C2:AB:65 (Lantronix)
 
-# sudo
+# find the ip address of the microwave
+# sudo tcpdump -i eth1
 
 
 # for ii in range(0,65535):
@@ -46,7 +48,8 @@ def set_start_time(ModbusClient):
 def set_FW_power(ModbusClient):
 	# Sets the forward power set point to 200 W
 	# c is ModbusClient
-	wr = ModbusClient.write_single_register(0,200)
+	wr = ModbusClient.write_single_register(0,1)
+	# wr = ModbusClient.write_single_register(0,200)
 	print('set_FW_power:' + str(int(wr)))
 	return wr
 

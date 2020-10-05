@@ -1,15 +1,16 @@
 from pyModbusTCP.client import ModbusClient
+import sys
 
 # MAC Address of the microwave generator
 # MAC Address: 00:80:A3:C2:AB:65 (Lantronix)
 
-# sudo
-try:
-	# c = ModbusClient(host="169.254.150.42", port=502, auto_open=True, auto_close=True)
-	c = ModbusClient(host="169.254.240.116", port=502, auto_open=True, auto_close=True)
-	# c = ModbusClient(host="169.254.240.1", port=502, auto_open=True, auto_close=True)
-except ValueError:
-	print("Error with host or port params")
+# # sudo
+# try:
+# 	# c = ModbusClient(host="169.254.150.42", port=502, auto_open=True, auto_close=True)
+# 	c = ModbusClient(host="169.254.240.116", port=502, auto_open=True, auto_close=True)
+# 	# c = ModbusClient(host="169.254.240.1", port=502, auto_open=True, auto_close=True)
+# except ValueError:
+# 	print("Error with host or port params")
 
 # for ii in range(0,65535):
 # 	returnlist = []
@@ -130,63 +131,59 @@ def read_freq(ModbusClient):
 	print(r0)
 
 
+def live(ip_address):
+	while True:
+		c = ModbusClient(host=f"{ip_address}", port=502, auto_open=True, auto_close=True)
 
-while True:
-	# sent hearbeat
-	send_heartbeat(c)
+		# sent hearbeat
+		send_heartbeat(c)
 
-	# set start mode to tamp
-	if RAMP_SET == False:
-		RAMP_SET = set_start_mode_ramp(c)
+		# set start mode to tamp
+		if RAMP_SET == False:
+			RAMP_SET = set_start_mode_ramp(c)
 
-	# set start time 60 s
-	if RAMP_TIME_SET == False:
-		RAMP_TIME_SET = set_start_time(c)
+		# set start time 60 s
+		if RAMP_TIME_SET == False:
+			RAMP_TIME_SET = set_start_time(c)
 
-	# set the forward power set point to 200 W
-	if FP_SET == False:
-		FP_SET = set_FW_power(c)
+		# set the forward power set point to 200 W
+		if FP_SET == False:
+			FP_SET = set_FW_power(c)
 
-	# set the reflected power set point to 100 W
-	if RP_SET == False:
-		RP_SET = set_RP(c)
+		# set the reflected power set point to 100 W
+		if RP_SET == False:
+			RP_SET = set_RP(c)
 
-	# set the reflected power set point to 100 W
-	if FREQ_SET == False:
-		FREQ_SET = set_freq(c)
+		# set the reflected power set point to 100 W
+		if FREQ_SET == False:
+			FREQ_SET = set_freq(c)
 
-	# set the microwave mode:
-	if MODE_SET == False:
-		 MODE_SET = set_microwave_mode(c)
+		# set the microwave mode:
+		if MODE_SET == False:
+			 MODE_SET = set_microwave_mode(c)
 
-	read_fault_present(c)
-	read_FP(c)
-	read_RP(c)
-	read_set_FP(c)
-	read_freq(c)
+		read_fault_present(c)
+		read_FP(c)
+		read_RP(c)
+		read_set_FP(c)
+		read_freq(c)
 
+		sleep(0.1)
 
+if __name__ == '__main__':
+    # Get the arguments from the command-line except the filename
+    argv = sys.argv[1:]
 
+    try:
+        if len(argv) == 1:
+        	ip_address = argv[0]
+        	live(ip_address)
 
-# while True:
-# 	wr = c.write_single_register(20, 128) # modbus heartbeat
-# 	rr = c.read_holding_registers(99, 1)
-# 	r0 = c.read_holding_registers(105, 1)
-# 	print(r0)
+        else:
+            print('Error! usage: .py --ip_address. ip_address must be provided!')
+            sys.exit(2)
 
-# addr = 104
-# regs_list_1 = c.read_holding_registers(addr, 20)
-# print(addr)
-# print(regs_list_1)
-
-# addr = 108
-# regs_list_1 = c.read_holding_registers(addr, 20)
-# print(addr)
-# print(regs_list_1)
-
-
-# addr = 102
-# regs_list_1 = c.read_holding_registers(addr, 20)
-# print(addr)
-# print(regs_list_1)
-
+    except getopt.GetoptError:
+        # Print something useful
+        print('Error! usage: .py --ip_address. ip_address must be provided!')
+        sys.exit(2)
