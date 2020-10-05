@@ -103,7 +103,7 @@ def read_live():
             now = now.strftime(format='%Y-%m-%d %H:%M:%S')
             print(' ')
             if len(s) == 5:
-                voltage_dose = float(s[2])
+                dose_voltage = float(s[2])
                 HV_current = float(s[3])  # 0 - 2 mA
                 HV_voltage = float(s[4])  # -(0-150) kV
                 # HV_voltage = float(interp_HV_voltage(HV_voltage))
