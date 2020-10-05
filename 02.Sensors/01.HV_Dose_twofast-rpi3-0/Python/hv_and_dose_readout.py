@@ -113,7 +113,7 @@ def read_live():
                 voltage_IS = float(s[0])
                 voltage_VC = float(s[1])
                 sys.stdout.write('Reading hv and dose voltages  ...')
-                sys.stdout.write(f'{now}, HV: {HV_voltage}, I: {HV_current}, dose: {dose_voltage}')
+                sys.stdout.write(f'{now}, HV: {HV_voltage}, I: {HV_current}, dose: {dose_voltage} ')
                 # saveDB(experiment_id, HV_voltage, HV_current, dose_voltage, VERBOSE)
             sleep(0.1)
 
