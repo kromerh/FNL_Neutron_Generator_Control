@@ -74,18 +74,20 @@ def read_live():
 
 			# read setpoint from arduino
 			valueRead = serialArduino.readline(500) # b'V_1 1.30, 4.20, V_out 215.04\r\n'
-			#     sys.stdout.write('Reading hv and dose voltages  ...')
-			#     sys.stdout.write(f'{now}, HV: {HV_voltage}, I: {HV_current}, dose: {dose_voltage} ')
-			print('Raw reading from Arduino :' + str(valueRead)) # Read the newest output from the Arduino
+			now = datetime.datetime.now()
+			now = now.strftime(format='%Y-%m-%d %H:%M:%S')
+		    sys.stdout.write('Reading d2flow voltages  ...')
+		    sys.stdout.write(f'{now}, HV: {HV_voltage}, I: {HV_current}, dose: {dose_voltage} ')
+			sys.stdout.write('Raw reading from Arduino :' + str(valueRead)) # Read the newest output from the Arduino
 			voltageStr = str(valueRead).split(',')
 
 			voltageStr = voltageStr[0]
 
-	# 		t = re.findall(r'V_1 (.+)', voltageStr)
+			t = re.findall(r'V_1 (.+)', voltageStr)
 
-	# 		if len(t) > 0:
-	# 			voltage = t[0]
-	# 			# print(voltage)
+			if len(t) > 0:
+				voltage = t[0]
+				# print(voltage)
 	# 			saveFlowMeterVoltageToDB(voltage, setpoint_voltage) # save into DB
 
 
