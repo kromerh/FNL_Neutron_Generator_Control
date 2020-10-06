@@ -46,6 +46,7 @@ layout_sensor_control = html.Div(id='sensor_control_parent',children=
         dcc.Store(id="aggregate_data"),
         dcc.Store(id="d2flow_set"),
         dcc.Store(id="mw_set"),
+        dcc.Store(id="mw_onoff"),
         dcc.Store(id="mw_freq_set"),
         dcc.Interval(
             id='readout_interval',
