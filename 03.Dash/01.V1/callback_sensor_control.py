@@ -1440,8 +1440,8 @@ def fault_handler(live_mw_data):
 	fault_code = df['Code'].values[-1]
 	print(fault_code)
 	# print(df[['time']].head())
-
-	return fault_code
+	mw_fault_text_code = f"Fault: {fault_code}"
+	return mw_fault_text_code
 
 
 
