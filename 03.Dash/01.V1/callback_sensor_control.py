@@ -1429,19 +1429,109 @@ def update_mw_freq_set(n_clicks, freq_input):
 	return None
 
 
-# Fault handler for microwave
 
+
+# Fault handler for microwave
 @app.callback(
-	Output('mw_fault_text_code', 'children'),
+	[
+		Output('mw_fault_text_code', 'children'),
+		Output('mw_fault_text_no', 'children'),
+		Output('mw_fault_text_0', 'children'),
+		Output('mw_fault_text_1', 'children'),
+		Output('mw_fault_text_2', 'children'),
+		Output('mw_fault_text_3', 'children'),
+		Output('mw_fault_text_4', 'children'),
+		Output('mw_fault_text_5', 'children'),
+
+	],
 	[Input('live_mw_data', 'children')])
 def fault_handler(live_mw_data):
 	# read the fault msg
 	df = pd.read_json(live_mw_data, orient='split')
 	fault_code = df['Code'].values[-1]
 	print(fault_code)
+
+	# dictionary to handle the faults
+	dic_fault = {}
+
+	code_104 = fault_code[1]
+	code_105 = fault_code[-1]
+
+	dic_fault[0] = 'External safety'
+	dic_fault[1] = 'RP limit'
+	dic_fault[2] = 'Local mode'
+	dic_fault[3] = None
+	dic_fault[4] = None
+	dic_fault[5] = 'Gateway comm'
+	dic_fault[6] = 'Temperature fault'
+	dic_fault[7] = 'Internal relay'
+
+	dic_display = {}
+	dic_display['No fault'] = False
+	dic_display['RP limit'] = False
+	dic_display['Local mode'] = False
+	dic_display['Gateway comm'] = False
+	dic_display['Temperature fault'] = False
+	dic_display['Internal relay'] = False
+
+	# convert fault code to binary
+	if code_104 == 0:
+		dic_display['No fault'] = True
+	else:
+		faults = str(bin(code_104)[2:])
+		faults = [c for c in faults]
+		while len(faults) < 8:
+		    faults.append(0)
+
+	    for ii in range(len(faults)):
+	        if faults[ii] == '1': # it is a fault
+	            name = dic_fault[ii]
+	            dic_display[name] = True
+
+
+	if dic_display['No fault']:
+		mw_fault_text_no = 'No faults'
+	else:
+		mw_fault_text_no = ' '
+
+	if dic_display['External safety']:
+		mw_fault_text_0 = 'External safety'
+	else:
+		mw_fault_text_0 = ' '
+
+	if dic_display['RP limit']:
+		mw_fault_text_1 = 'RP limit'
+	else:
+		mw_fault_text_1 = ' '
+
+	if dic_display['Local mode']:
+		mw_fault_text_2 = 'Local mode'
+	else:
+		mw_fault_text_2 = ' '
+
+
+	if dic_display['Gateway comm']:
+		mw_fault_text_3 = 'Gateway comm'
+	else:
+		mw_fault_text_3 = ' '
+
+
+	if dic_display['Temperature fault']:
+		mw_fault_text_4 = 'Temperature fault'
+	else:
+		mw_fault_text_4 = ' '
+
+
+	if dic_display['Internal relay']:
+		mw_fault_text_5 = 'Internal relay'
+	else:
+		mw_fault_text_5 = ' '
+
+
 	# print(df[['time']].head())
 	mw_fault_text_code = f"Fault: {fault_code}"
-	return mw_fault_text_code
+
+	return mw_fault_text_code, mw_fault_text_no, mw_fault_text_0, mw_fault_text_1, mw_fault_text_2, mw_fault_text_3, mw_fault_text_4, mw_fault_text_5
 
 
 
