@@ -1478,7 +1478,7 @@ def fault_handler(live_mw_data):
 	if code_104 == 0:
 		dic_display['No fault'] = True
 	else:
-		faults = str(bin(code_104)[2:])
+		faults = str(bin(int(code_104))[2:])
 		faults = [c for c in faults]
 		while len(faults) < 8:
 			faults.append(0)
