@@ -1453,8 +1453,15 @@ def fault_handler(live_mw_data):
 
 	# dictionary to handle the faults
 	dic_fault = {}
-	print(type(fault_code))
+	# print(type(fault_code))
 	print(fault_code.split())
+	fc = []
+	for c in fault_code.split():
+		t0 = re.findall(r'(\d)*', c)
+		if len(t0) > 0:
+			fc.append(t0[0])
+
+	print(fc)
 	code_104 = fault_code[1]
 	code_105 = fault_code[-1]
 
