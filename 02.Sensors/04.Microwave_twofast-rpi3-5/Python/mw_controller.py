@@ -302,7 +302,7 @@ def main():
 
 	while True:
 		experiment_id, mw_fp_set, mw_freq_set, mw_on, mw_ip = get_experiment_id(sql_engine, verbose=True)
-
+		print(mw_ip)
 		if mw_on == 1:
 			print('in main, turning on mw')
 			turn_on(mw_ip)
