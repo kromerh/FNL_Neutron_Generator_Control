@@ -1549,6 +1549,7 @@ def fault_handler(live_mw_data):
 	Output('mw_onoff', 'value'),
 	[Input('switch_mw_on_off', 'on')])
 def powerbutton_mw(on):
+	print(on)
 	if on == True:
 		query = f"""UPDATE experiment_control SET mw_on=1;"""
 		sql_engine.execute(sql.text(query))
