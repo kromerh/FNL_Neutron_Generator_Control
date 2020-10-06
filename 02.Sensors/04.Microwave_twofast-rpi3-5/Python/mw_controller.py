@@ -37,7 +37,7 @@ def saveDB(experiment_id, FP, FP_set, RP, Freq, Freq_set, code, verbose=False):
 	query = f"""INSERT INTO live_mw (experiment_id, FP, FP_set, RP, Freq, Freq_set, code) VALUES (\"{experiment_id}\", \"{FP}\", \"{FP_set}\", \"{RP}\", \"{Freq}\", \"{Freq_set}\", \"{code}\");"""
 	sql_engine.execute(sql.text(query))
 
-	if verbose: sys.stdout.write(query)
+	if verbose: print(query)
 
 
 def get_experiment_id(sql_engine, verbose=False):
@@ -49,7 +49,7 @@ def get_experiment_id(sql_engine, verbose=False):
 	mw_freq_set = df['mw_freq_set'].values[0]
 	mw_on = df['mw_freq_set'].values[0]
 
-	if verbose: sys.stdout.write(f"Experiment id {experiment_id}, {mw_fp_set}, {mw_freq_set}, mw_on: {mw_on} ")
+	if verbose: print(f"Experiment id {experiment_id}, {mw_fp_set}, {mw_freq_set}, mw_on: {mw_on} ")
 
 	return experiment_id, mw_fp_set, mw_freq_set, mw_on
 
@@ -192,7 +192,7 @@ def turn_on(mw_ip):
 		mw_freq_set = min(mw_freq_set, 25000) # maximum 2.5 GHz
 		mw_freq_set = int(mw_freq_set)
 		print(' ')
-		# sys.stdout.write(f"\n {mw_fp_set}, {mw_freq_set} ")
+		# print(f"\n {mw_fp_set}, {mw_freq_set} ")
 #
 		# set start mode to tamp
 		if RAMP_SET == False:
@@ -267,7 +267,7 @@ def turn_off(mw_ip):
 		mw_freq_set = min(mw_freq_set, 25000) # maximum 2.5 GHz
 		mw_freq_set = int(mw_freq_set)
 		print(' ')
-		# sys.stdout.write(f"\n {mw_fp_set}, {mw_freq_set} ")
+		# print(f"\n {mw_fp_set}, {mw_freq_set} ")
 #
 
 		FP_SET = set_FW_power(c, mw_fp_set)
