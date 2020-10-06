@@ -1477,6 +1477,7 @@ def fault_handler(live_mw_data):
 	dic_display = {}
 	dic_display['No fault'] = False
 	dic_display['RP limit'] = False
+	dic_display['External safety'] = False
 	dic_display['Local mode'] = False
 	dic_display['Gateway comm'] = False
 	dic_display['Temperature fault'] = False
