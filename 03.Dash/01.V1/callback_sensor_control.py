@@ -1491,10 +1491,10 @@ def fault_handler(live_mw_data):
 		while len(faults) < 8:
 			faults.append(0)
 
-	for ii in range(len(faults)):
-		if faults[ii] == '1': # it is a fault
-			name = dic_fault[ii]
-			dic_display[name] = True
+		for ii in range(len(faults)):
+			if faults[ii] == '1': # it is a fault
+				name = dic_fault[ii]
+				dic_display[name] = True
 
 
 	if dic_display['No fault']:
