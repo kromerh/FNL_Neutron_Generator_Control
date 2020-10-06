@@ -1468,6 +1468,7 @@ def fault_handler(live_mw_data):
 	dic_display['Gateway comm'] = False
 	dic_display['Temperature fault'] = False
 	dic_display['Internal relay'] = False
+	mw_fault_text_code = "Fault: fault_code"
 
 	if len(df) > 0:
 		fault_code = df['Code'].values[-1]
@@ -1486,6 +1487,7 @@ def fault_handler(live_mw_data):
 		code_104 = fault_code[1]
 		code_105 = fault_code[-1]
 
+		mw_fault_text_code = f"Fault: {fault_code}"
 
 		# print(code_104)
 
@@ -1544,7 +1546,6 @@ def fault_handler(live_mw_data):
 
 
 	# print(df[['time']].head())
-	mw_fault_text_code = f"Fault: {fault_code}"
 
 	return mw_fault_text_code, mw_fault_text_no, mw_fault_text_0, mw_fault_text_1, mw_fault_text_2, mw_fault_text_3, mw_fault_text_4, mw_fault_text_5
 
