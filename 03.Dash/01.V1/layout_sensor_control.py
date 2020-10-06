@@ -50,7 +50,7 @@ layout_sensor_control = html.Div(id='sensor_control_parent',children=
         dcc.Store(id="mw_freq_set"),
         dcc.Interval(
             id='readout_interval',
-            interval=1*1000, # in milliseconds
+            interval=1.5*1000, # in milliseconds
             n_intervals=0
         ),
         dcc.Store(id="live_hv_dose_data"),

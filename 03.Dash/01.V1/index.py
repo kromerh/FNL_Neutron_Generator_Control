@@ -85,4 +85,5 @@ def display_page(pathname):
 
 if __name__ == "__main__":
     app.run_server(debug=True, port=5000, host='0.0.0.0') # at PSI
+    # app.run_server(debug=False, port=5000, host='0.0.0.0') # at PSI	
     # app.run_server(debug=True) # at home

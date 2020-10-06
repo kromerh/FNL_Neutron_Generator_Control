@@ -46,7 +46,7 @@ VERBOSE_READ_MW = False
 VERBOSE_SET_FREQ_SET = False
 
 # after this many seconds indicator will turn red
-READOUT_DEADTIME = 5
+READOUT_DEADTIME = 15
 
 # Functions
 
@@ -235,8 +235,15 @@ Y = data_I_leak['HV_current'].values.astype(np.float64)
 interp_leak = interp1d(X, Y, fill_value='extrapolate')
 
 
+# HV calibration
+df_HV_LT = pd.read_csv(f'{cwd}/calibration/HV_readout_calibration.txt', delimiter="\t")
+interp_HV_voltage = interp1d(df_HV_LT['Voltage_read'], df_HV_LT['HV_voltage'])
 
-
+# Current calibration
+# correct the current that the arduino reads. This is done using the dose_lookup_table which relates the pi dose with the displayed dose.
+df_HV_I_LT =pd.read_csv(f'{cwd}/calibration/I_readout_calibration.txt', delimiter="\t")
+# interpolation function
+interp_HV_current = interp1d(df_HV_I_LT['Current_read'], df_HV_I_LT['HV_current'])
 
 # dose to neutron output conversion
 cwd = os.getcwd()
@@ -335,8 +342,10 @@ def set_pressure_indicator(readout_interval, live_pressure_data):
 				return 'red'
 			else:
 				return "#39ff14"
+		else:
+			return 'red'
 
-	return "#39ff14"
+	return "gray"
 
 # check the state of the pressure readout, if no new entry in past READOUT_DEADTIME seconds, make indicator red
 @app.callback(
@@ -359,8 +368,10 @@ def set_pressure_indicator(readout_interval, live_d2flow_data):
 				return 'red'
 			else:
 				return "#39ff14"
-
-	return "#39ff14"
+		else:
+			return 'red'
+			
+	return "gray"
 
 
 
@@ -385,8 +396,9 @@ def set_refDet_indicator(readout_interval, live_refDet_data):
 				return 'red'
 			else:
 				return "#39ff14"
-
-	return "#39ff14"
+		else:
+			return 'red'
+	return "gray"
 
 
 
@@ -415,8 +427,10 @@ def set_hv_indicator(readout_interval, live_hv_dose_data):
 				return ['red', 'red']
 			else:
 				return ["#39ff14", "#39ff14"]
+		else:
+			return ['red', 'red']
 
-	return ["#39ff14", "#39ff14"]
+	return ["gray", "gray"]
 
 
 # check the state of the mw readout, if no new entry in past READOUT_DEADTIME seconds, make indicator red
@@ -440,8 +454,12 @@ def set_mw_indicator(readout_interval, live_mw_data):
 				return 'red'
 			else:
 				return "#39ff14"
+		else:
+			return 'red'
+			
+	return "gray"
 
-	return "#39ff14"
+
 
 
 
@@ -1287,6 +1305,12 @@ def read_live_hv_dose(n):
 		if len(df_hv_dose) > 0:
 			df_hv_dose['dose'] = df_hv_dose['dose_voltage'] * 3000 / 5.5
 
+			# current calibration
+			df_hv_dose['HV_current'] = interp_HV_current(df_hv_dose['HV_current'].values)
+			
+			# hv calibration
+			df_hv_dose['HV_voltage'] = interp_HV_voltage(df_hv_dose['HV_voltage'].values)
+			
 			# leakage current correction
 			df_hv_dose['HV_current'] = df_hv_dose['HV_current'] - interp_leak(df_hv_dose['HV_voltage'].values)
 
@@ -1428,7 +1452,16 @@ def update_mw_freq_set(n_clicks, freq_input):
 
 	return None
 
-
+# dictionary to handle the faults
+dic_fault = {}
+dic_fault[0] = 'External safety'
+dic_fault[1] = 'RP limit'
+dic_fault[2] = 'Local mode'
+dic_fault[3] = None
+dic_fault[4] = None
+dic_fault[5] = 'Gateway comm'
+dic_fault[6] = 'Temperature fault'
+dic_fault[7] = 'Internal relay'
 
 
 # Fault handler for microwave
@@ -1448,17 +1481,6 @@ def update_mw_freq_set(n_clicks, freq_input):
 def fault_handler(live_mw_data):
 	# read the fault msg
 	df = pd.read_json(live_mw_data, orient='split')
-
-	# dictionary to handle the faults
-	dic_fault = {}
-	dic_fault[0] = 'External safety'
-	dic_fault[1] = 'RP limit'
-	dic_fault[2] = 'Local mode'
-	dic_fault[3] = None
-	dic_fault[4] = None
-	dic_fault[5] = 'Gateway comm'
-	dic_fault[6] = 'Temperature fault'
-	dic_fault[7] = 'Internal relay'
 
 	dic_display = {}
 	dic_display['No fault'] = False
