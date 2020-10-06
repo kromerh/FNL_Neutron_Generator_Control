@@ -1473,9 +1473,9 @@ def fault_handler(live_mw_data):
 	dic_display['Gateway comm'] = False
 	dic_display['Temperature fault'] = False
 	dic_display['Internal relay'] = False
-
+	print(code_104)
 	# convert fault code to binary
-	if code_104 == 0:
+	if code_104 == "0":
 		dic_display['No fault'] = True
 	else:
 		faults = str(bin(int(code_104))[2:])
