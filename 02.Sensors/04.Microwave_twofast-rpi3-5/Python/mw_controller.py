@@ -55,99 +55,99 @@ def get_experiment_id(sql_engine, verbose=False):
 
 
 
-def send_heartbeat(ModbusClient):
+def send_heartbeat(c):
 		# sends MODBUS heart beat
-		# c is ModbusClient
-		wr = ModbusClient.write_single_register(20, 128) # modbus heartbeat
+		# c is c
+		wr = c.write_single_register(20, 128) # modbus heartbeat
 
-def set_start_mode_ramp(ModbusClient):
+def set_start_mode_ramp(c):
 	# Sets the start mode to ramp
-	# c is ModbusClient
-	wr = ModbusClient.write_single_register(3,2)
+	# c is c
+	wr = c.write_single_register(3,2)
 	# print('set_start_mode_ramp:' + str(int(wr)))
 	return wr
 
-def set_start_time(ModbusClient):
+def set_start_time(c):
 	# Sets the start time to 60s
-	# c is ModbusClient
-	wr = ModbusClient.write_single_register(4,60)
+	# c is c
+	wr = c.write_single_register(4,60)
 	# print('set_start_time:' + str(int(wr)))
 	return wr
 
-def set_FW_power(ModbusClient, mw_fp_set):
+def set_FW_power(c, mw_fp_set):
 	# Sets the forward power set point to 200 W
-	# c is ModbusClient
-	# wr = ModbusClient.write_single_register(0,200)
-	wr = ModbusClient.write_single_register(0,mw_fp_set)
+	# c is c
+	# wr = c.write_single_register(0,200)
+	wr = c.write_single_register(0,mw_fp_set)
 	# print('set_FW_power:' + str(int(wr)))
 	return wr
 
-def set_RP(ModbusClient):
+def set_RP(c):
 	# Sets the reflected power set point to 100 W
-	# c is ModbusClient
-	wr = ModbusClient.write_single_register(1,100)
+	# c is c
+	wr = c.write_single_register(1,100)
 	# print('set_RP:' + str(int(wr)))
 	return wr
 
-def set_freq(ModbusClient, mw_freq_set):
+def set_freq(c, mw_freq_set):
 	# Sets the frequency before the autotuning
-	# c is ModbusClient
-	wr = ModbusClient.write_single_register(9,mw_freq_set)
+	# c is c
+	wr = c.write_single_register(9,mw_freq_set)
 	# print('set_freq:' + str(int(wr)))
 	return wr
 
-def set_microwave_mode(ModbusClient, bit_value=146):
+def set_microwave_mode(c, bit_value=146):
 	# Sets the microwave mode:
 	#	autotuning on, reflected power RP limitation, reset faults
-	# c is ModbusClient
+	# c is c
 	bit_addr = 2
 	bit_value = bit_value # 146 = 0 1 0 0 1 0 0 1
-	wr = ModbusClient.write_single_register(bit_addr, bit_value)
+	wr = c.write_single_register(bit_addr, bit_value)
 	# print('set_microwave_mode:' + str(int(wr)))
 	return wr
 
-def set_microwave_ON(ModbusClient, bit_value=210):
+def set_microwave_ON(c, bit_value=210):
 	# Sets the microwave mode:
 	#	autotuning on, reflected power RP limitation, MW ON, reset faults
-	# c is ModbusClient
+	# c is c
 	bit_addr = 2
 	# bit_value = bit_value # 210 # 0 1 0 0 1 0 1 1
-	wr = ModbusClient.write_single_register(reg_addr=bit_addr, reg_value=bit_value)
+	wr = c.write_single_register(reg_addr=bit_addr, reg_value=bit_value)
 	# print('set_microwave_ON:' + str(int(wr)))
 	return wr
 
 
-def read_fault_present(ModbusClient):
+def read_fault_present(c):
 	# reads if fault present
-	r0 = ModbusClient.read_holding_registers(104, 1)
-	r1 = ModbusClient.read_holding_registers(105, 1)
+	r0 = c.read_holding_registers(104, 1)
+	r1 = c.read_holding_registers(105, 1)
 
 	return [r0[0], r1[0]]
 
-def read_FP(ModbusClient):
+def read_FP(c):
 	# reads forward power
-	r0 = ModbusClient.read_holding_registers(102, 1)
+	r0 = c.read_holding_registers(102, 1)
 	# print('read_FP :')
 	# print(r0)
 	return r0
 
-def read_RP(ModbusClient):
+def read_RP(c):
 	# reads reflected power
-	r0 = ModbusClient.read_holding_registers(103, 1)
+	r0 = c.read_holding_registers(103, 1)
 	# print('read_RP:')
 	# print(r0[0])
 	return r0
 
-def read_set_FP(ModbusClient):
+def read_set_FP(c):
 	# reads setpoint power
-	r0 = ModbusClient.read_holding_registers(100, 1)
+	r0 = c.read_holding_registers(100, 1)
 	# print('read_set_FP')
 	# print(r0)
 	return r0
 
-def read_freq(ModbusClient):
+def read_freq(c):
 	# reads current frequency
-	r0 = ModbusClient.read_holding_registers(112, 1)
+	r0 = c.read_holding_registers(112, 1)
 	# print('read_freq:')
 	# print(r0)
 	return r0
@@ -227,7 +227,7 @@ def turn_on(mw_ip):
 
 		# set the microwaves ON:
 		if (MW_IS_ON == False) and (mw_on == 1):
-			MW_IS_ON = set_microwave_ON(ModbusClient, 210)
+			MW_IS_ON = set_microwave_ON(c, 210)
 
 		status.insert(0, '104:')
 		status.insert(2, ', 105:')
@@ -283,7 +283,7 @@ def turn_off(mw_ip):
 
 
 		# set the microwaves OFF:
-		MW_IS_ON = set_microwave_ON(ModbusClient, 0)
+		MW_IS_ON = set_microwave_ON(c, 0)
 
 		status.insert(0, '104:')
 		status.insert(2, ', 105:')
