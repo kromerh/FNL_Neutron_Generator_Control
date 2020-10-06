@@ -47,7 +47,7 @@ def get_experiment_id(sql_engine, verbose=False):
 	experiment_id = df['experiment_id'].values[0]
 	mw_fp_set = df['mw_fp_set'].values[0]
 	mw_freq_set = df['mw_freq_set'].values[0]
-	mw_on = df['mw_freq_set'].values[0]
+	mw_on = df['mw_on'].values[0]
 
 	if verbose: print(f"Experiment id {experiment_id}, {mw_fp_set}, {mw_freq_set}, mw_on: {mw_on} ")
 
