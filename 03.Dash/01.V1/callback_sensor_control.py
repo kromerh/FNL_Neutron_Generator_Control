@@ -1449,19 +1449,19 @@ def fault_handler(live_mw_data):
 	# read the fault msg
 	df = pd.read_json(live_mw_data, orient='split')
 	fault_code = df['Code'].values[-1]
-	print(fault_code)
 
 	# dictionary to handle the faults
 	dic_fault = {}
 	# print(type(fault_code))
-	print(fault_code.split())
 	fc = []
 	for c in fault_code.split():
 		t0 = re.findall(r'(\d+)', c)
 		if len(t0) > 0:
 			fc.append(t0[0])
 
-	print(fc)
+	fault_code = fc
+	print(fault_code)
+
 	code_104 = fault_code[1]
 	code_105 = fault_code[-1]
 
