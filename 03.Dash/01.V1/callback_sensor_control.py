@@ -1448,23 +1448,9 @@ def update_mw_freq_set(n_clicks, freq_input):
 def fault_handler(live_mw_data):
 	# read the fault msg
 	df = pd.read_json(live_mw_data, orient='split')
-	fault_code = df['Code'].values[-1]
 
 	# dictionary to handle the faults
 	dic_fault = {}
-	# print(type(fault_code))
-	fc = []
-	for c in fault_code.split():
-		t0 = re.findall(r'(\d+)', c)
-		if len(t0) > 0:
-			fc.append(t0[0])
-
-	fault_code = fc
-	# print(fault_code)
-
-	code_104 = fault_code[1]
-	code_105 = fault_code[-1]
-
 	dic_fault[0] = 'External safety'
 	dic_fault[1] = 'RP limit'
 	dic_fault[2] = 'Local mode'
@@ -1482,21 +1468,40 @@ def fault_handler(live_mw_data):
 	dic_display['Gateway comm'] = False
 	dic_display['Temperature fault'] = False
 	dic_display['Internal relay'] = False
-	# print(code_104)
 
-	# convert fault code to binary
-	if code_104 == "0":
-		dic_display['No fault'] = True
-	else:
-		faults = str(bin(int(code_104))[2:])
-		faults = [c for c in faults]
-		while len(faults) < 8:
-			faults.append(0)
+	if len(df) > 0:
+		fault_code = df['Code'].values[-1]
 
-		for ii in range(len(faults)):
-			if faults[ii] == '1': # it is a fault
-				name = dic_fault[ii]
-				dic_display[name] = True
+
+		# print(type(fault_code))
+		fc = []
+		for c in fault_code.split():
+			t0 = re.findall(r'(\d+)', c)
+			if len(t0) > 0:
+				fc.append(t0[0])
+
+		fault_code = fc
+		# print(fault_code)
+
+		code_104 = fault_code[1]
+		code_105 = fault_code[-1]
+
+
+		# print(code_104)
+
+		# convert fault code to binary
+		if code_104 == "0":
+			dic_display['No fault'] = True
+		else:
+			faults = str(bin(int(code_104))[2:])
+			faults = [c for c in faults]
+			while len(faults) < 8:
+				faults.append(0)
+
+			for ii in range(len(faults)):
+				if faults[ii] == '1': # it is a fault
+					name = dic_fault[ii]
+					dic_display[name] = True
 
 
 	if dic_display['No fault']:
