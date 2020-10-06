@@ -1429,6 +1429,20 @@ def update_mw_freq_set(n_clicks, freq_input):
 	return None
 
 
+# Fault handler for microwave
+
+@app.callback(
+	Output('mw_fault_text_code', 'value'),
+	[Input('live_mw_data', 'children')])
+def fault_handler(live_mw_data):
+	# read the fault msg
+	df = pd.read_json(live_mw_data, orient='split')
+	fault_code = df['code'].values[0]
+	print(fault_code)
+	print(df.head())
+
+	return fault_code
+
 
 
 # Refresh experiment id and date table when clicking anywhere
