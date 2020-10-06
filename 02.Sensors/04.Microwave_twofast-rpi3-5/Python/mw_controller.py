@@ -112,7 +112,7 @@ def set_microwave_ON(ModbusClient, bit_value=210):
 	# c is ModbusClient
 	bit_addr = 2
 	# bit_value = bit_value # 210 # 0 1 0 0 1 0 1 1
-	wr = ModbusClient.write_single_register(bit_addr, bit_value)
+	wr = ModbusClient.write_single_register(reg_addr=bit_addr, reg_value=bit_value)
 	# print('set_microwave_ON:' + str(int(wr)))
 	return wr
 
