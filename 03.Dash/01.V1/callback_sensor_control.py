@@ -1457,7 +1457,7 @@ def fault_handler(live_mw_data):
 	print(fault_code.split())
 	fc = []
 	for c in fault_code.split():
-		t0 = re.findall(r'(\d)+', c)
+		t0 = re.findall(r'(\d+)', c)
 		if len(t0) > 0:
 			fc.append(t0[0])
 
