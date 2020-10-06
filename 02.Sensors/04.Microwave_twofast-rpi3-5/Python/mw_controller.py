@@ -41,17 +41,18 @@ def saveDB(experiment_id, FP, FP_set, RP, Freq, Freq_set, code, verbose=False):
 
 
 def get_experiment_id(sql_engine, verbose=False):
-	query = f"SELECT mw_on, mw_fp_set, mw_freq_set, experiment_id FROM experiment_control;"
+	query = f"SELECT mw_ip, mw_on, mw_fp_set, mw_freq_set, experiment_id FROM experiment_control;"
 	df = pd.read_sql(query, sql_engine)
 
 	experiment_id = df['experiment_id'].values[0]
 	mw_fp_set = df['mw_fp_set'].values[0]
 	mw_freq_set = df['mw_freq_set'].values[0]
 	mw_on = df['mw_on'].values[0]
+	mw_ip = df['mw_ip'].values[0]
 
 	if verbose: print(f"Experiment id {experiment_id}, {mw_fp_set}, {mw_freq_set}, mw_on: {mw_on} ")
 
-	return experiment_id, mw_fp_set, mw_freq_set, mw_on
+	return experiment_id, mw_fp_set, mw_freq_set, mw_on, mw_ip
 
 
 
@@ -184,7 +185,7 @@ def turn_on(mw_ip):
 		send_heartbeat(c)
 
 		# read settings from database
-		experiment_id, mw_fp_set, mw_freq_set, mw_on = get_experiment_id(sql_engine, verbose=True)
+		experiment_id, mw_fp_set, mw_freq_set, mw_on, mw_ip = get_experiment_id(sql_engine, verbose=True)
 		mw_fp_set = min(mw_fp_set, 200) # maximum 200
 		mw_fp_set = int(mw_fp_set)
 
@@ -260,7 +261,7 @@ def turn_off(mw_ip):
 		send_heartbeat(c)
 
 		# read settings from database
-		experiment_id, mw_fp_set, mw_freq_set, mw_on = get_experiment_id(sql_engine, verbose=True)
+		experiment_id, mw_fp_set, mw_freq_set, mw_on, mw_ip = get_experiment_id(sql_engine, verbose=True)
 		mw_fp_set = 0
 
 		mw_freq_set = 10 * mw_freq_set # convert to 10 times MHz
@@ -297,34 +298,21 @@ def turn_off(mw_ip):
 			break
 
 
-def main(ip_address):
+def main():
 
 	while True:
-		experiment_id, mw_fp_set, mw_freq_set, mw_on = get_experiment_id(sql_engine, verbose=True)
+		experiment_id, mw_fp_set, mw_freq_set, mw_on, mw_ip = get_experiment_id(sql_engine, verbose=True)
 
 		if mw_on == 1:
 			print('in main, turning on mw')
-			turn_on(mw_ip=ip_address)
+			turn_on(mw_ip)
 		else:
 			print('in main, turning off mw')
-			turn_off(mw_ip=ip_address)
+			turn_off(mw_ip)
 
 
 if __name__ == '__main__':
-	# Get the arguments from the command-line except the filename
-	argv = sys.argv[1:]
+	main()
 
-	try:
-		if len(argv) == 1:
-			ip_address = argv[0][2:]
-			main(ip_address)
 
-		else:
-			print('Error! usage: .py --ip_address. ip_address must be provided!')
-			sys.exit(2)
-
-	except getopt.GetoptError:
-		# Print something useful
-		print('Error! usage: .py --ip_address. ip_address must be provided!')
-		sys.exit(2)
 
