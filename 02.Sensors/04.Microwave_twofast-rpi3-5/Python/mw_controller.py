@@ -111,7 +111,7 @@ def set_microwave_ON(ModbusClient, bit_value=210):
 	#	autotuning on, reflected power RP limitation, MW ON, reset faults
 	# c is ModbusClient
 	bit_addr = 2
-	bit_value = bit_value # 210 # 0 1 0 0 1 0 1 1
+	# bit_value = bit_value # 210 # 0 1 0 0 1 0 1 1
 	wr = ModbusClient.write_single_register(bit_addr, bit_value)
 	# print('set_microwave_ON:' + str(int(wr)))
 	return wr
@@ -227,7 +227,7 @@ def turn_on(mw_ip):
 
 		# set the microwaves ON:
 		if (MW_IS_ON == False) and (mw_on == 1):
-			MW_IS_ON = set_microwave_ON(ModbusClient, bit_value=210)
+			MW_IS_ON = set_microwave_ON(ModbusClient, 210)
 
 		status.insert(0, '104:')
 		status.insert(2, ', 105:')
@@ -283,7 +283,7 @@ def turn_off(mw_ip):
 
 
 		# set the microwaves OFF:
-		MW_IS_ON = set_microwave_ON(ModbusClient, bit_value=0)
+		MW_IS_ON = set_microwave_ON(ModbusClient, 0)
 
 		status.insert(0, '104:')
 		status.insert(2, ', 105:')
