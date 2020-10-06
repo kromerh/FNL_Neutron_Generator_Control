@@ -1437,9 +1437,9 @@ def update_mw_freq_set(n_clicks, freq_input):
 def fault_handler(live_mw_data):
 	# read the fault msg
 	df = pd.read_json(live_mw_data, orient='split')
-	fault_code = df['Code'].values[0]
+	fault_code = df['Code'].values[-1]
 	print(fault_code)
-	print(df[['time']].head())
+	# print(df[['time']].head())
 
 	return fault_code
 
