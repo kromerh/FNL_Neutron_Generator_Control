@@ -304,10 +304,10 @@ def main(ip_address):
 
 		if mw_on == 1:
 			print('in main, turning on mw')
-			turn_on(mw_ip)
+			turn_on(mw_ip=ip_address)
 		else:
 			print('in main, turning off mw')
-			turn_off(mw_ip)
+			turn_off(mw_ip=ip_address)
 
 
 if __name__ == '__main__':
