@@ -1546,8 +1546,8 @@ def fault_handler(live_mw_data):
 
 #Power micorwave on or off
 @app.callback(
-    Output('mw_onoff', 'value'),
-    [Input('switch_mw_on_off', 'on')])
+	Output('mw_onoff', 'value'),
+	[Input('switch_mw_on_off', 'on')])
 def powerbutton_mw(on):
 	if on == True:
 		query = f"""UPDATE experiment_control SET mw_on=1;"""
@@ -1557,7 +1557,7 @@ def powerbutton_mw(on):
 		query = f"""UPDATE experiment_control SET mw_on=0;"""
 		sql_engine.execute(sql.text(query))
 
-    return 'The button is {}.'.format(on)
+	return 'The button is {}.'.format(on)
 
 
 # Refresh experiment id and date table when clicking anywhere
