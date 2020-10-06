@@ -1483,6 +1483,7 @@ def fault_handler(live_mw_data):
 	dic_display['Temperature fault'] = False
 	dic_display['Internal relay'] = False
 	print(code_104)
+
 	# convert fault code to binary
 	if code_104 == "0":
 		dic_display['No fault'] = True
@@ -1542,6 +1543,21 @@ def fault_handler(live_mw_data):
 
 	return mw_fault_text_code, mw_fault_text_no, mw_fault_text_0, mw_fault_text_1, mw_fault_text_2, mw_fault_text_3, mw_fault_text_4, mw_fault_text_5
 
+
+#Power micorwave on or off
+@app.callback(
+    Output('mw_onoff', 'value'),
+    [Input('switch_mw_on_off', 'on')])
+def powerbutton_mw(on):
+	if on == True:
+		query = f"""UPDATE experiment_control SET mw_on=1;"""
+		sql_engine.execute(sql.text(query))
+	else:
+		# turn mw off
+		query = f"""UPDATE experiment_control SET mw_on=0;"""
+		sql_engine.execute(sql.text(query))
+
+    return 'The button is {}.'.format(on)
 
 
 # Refresh experiment id and date table when clicking anywhere
