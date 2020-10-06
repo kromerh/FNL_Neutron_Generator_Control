@@ -1460,7 +1460,7 @@ def fault_handler(live_mw_data):
 			fc.append(t0[0])
 
 	fault_code = fc
-	print(fault_code)
+	# print(fault_code)
 
 	code_104 = fault_code[1]
 	code_105 = fault_code[-1]
@@ -1482,7 +1482,7 @@ def fault_handler(live_mw_data):
 	dic_display['Gateway comm'] = False
 	dic_display['Temperature fault'] = False
 	dic_display['Internal relay'] = False
-	print(code_104)
+	# print(code_104)
 
 	# convert fault code to binary
 	if code_104 == "0":
