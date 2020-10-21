@@ -325,7 +325,7 @@ def set_freq_setpoint(sql_engine, freq_input, verbose=False):
 @app.callback(
 	Output('idc_pressure_sensor', 'color'),
 	[Input('readout_interval', 'n_intervals')],
-	[State("live_pressure_data", "children")])
+	[State("live_pressure_data", "data")])
 def set_pressure_indicator(readout_interval, live_pressure_data):
 	if live_pressure_data:
 		df = pd.read_json(live_pressure_data, orient='split')
@@ -351,7 +351,7 @@ def set_pressure_indicator(readout_interval, live_pressure_data):
 @app.callback(
 	Output('idc_d2flow_sensor', 'color'),
 	[Input('readout_interval', 'n_intervals')],
-	[State("live_d2flow_data", "children")])
+	[State("live_d2flow_data", "data")])
 def set_pressure_indicator(readout_interval, live_d2flow_data):
 	if live_d2flow_data:
 		df = pd.read_json(live_d2flow_data, orient='split')
@@ -379,7 +379,7 @@ def set_pressure_indicator(readout_interval, live_d2flow_data):
 @app.callback(
 	Output('idc_refDet_sensor', 'color'),
 	[Input('readout_interval', 'n_intervals')],
-	[State("live_refDet_data", "children")])
+	[State("live_refDet_data", "data")])
 def set_refDet_indicator(readout_interval, live_refDet_data):
 	if live_refDet_data:
 		df = pd.read_json(live_refDet_data, orient='split')
@@ -410,10 +410,11 @@ def set_refDet_indicator(readout_interval, live_refDet_data):
 		Output('idc_dose_sensor', 'color')
 	],
 	[Input('readout_interval', 'n_intervals')],
-	[State("live_hv_dose_data", "children")])
+	[State("live_hv_dose_data", "data")])
 def set_hv_indicator(readout_interval, live_hv_dose_data):
 	if live_hv_dose_data:
 		df = pd.read_json(live_hv_dose_data, orient='split')
+		print(df)
 		if len(df) > 0:
 			df['time'] = pd.to_datetime(df['time'])
 			df['time'] = df['time'].dt.tz_localize(None)
@@ -437,7 +438,7 @@ def set_hv_indicator(readout_interval, live_hv_dose_data):
 @app.callback(
 	Output('idc_mw_sensor', 'color'),
 	[Input('readout_interval', 'n_intervals')],
-	[State("live_mw_data", "children")])
+	[State("live_mw_data", "data")])
 def set_mw_indicator(readout_interval, live_mw_data):
 	if live_mw_data:
 		df = pd.read_json(live_mw_data, orient='split')
@@ -470,7 +471,7 @@ def set_mw_indicator(readout_interval, live_mw_data):
 @app.callback(
 	[Output('HV_kV_text', 'children'),Output('HV_mA_text', 'children')],
 	[Input('readout_interval', 'n_intervals')],
-	[State("live_hv_dose_data", "children")])
+	[State("live_hv_dose_data", "data")])
 def rolling_mean_hv(readout_interval, live_hv_dose_data):
 	if live_hv_dose_data:
 		df = pd.read_json(live_hv_dose_data, orient='split')
@@ -498,7 +499,7 @@ def rolling_mean_hv(readout_interval, live_hv_dose_data):
 @app.callback(
 	[Output('FP_text', 'children'),Output('RP_text', 'children'),Output('freq_text', 'children')],
 	[Input('readout_interval', 'n_intervals')],
-	[State("live_mw_data", "children")])
+	[State("live_mw_data", "data")])
 def rolling_mean_mw(readout_interval, live_mw_data):
 	if live_mw_data:
 		df = pd.read_json(live_mw_data, orient='split')
@@ -526,7 +527,7 @@ def rolling_mean_mw(readout_interval, live_mw_data):
 @app.callback(
 	[Output('dose_text', 'children'),Output('yield_text', 'children')],
 	[Input('readout_interval', 'n_intervals')],
-	[State("live_hv_dose_data", "children")])
+	[State("live_hv_dose_data", "data")])
 def rolling_mean_dose(readout_interval, live_hv_dose_data):
 	if live_hv_dose_data:
 		df = pd.read_json(live_hv_dose_data, orient='split')
@@ -552,7 +553,7 @@ def rolling_mean_dose(readout_interval, live_hv_dose_data):
 @app.callback(
 	Output('pressure_text', 'children'),
 	[Input('readout_interval', 'n_intervals')],
-	[State("live_pressure_data", "children")])
+	[State("live_pressure_data", "data")])
 def rolling_mean_pressure(readout_interval, live_pressure_data):
 	if live_pressure_data:
 		df = pd.read_json(live_pressure_data, orient='split')
@@ -579,7 +580,7 @@ def rolling_mean_pressure(readout_interval, live_pressure_data):
 @app.callback(
 	Output('mw_setpoint_FP_text', 'children'),
 	[Input('readout_interval', 'n_intervals')],
-	[State("experiment_control_data", "children")])
+	[State("experiment_control_data", "data")])
 def set_FP_setpoint_text(readout_interval, experiment_control_data):
 	if experiment_control_data:
 		df = pd.read_json(experiment_control_data, orient='split')
@@ -600,7 +601,7 @@ def set_FP_setpoint_text(readout_interval, experiment_control_data):
 @app.callback(
 	Output('mw_setpoint_freq_text', 'children'),
 	[Input('readout_interval', 'n_intervals')],
-	[State("experiment_control_data", "children")])
+	[State("experiment_control_data", "data")])
 def set_FREQ_setpoint_text(readout_interval, experiment_control_data):
 	if experiment_control_data:
 		df = pd.read_json(experiment_control_data, orient='split')
@@ -622,7 +623,7 @@ def set_FREQ_setpoint_text(readout_interval, experiment_control_data):
 @app.callback(
 	Output('d2flow_text', 'children'),
 	[Input('readout_interval', 'n_intervals')],
-	[State("live_d2flow_data", "children")])
+	[State("live_d2flow_data", "data")])
 def rolling_mean_d2flow(readout_interval, live_d2flow_data):
 	if live_d2flow_data:
 		df = pd.read_json(live_d2flow_data, orient='split')
@@ -652,7 +653,7 @@ def rolling_mean_d2flow(readout_interval, live_d2flow_data):
 @app.callback(
 	Output('refDet_text', 'children'),
 	[Input('readout_interval', 'n_intervals')],
-	[State("live_refDet_data", "children")])
+	[State("live_refDet_data", "data")])
 def rolling_mean_refDet(readout_interval, live_refDet_data):
 	if live_refDet_data:
 		df = pd.read_json(live_refDet_data, orient='split')
@@ -678,8 +679,8 @@ def rolling_mean_refDet(readout_interval, live_refDet_data):
 # dose graph
 @app.callback(
 	Output("sensor_control_graph_dose", "figure"),
-	[Input("live_hv_dose_data", "children"), Input("live_refDet_data", "children")],
-	[State('experiment_control_data', 'children')]
+	[Input("live_hv_dose_data", "data"), Input("live_refDet_data", "data")],
+	[State('experiment_control_data', 'data')]
 )
 def plot_dose(json_data_hv_dose, json_data_refDet, experiment_control_data):
 
@@ -799,7 +800,7 @@ def plot_dose(json_data_hv_dose, json_data_refDet, experiment_control_data):
 
 # callback to read the experiment_control table
 @app.callback(
-	Output('experiment_control_data', 'children'),
+	Output('experiment_control_data', 'data'),
 	[Input('readout_interval', 'n_intervals')])
 def read_experiment_control(n):
 
@@ -816,8 +817,8 @@ def read_experiment_control(n):
 # HV graph
 @app.callback(
 	Output("sensor_control_graph_HV", "figure"),
-	[Input("live_hv_dose_data", "children")],
-	[State('experiment_control_data', 'children')]
+	[Input("live_hv_dose_data", "data")],
+	[State('experiment_control_data', 'data')]
 )
 # def plot_graph_data(df, figure, command, start, start_button, PID):
 def plot_HV(json_data, experiment_control_data):
@@ -930,8 +931,8 @@ def plot_HV(json_data, experiment_control_data):
 # d2flow graph
 @app.callback(
 	Output("sensor_control_graph_d2flow", "figure"),
-	[Input("live_d2flow_data", "children")],
-	[State('experiment_control_data', 'children')]
+	[Input("live_d2flow_data", "data")],
+	[State('experiment_control_data', 'data')]
 )
 # def plot_graph_data(df, figure, command, start, start_button, PID):
 def plot_d2flow(live_d2flow_data, experiment_control_data):
@@ -1012,8 +1013,8 @@ def plot_d2flow(live_d2flow_data, experiment_control_data):
 # mw power graph
 @app.callback(
 	Output("sensor_control_graph_mw_power", "figure"),
-	[Input("live_mw_data", "children")],
-	[State('experiment_control_data', 'children')]
+	[Input("live_mw_data", "data")],
+	[State('experiment_control_data', 'data')]
 )
 # def plot_graph_data(df, figure, command, start, start_button, PID):
 def plot_mw_power(live_mw_data, experiment_control_data):
@@ -1107,8 +1108,8 @@ def plot_mw_power(live_mw_data, experiment_control_data):
 # mw freq graph
 @app.callback(
 	Output("sensor_control_graph_mw_freq", "figure"),
-	[Input("live_mw_data", "children")],
-	[State('experiment_control_data', 'children')]
+	[Input("live_mw_data", "data")],
+	[State('experiment_control_data', 'data')]
 )
 # def plot_graph_data(df, figure, command, start, start_button, PID):
 def plot_mw_freq(live_mw_data, experiment_control_data):
@@ -1187,8 +1188,8 @@ def plot_mw_freq(live_mw_data, experiment_control_data):
 # Pressure graph
 @app.callback(
 	Output("sensor_control_graph_pressure", "figure"),
-	[Input("live_pressure_data", "children")],
-	[State('experiment_control_data', 'children')]
+	[Input("live_pressure_data", "data")],
+	[State('experiment_control_data', 'data')]
 )
 def plot_pressure(json_data, experiment_control_data):
 
@@ -1285,11 +1286,11 @@ def plot_pressure(json_data, experiment_control_data):
 # callback to read the database and store live_hv_dose data in a json objective
 @app.callback(
 	[
-		Output('live_hv_dose_data', 'children'),
-		Output('live_pressure_data', 'children'),
-		Output('live_refDet_data', 'children'),
-		Output("live_d2flow_data", "children"),
-		Output("live_mw_data", "children")
+		Output('live_hv_dose_data', 'data'),
+		Output('live_pressure_data', 'data'),
+		Output('live_refDet_data', 'data'),
+		Output("live_d2flow_data", "data"),
+		Output("live_mw_data", "data")
 
 	],
 	[Input('readout_interval', 'n_intervals')])
@@ -1320,7 +1321,6 @@ def read_live_hv_dose(n):
 			# compute neutron output from dose
 			df_hv_dose['neutron_yield'] = df_hv_dose['dose'].values * (interp_dose(df_hv_dose['HV_voltage'].values) / 100)
 
-
 		df_pressure = get_live_pressure(sql_engine, query_time, verbose=VERBOSE_READ_PRESSURE)
 		if len(df_pressure) > 0:
 			df_pressure['pressure_IS'] = 10**(1.667*df_pressure['voltage_IS']-11.33)
@@ -1337,7 +1337,7 @@ def read_live_hv_dose(n):
 		json_refDet = df_refDet.to_json(date_format='iso', orient='split')
 		json_d2flow = df_d2flow.to_json(date_format='iso', orient='split')
 		json_mw = df_mw.to_json(date_format='iso', orient='split')
-
+		
 		return json_hv_dose, json_pressure, json_refDet, json_d2flow, json_mw
 
 
@@ -1410,7 +1410,7 @@ def update_experiment_id_date(experiment_id):
 
 # Update the d2flow setpoint to the value in the numeric edit
 @app.callback(
-	Output('d2flow_set', 'children'),
+	Output('d2flow_set', 'data'),
 	[Input('btn_d2flow_set', 'n_clicks')],
 	[State('d2flow_input', 'value')])
 def update_d2flow(n_clicks, d2flow_input):
@@ -1425,7 +1425,7 @@ def update_d2flow(n_clicks, d2flow_input):
 
 # Update the mw fp setpoint to the value in the numeric edit
 @app.callback(
-	Output('mw_set', 'children'),
+	Output('mw_set', 'data'),
 	[Input('btn_FP_set', 'n_clicks')],
 	[State('FP_input', 'value')])
 def update_mw_fp_set(n_clicks, FP_input):
@@ -1440,7 +1440,7 @@ def update_mw_fp_set(n_clicks, FP_input):
 
 # Update the mw freq setpoint to the value in the numeric edit
 @app.callback(
-	Output('mw_freq_set', 'children'),
+	Output('mw_freq_set', 'data'),
 	[Input('btn_freq_set', 'n_clicks')],
 	[State('freq_input', 'value')])
 def update_mw_freq_set(n_clicks, freq_input):
@@ -1477,7 +1477,7 @@ dic_fault[7] = 'Internal relay'
 		Output('mw_fault_text_5', 'children'),
 
 	],
-	[Input('live_mw_data', 'children')])
+	[Input('live_mw_data', 'data')])
 def fault_handler(live_mw_data):
 	# read the fault msg
 	df = pd.read_json(live_mw_data, orient='split')
@@ -1574,7 +1574,7 @@ def fault_handler(live_mw_data):
 
 #Power micorwave on or off
 @app.callback(
-	Output('mw_onoff', 'value'),
+	Output('mw_onoff', 'data'),
 	[Input('switch_mw_on_off', 'on')])
 def powerbutton_mw(on):
 	print(on)
@@ -1598,7 +1598,7 @@ def powerbutton_mw(on):
 		Output('sensor_control_dropdown_ID', 'options')
 	],
 	[Input('sensor_control_parent', 'n_clicks')],
-	[State('experiment_control_data', 'children')])
+	[State('experiment_control_data', 'data')])
 def click_anywhere(n_clicks, experiment_control_data):
 	if n_clicks is None:
 		raise dash.exceptions.PreventUpdate

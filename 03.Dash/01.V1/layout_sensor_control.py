@@ -43,22 +43,21 @@ d2flow_set = df['d2flow_set'].values[0]
 
 layout_sensor_control = html.Div(id='sensor_control_parent',children=
     [
-        dcc.Store(id="aggregate_data"),
-        dcc.Store(id="d2flow_set"),
-        dcc.Store(id="mw_set"),
-        dcc.Store(id="mw_onoff"),
-        dcc.Store(id="mw_freq_set"),
+        dcc.Store(id="d2flow_set", storage_type="session"),
+        dcc.Store(id="mw_set", storage_type="session"),
+        dcc.Store(id="mw_onoff", storage_type="session"),
+        dcc.Store(id="mw_freq_set", storage_type="session"),
         dcc.Interval(
             id='readout_interval',
             interval=1.5*1000, # in milliseconds
             n_intervals=0
         ),
-        dcc.Store(id="live_hv_dose_data"),
-        dcc.Store(id="live_pressure_data"),
-        dcc.Store(id="live_refDet_data"),
-        dcc.Store(id="live_d2flow_data"),
-        dcc.Store(id="live_mw_data"),
-        dcc.Store(id="experiment_control_data"),
+        dcc.Store(id="live_hv_dose_data", storage_type="session"),
+        dcc.Store(id="live_pressure_data", storage_type="session"),
+        dcc.Store(id="live_refDet_data", storage_type="session"),
+        dcc.Store(id="live_d2flow_data", storage_type="session"),
+        dcc.Store(id="live_mw_data", storage_type="session"),
+        dcc.Store(id="experiment_control_data", storage_type="session"),
         # empty Div to trigger javascript file for graph resizing
         html.Div(id="output_mw_ip"), # empty to keep track of ip of mw changed
         html.Div(
