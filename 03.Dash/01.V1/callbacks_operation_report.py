@@ -132,35 +132,35 @@ def click_anywhere(n_clicks):
 
 	# read number of entries in each table
 	count_hv_dose = 0
-	qry = "SELECT COUNT(id) as count FROM storage_hv_dose"
+	query = "SELECT COUNT(id) as count FROM storage_hv_dose"
 	df_hv_dose = pd.read_sql(query, sql_engine)
 	if len(df_hv_dose) > 0:
 		count_hv_dose = df_hv_dose['count'].values[0]
 
 
 	count_d2flow = 0
-	qry = "SELECT COUNT(id) as count FROM live_d2flow"
+	query = "SELECT COUNT(id) as count FROM live_d2flow"
 	df_d2flow = pd.read_sql(query, sql_engine)
 	if len(df_d2flow) > 0:
 		count_d2flow = df_d2flow['count'].values[0]
 
 
 	count_mw = 0
-	qry = "SELECT COUNT(id) as count FROM live_mw"
+	query = "SELECT COUNT(id) as count FROM live_mw"
 	df_mw = pd.read_sql(query, sql_engine)
 	if len(df_mw) > 0:
 		count_mw = df_mw['count'].values[0]
 
 
 	count_pressure = 0
-	qry = "SELECT COUNT(id) as count FROM live_pressure"
+	query = "SELECT COUNT(id) as count FROM live_pressure"
 	df_pressure = pd.read_sql(query, sql_engine)
 	if len(df_pressure) > 0:
 		count_pressure = df_pressure['count'].values[0]
 
 
 	count_ref_det = 0
-	qry = "SELECT COUNT(id) as count FROM live_ref_det"
+	query = "SELECT COUNT(id) as count FROM live_ref_det"
 	df_ref_det = pd.read_sql(query, sql_engine)
 	if len(df_ref_det) > 0:
 		count_ref_det = df_ref_det['count'].values[0]
