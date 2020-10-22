@@ -10,6 +10,11 @@ import dash_daq as daq
 
 layout_operation_report = html.Div(id='operation_report_parent',children=
     [
+        dcc.Store(id="live_hv_dose_data", storage_type="session"),
+        dcc.Store(id="live_pressure_data", storage_type="session"),
+        dcc.Store(id="live_refDet_data", storage_type="session"),
+        dcc.Store(id="live_d2flow_data", storage_type="session"),
+        dcc.Store(id="live_mw_data", storage_type="session"),
         html.Div(
             [
                 html.Div(
@@ -42,7 +47,21 @@ layout_operation_report = html.Div(id='operation_report_parent',children=
                     dcc.Tab(
                         label="LIVE",
                         value="tab_live",
-                        children=[],
+                        children=[
+                                    html.Div(
+                                            [
+                                                dash_table.DataTable(
+                                                    id="tbl_live_overview",
+                                                    style_cell={
+                                                        "minWidth": "0px",
+                                                        "maxWidth": "180px",
+                                                        "whiteSpace": "normal",
+                                                    },
+                                                )
+                                            ],
+                                            className="table__1",
+                                            ),
+                        ],
                         ),
                     dcc.Tab(
                         label="STORAGE",
