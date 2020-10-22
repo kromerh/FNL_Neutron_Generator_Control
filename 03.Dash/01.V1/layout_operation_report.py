@@ -53,7 +53,7 @@ layout_operation_report = html.Div(id='operation_report_parent',children=
                                                                 id="tbl_live_overview",
                                                                 style_cell={
                                                                     "minWidth": "0px",
-                                                                    "maxWidth": "360px",
+                                                                    "maxWidth": "180px",
                                                                     "whiteSpace": "normal",
                                                                     "textAlign": "left",
                                                                     'padding': '5px',
@@ -258,6 +258,32 @@ layout_operation_report = html.Div(id='operation_report_parent',children=
                                     html.Div(
                                                 [
                                                     html.Div(
+                                                        [
+                                                            dash_table.DataTable(
+                                                                id="tbl_storage_overview",
+                                                                style_cell={
+                                                                    "minWidth": "0px",
+                                                                    "maxWidth": "360px",
+                                                                    "whiteSpace": "normal",
+                                                                    "textAlign": "left",
+                                                                    'padding': '5px',
+                                                                    'font-family': 'sans-serif'
+                                                                },
+                                                                style_header={
+                                                                    'backgroundColor': 'white',
+                                                                    'fontWeight': 'bold'
+                                                                },
+                                                            ),
+                                                        ],
+                                                        className="table__1 three columns",
+                                                        ),
+                                                ],
+                                                className="row flex-display",
+                                                style = {"margin-left": "5%", "margin-top": "1.5%"},
+                                            ),
+                                    html.Div(
+                                                [
+                                                    html.Div(
                                                             [
                                                                 dcc.Dropdown(
                                                                     id="dropdown_dates",
@@ -277,32 +303,6 @@ layout_operation_report = html.Div(id='operation_report_parent',children=
                                                 ],
                                                 className="row flex-display",
                                     ),
-                                    html.Div(
-                                                [
-                                                    html.Div(
-                                                        [
-                                                            dash_table.DataTable(
-                                                                id="tbl_storage_overview",
-                                                                style_cell={
-                                                                    "minWidth": "0px",
-                                                                    "maxWidth": "180px",
-                                                                    "whiteSpace": "normal",
-                                                                    "textAlign": "left",
-                                                                    'padding': '5px',
-                                                                    'font-family': 'sans-serif'
-                                                                },
-                                                                style_header={
-                                                                    'backgroundColor': 'white',
-                                                                    'fontWeight': 'bold'
-                                                                },
-                                                            ),
-                                                        ],
-                                                        className="table__1 three columns",
-                                                        ),
-                                                ],
-                                                className="row flex-display",
-                                                style = {"margin-left": "5%"},
-                                            ),
                                     html.Div(
                                                 [
                                                     html.Div(
