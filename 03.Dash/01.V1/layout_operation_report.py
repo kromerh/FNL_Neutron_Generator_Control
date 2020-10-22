@@ -53,7 +53,7 @@ layout_operation_report = html.Div(id='operation_report_parent',children=
                                                                 id="tbl_live_overview",
                                                                 style_cell={
                                                                     "minWidth": "0px",
-                                                                    "maxWidth": "180px",
+                                                                    "maxWidth": "360px",
                                                                     "whiteSpace": "normal",
                                                                     "textAlign": "left",
                                                                     'padding': '5px',
