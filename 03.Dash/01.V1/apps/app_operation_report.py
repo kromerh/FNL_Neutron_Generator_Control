@@ -10,5 +10,6 @@ from layout_operation_report import layout_operation_report
 
 # CALLBACKS
 from callbacks_operation_report import *
+from callbacks_operation_report_storage import *
 
 

@@ -34,63 +34,63 @@ connect_string = 'mysql+pymysql://%(user)s:%(pw)s@%(host)s:3306/%(db)s'% {"user"
 sql_engine = sql.create_engine(connect_string)
 
 
-def get_live_hv_dose(sql_engine, verbose=False):
+def get_storage_hv_dose(sql_engine, verbose=False):
 	"""
 	Read live_hv_dose table and return data for that query_time
 	"""
-	query = f"SELECT * FROM live_hv_dose;"
+	query = f"SELECT * FROM storage_hv_dose;"
 	df = pd.read_sql(query, sql_engine)
 
-	if verbose: print(f'Reading live_hv_dose, retrieved {df.shape} entries.')
+	if verbose: print(f'Reading storage_hv_dose, retrieved {df.shape} entries.')
 
 	return df
 
 
-def get_live_pressure(sql_engine, verbose=False):
+def get_storage_pressure(sql_engine, verbose=False):
 	"""
-	Read live_pressure table and return data for that query_time
+	Read storage_pressure table and return data for that query_time
 	"""
-	query = f"SELECT * FROM live_pressure;"
+	query = f"SELECT * FROM storage_pressure;"
 	df = pd.read_sql(query, sql_engine)
 
-	if verbose: print(f'Reading live_pressure, retrieved {df.shape} entries.')
+	if verbose: print(f'Reading storage_pressure, retrieved {df.shape} entries.')
 
 	return df
 
 
-def get_live_refDet(sql_engine, verbose=False):
+def get_storage_refDet(sql_engine, verbose=False):
 	"""
-	Read live_ref_det table and return data for that query_time
+	Read storage_ref_det table and return data for that query_time
 	"""
-	query = f"SELECT * FROM live_ref_det;"
+	query = f"SELECT * FROM storage_ref_det;"
 	df = pd.read_sql(query, sql_engine)
 	df['sum_counts'] = df[['counts_D1', 'counts_D2', 'counts_D3', 'counts_D4']].sum(axis=1)
 
-	if verbose: print(f'Reading live_ref_det, retrieved {df.shape} entries. \n {df.head()}')
+	if verbose: print(f'Reading storage_ref_det, retrieved {df.shape} entries. \n {df.head()}')
 
 	return df
 
 
-def get_live_d2flow(sql_engine, verbose=False):
+def get_storage_d2flow(sql_engine, verbose=False):
 	"""
-	Read live_d2flow table and return data for that query_time
+	Read storage_d2flow table and return data for that query_time
 	"""
-	query = f"SELECT * FROM live_d2flow;"
+	query = f"SELECT * FROM storage_d2flow;"
 	df = pd.read_sql(query, sql_engine)
 
-	if verbose: print(f'Reading live_d2flow, retrieved {df.shape} entries. \n {df.head()}')
+	if verbose: print(f'Reading storage_d2flow, retrieved {df.shape} entries. \n {df.head()}')
 
 	return df
 
 
-def get_live_mw(sql_engine, verbose=False):
+def get_storage_mw(sql_engine, verbose=False):
 	"""
-	Read live_d2flow table and return data for that query_time
+	Read storage_d2flow table and return data for that query_time
 	"""
-	query = f"SELECT * FROM live_mw;"
+	query = f"SELECT * FROM storage_mw;"
 	df = pd.read_sql(query, sql_engine)
 
-	if verbose: print(f'Reading live_mw, retrieved {df.shape} entries. \n {df.head()}')
+	if verbose: print(f'Reading storage_mw, retrieved {df.shape} entries. \n {df.head()}')
 
 	return df
 
@@ -136,8 +136,8 @@ interp_pressure_IS = interp1d(pd.to_numeric(df_LT_pressure['pressure_IS_pi']).va
 
 # plot hv
 @app.callback(
-	Output("graph_HV", "figure"),
-	[Input('btn_load_and_plot', 'n_clicks')])
+	Output("graph_HV_storage", "figure"),
+	[Input('btn_storage_load_and_plot', 'n_clicks')])
 def plot_hv(n_clicks):
 	if n_clicks is None:
 		raise dash.exceptions.PreventUpdate
@@ -228,8 +228,8 @@ def plot_hv(n_clicks):
 
 # plot dose
 @app.callback(
-	Output("graph_dose", "figure"),
-	[Input('btn_load_and_plot', 'n_clicks')])
+	Output("graph_dose_storage", "figure"),
+	[Input('btn_storage_load_and_plot', 'n_clicks')])
 def plot_hv(n_clicks):
 	if n_clicks is None:
 		raise dash.exceptions.PreventUpdate
@@ -332,8 +332,8 @@ def plot_hv(n_clicks):
 
 # plot pressure
 @app.callback(
-	Output("graph_pressure", "figure"),
-	[Input('btn_load_and_plot', 'n_clicks')])
+	Output("graph_pressure_storage", "figure"),
+	[Input('btn_storage_load_and_plot', 'n_clicks')])
 def plot_pressure(n_clicks):
 	if n_clicks is None:
 		raise dash.exceptions.PreventUpdate
@@ -397,8 +397,8 @@ def plot_pressure(n_clicks):
 
 # plot d2flow
 @app.callback(
-	Output("graph_d2flow", "figure"),
-	[Input('btn_load_and_plot', 'n_clicks')])
+	Output("graph_d2flow_storage", "figure"),
+	[Input('btn_storage_load_and_plot', 'n_clicks')])
 def plot_d2flow(n_clicks):
 	if n_clicks is None:
 		raise dash.exceptions.PreventUpdate
@@ -475,8 +475,8 @@ def plot_d2flow(n_clicks):
 
 # plot mw_power
 @app.callback(
-	Output("graph_mw_power", "figure"),
-	[Input('btn_load_and_plot', 'n_clicks')])
+	Output("graph_mw_power_storage", "figure"),
+	[Input('btn_storage_load_and_plot', 'n_clicks')])
 def plot_mw_power(n_clicks):
 	if n_clicks is None:
 		raise dash.exceptions.PreventUpdate
@@ -568,8 +568,8 @@ def plot_mw_power(n_clicks):
 
 # plot mw_freq
 @app.callback(
-	Output("graph_mw_freq", "figure"),
-	[Input('btn_load_and_plot', 'n_clicks')])
+	Output("graph_mw_freq_storage", "figure"),
+	[Input('btn_storage_load_and_plot', 'n_clicks')])
 def plot_mw_freq(n_clicks):
 	if n_clicks is None:
 		raise dash.exceptions.PreventUpdate
@@ -641,61 +641,50 @@ def plot_mw_freq(n_clicks):
 	}
 
 
-# Refresh overview table when clicking anywhere
+# Refresh overview table when clicking button
 @app.callback(
 	[
-		Output('tbl_live_overview', 'columns'),
-		Output('tbl_live_overview', 'data')
+		Output('tbl_storage_overview', 'columns'),
+		Output('tbl_storage_overview', 'data'),
+		Output('dropdown_dates', 'options')
 	],
-	[Input('operation_report_parent', 'n_clicks')])
-def click_anywhere(n_clicks):
+	[Input('btn_storage_overview', 'n_clicks')])
+def refresh_dates(n_clicks):
 	if n_clicks is None:
 		raise dash.exceptions.PreventUpdate
 
 	# read number of entries in each table
-	count_hv_dose = 0
-	query = "SELECT COUNT(id) as count FROM live_hv_dose"
+	query = "SELECT DATE(time) as date, count(id) as count_hv_dose FROM storage_hv_dose GROUP BY DATE(time)"
 	df_hv_dose = pd.read_sql(query, sql_engine)
-	if len(df_hv_dose) > 0:
-		count_hv_dose = df_hv_dose['count'].values[0]
 
-
-	count_d2flow = 0
-	query = "SELECT COUNT(id) as count FROM live_d2flow"
-	df_d2flow = pd.read_sql(query, sql_engine)
-	if len(df_d2flow) > 0:
-		count_d2flow = df_d2flow['count'].values[0]
-
-
-	count_mw = 0
-	query = "SELECT COUNT(id) as count FROM live_mw"
-	df_mw = pd.read_sql(query, sql_engine)
-	if len(df_mw) > 0:
-		count_mw = df_mw['count'].values[0]
-
-
-	count_pressure = 0
-	query = "SELECT COUNT(id) as count FROM live_pressure"
+	# read number of entries in each table
+	query = "SELECT DATE(time) as date, count(id) as count_pressure FROM storage_pressure GROUP BY DATE(time)"
 	df_pressure = pd.read_sql(query, sql_engine)
-	if len(df_pressure) > 0:
-		count_pressure = df_pressure['count'].values[0]
 
+	# read number of entries in each table
+	query = "SELECT DATE(time) as date, count(id) as count_d2flow FROM storage_d2flow GROUP BY DATE(time)"
+	df_d2flow = pd.read_sql(query, sql_engine)
 
-	count_ref_det = 0
-	query = "SELECT COUNT(id) as count FROM live_ref_det"
+	# read number of entries in each table
+	query = "SELECT DATE(time) as date, count(id) as count_ref_det FROM storage_ref_det GROUP BY DATE(time)"
 	df_ref_det = pd.read_sql(query, sql_engine)
-	if len(df_ref_det) > 0:
-		count_ref_det = df_ref_det['count'].values[0]
 
+	# read number of entries in each table
+	query = "SELECT DATE(time) as date, count(id) as count_mw FROM storage_mw GROUP BY DATE(time)"
+	df_mw = pd.read_sql(query, sql_engine)
 
-	df = pd.DataFrame()
-	df['Sensor'] = ['HV and dose', 'Pressure', 'Microwave', 'D2Flow', 'Reference detectors']
-	df['Rowcount'] = [count_hv_dose, count_pressure, count_mw, count_d2flow, count_ref_det]
-
+	dfs = [df_hv_dose, df_pressure, df_d2flow, df_ref_det, df_mw]
+	df = dfs[0]
+	for ii in range(0, len(dfs)-1):
+	    df = df.merge(dfs[ii+1], left_on='date', right_on='date', how='outer')
 
 	columns = [{"name": i, "id": i} for i in df.columns]
 	data = df.to_dict('records')
 
+	# what to display as the dropdown options
+	options_ids=[
+				{'label': i, 'value': i} for i in df['date'].values
+			]
 
 
-	return columns, data
+	return columns, data, options_dates
