@@ -102,7 +102,7 @@ layout_operation_report = html.Div(id='operation_report_parent',children=
                                                                     ),
 
                                                             ],
-                                                            className="three columns",
+                                                            className="pretty_container seven columns",
                                                             style={"margin-left": "2%"}
                                                     ),
                                             ],
@@ -127,7 +127,7 @@ layout_operation_report = html.Div(id='operation_report_parent',children=
                                                                     ),
 
                                                             ],
-                                                            className="three columns",
+                                                            className="pretty_container seven columns",
                                                             style={"margin-left": "2%"}
                                                     ),
                                             ],
