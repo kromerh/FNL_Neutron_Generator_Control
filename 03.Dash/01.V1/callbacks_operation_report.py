@@ -137,7 +137,7 @@ interp_pressure_IS = interp1d(pd.to_numeric(df_LT_pressure['pressure_IS_pi']).va
 
 # plot hv
 @app.callback(
-	Output("graph_HV", "figure")
+	Output("graph_HV", "figure"),
 	[Input('btn_load_and_plot', 'n_clicks')])
 def plot_hv(n_clicks):
 	if n_clicks is None:
