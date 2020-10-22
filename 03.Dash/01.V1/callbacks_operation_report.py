@@ -331,7 +331,69 @@ def plot_hv(n_clicks):
 			)
 		}
 
+# plot pressure
+@app.callback(
+	Output("graph_pressure", "figure"),
+	[Input('btn_load_and_plot', 'n_clicks')])
+def plot_pressure(n_clicks):
+	if n_clicks is None:
+		raise dash.exceptions.PreventUpdate
 
+	# load data from database
+	df_pressure = get_live_pressure(sql_engine, verbose=False)
+
+	traces = []
+
+
+	if len(df_pressure) > 0:
+		df_pressure['pressure_IS'] = 10**(1.667*df_pressure['voltage_IS']-11.33)
+		df_pressure['pressure_IS'] = interp_pressure_IS(df_pressure['pressure_IS'])
+
+		traces.append(go.Scatter(
+			x=df['time'],
+			y=df['pressure_IS'].values,
+			text='Pressure [mbar]',
+			line=go.scatter.Line(
+				color='red',
+				width=1.5
+			),
+			opacity=0.7,
+			name='Pressure [mbar]'
+		))
+
+	else:
+
+		traces.append(go.Scatter(
+			x=[],
+			y=[],
+			line=go.scatter.Line(
+				color='#42C4F7',
+				width=1.0
+			),
+			text='HV',
+			# mode='markers',
+			opacity=1,
+			marker={
+				 'size': 15,
+				 'line': {'width': 1, 'color': '#42C4F7'}
+			},
+			mode='lines',
+			name='Pressure',
+
+		))
+
+	return 	{
+			'data': traces,
+			'layout': go.Layout(
+				# xaxis={'title': 'Time'},
+				yaxis={'title': 'Pressure [mbar]', 'titlefont': {'color': "red"},
+				'type': "log", 'exponentformat':'e', 'side': "right"},
+				height=200,  # px
+				showlegend=False,
+				margin=dict(t=10, b=15, l=50, r=50),
+				hovermode='closest'
+			)
+		}
 
 	# # load data from database
 	# df_hv_dose = get_live_hv_dose(sql_engine, verbose=False)
