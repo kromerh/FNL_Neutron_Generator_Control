@@ -100,7 +100,7 @@ layout_operation_report = html.Div(id='operation_report_parent',children=
                                                     ),
 
                                             ],
-                                            className="pretty_container five columns",
+                                            className="row pretty_container",
                                             style={"margin-left": "2%"}
                                         ),
                                     html.Div(
@@ -120,7 +120,7 @@ layout_operation_report = html.Div(id='operation_report_parent',children=
                                                     ),
 
                                             ],
-                                            className="pretty_container five columns",
+                                            className="row pretty_container",
                                             style={"margin-left": "2%"}
                                         ),
 
