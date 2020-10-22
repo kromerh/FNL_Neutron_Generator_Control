@@ -70,7 +70,7 @@ layout_operation_report = html.Div(id='operation_report_parent',children=
                                                                 },
                                                             ),
                                                         ],
-                                                        className="table__1 four columns",
+                                                        className="table__1 three columns",
                                                         ),
                                                 ],
                                                 className="row",
@@ -79,7 +79,7 @@ layout_operation_report = html.Div(id='operation_report_parent',children=
                                             [
                                                 html.Button('Load data', id='btn_load_and_plot', n_clicks=0)
                                             ],
-                                            className="four columns",
+                                            className="three columns",
                                         ),
 
                                 ],
