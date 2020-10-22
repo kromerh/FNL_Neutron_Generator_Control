@@ -168,7 +168,7 @@ def click_anywhere(n_clicks):
 
 	df = pd.DataFrame()
 	df['Sensor'] = ['HV and dose', 'Pressure', 'Microwave', 'D2Flow', 'Reference detectors']
-	df['Counts'] = [count_hv_dose, count_pressure, count_mw, count_d2flow, count_ref_det]
+	df['Rowcount'] = [count_hv_dose, count_pressure, count_mw, count_d2flow, count_ref_det]
 
 
 	columns = [{"name": i, "id": i} for i in df.columns]

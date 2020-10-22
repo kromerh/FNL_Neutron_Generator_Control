@@ -58,6 +58,13 @@ layout_operation_report = html.Div(id='operation_report_parent',children=
                                                         "minWidth": "0px",
                                                         "maxWidth": "180px",
                                                         "whiteSpace": "normal",
+                                                        "textAlign": "left",
+                                                        'padding': '5px',
+                                                        'font-family': 'sans-serif'
+                                                    },
+                                                    style_header={
+                                                        'backgroundColor': 'white',
+                                                        'fontWeight': 'bold'
                                                     },
                                                 )
                                             ],
