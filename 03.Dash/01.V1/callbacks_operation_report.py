@@ -35,6 +35,10 @@ sql_engine = sql.create_engine(connect_string)
 
 
 
+
+
+# TAB: LIVE
+
 def get_live_hv_dose(sql_engine, verbose=False):
 	"""
 	Read live_hv_dose table and return data for that query_time
@@ -641,42 +645,9 @@ def plot_mw_freq(n_clicks):
 		)
 	}
 
-	# # load data from database
-	# df_hv_dose = get_live_hv_dose(sql_engine, verbose=False)
-	# df_pressure = get_live_pressure(sql_engine, verbose=False)
-	# df_ref_det = get_live_refDet(sql_engine, verbose=False)
-	# df_d2flow = get_live_d2flow(sql_engine, verbose=False)
-	# df_mw = get_live_mw(sql_engine, verbose=False)
 
 
-	# if len(df_hv_dose) > 0:
-	# 	plot_hv = True
-	# 	plot_dose = True
-	# 	df_hv_dose['dose'] = df_hv_dose['dose_voltage'] * 3000 / 5.5
-
-	# 	# current calibration
-	# 	df_hv_dose['HV_current'] = interp_HV_current(df_hv_dose['HV_current'].values)
-
-	# 	# hv calibration
-	# 	df_hv_dose['HV_voltage'] = interp_HV_voltage(df_hv_dose['HV_voltage'].values)
-
-	# 	# leakage current correction
-	# 	df_hv_dose['HV_current'] = df_hv_dose['HV_current'] - interp_leak(df_hv_dose['HV_voltage'].values)
-
-	# 	idx = df_hv_dose[df_hv_dose['HV_current'] < 0].index # set negative current values to 0
-	# 	df_hv_dose.loc[idx, 'HV_current'] = 0
-
-	# 	# compute neutron output from dose
-	# 	df_hv_dose['neutron_yield'] = df_hv_dose['dose'].values * (interp_dose(df_hv_dose['HV_voltage'].values) / 100)
-
-
-	# 	df_dose = df_hv_dose[['time', 'dose_voltage']]
-	# 	df_hv = df_hv_dose[['time', 'HV_voltage', 'HV_current']]
-
-
-	# if len(df_pressure) > 0:
-	# 	df_pressure['pressure_IS'] = 10**(1.667*df_pressure['voltage_IS']-11.33)
-	# 	df_pressure['pressure_IS'] = interp_pressure_IS(df_pressure['pressure_IS'])
+# TAB: storage
 
 
 
@@ -684,9 +655,7 @@ def plot_mw_freq(n_clicks):
 
 
 
-
-# Refresh experiment id and date table when clicking anywhere
-# Update tag dropdowns when clicking anywhere
+# Refresh overview table when clicking anywhere
 @app.callback(
 	[
 		Output('tbl_live_overview', 'columns'),
@@ -699,7 +668,7 @@ def click_anywhere(n_clicks):
 
 	# read number of entries in each table
 	count_hv_dose = 0
-	query = "SELECT COUNT(id) as count FROM storage_hv_dose"
+	query = "SELECT COUNT(id) as count FROM live_hv_dose"
 	df_hv_dose = pd.read_sql(query, sql_engine)
 	if len(df_hv_dose) > 0:
 		count_hv_dose = df_hv_dose['count'].values[0]
