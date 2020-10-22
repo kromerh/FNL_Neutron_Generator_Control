@@ -125,7 +125,7 @@ def get_live_mw(sql_engine, query_time, verbose=False):
 		Output('tbl_live_overview', 'columns'),
 		Output('tbl_live_overview', 'data')
 	],
-	[Input('operation_report_parent', 'n_clicks')])
+	[Input('tab_live', 'n_clicks')])
 def click_anywhere(n_clicks):
 	if n_clicks is None:
 		raise dash.exceptions.PreventUpdate
