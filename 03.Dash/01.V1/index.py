@@ -52,7 +52,7 @@ index_page = html.Div(
 							html.Hr(),
 							html.A('Go to Arc control', href='/apps/app_arc_control', target="_blank", style={"font-size": "1.6em"}),
 							html.Hr(),
-							html.A('Go to Operation report', href='/apps/app_experiment', target="_blank", style={"font-size": "1.6em"}),
+							html.A('Go to Operation report', href='/apps/app_operation_report', target="_blank", style={"font-size": "1.6em"}),
 						],
                     className="one-third column"
 					),
@@ -79,11 +79,13 @@ def display_page(pathname):
 		return app_sensor_control.layout_sensor_control
 	elif pathname == '/apps/app_arc_control':
 		return app_arc_control.layout_arc_control
+	elif pathname == '/apps/app_operation_report':
+		return app_operation_report.layout_operation_report
 	else:
 		return index_page
 	# You could also return a 404 "URL not found" page here
 
 if __name__ == "__main__":
     app.run_server(debug=True, port=5000, host='0.0.0.0') # at PSI
-    # app.run_server(debug=False, port=5000, host='0.0.0.0') # at PSI	
+    # app.run_server(debug=False, port=5000, host='0.0.0.0') # at PSI
     # app.run_server(debug=True) # at home
