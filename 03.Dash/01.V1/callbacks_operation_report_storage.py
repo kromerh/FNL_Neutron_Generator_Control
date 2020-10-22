@@ -36,7 +36,7 @@ sql_engine = sql.create_engine(connect_string)
 
 def get_storage_hv_dose(sql_engine, verbose=False):
 	"""
-	Read live_hv_dose table and return data for that query_time
+	Read storage_hv_dose table and return data for that query_time
 	"""
 	query = f"SELECT * FROM storage_hv_dose;"
 	df = pd.read_sql(query, sql_engine)
@@ -143,7 +143,7 @@ def plot_hv(n_clicks):
 		raise dash.exceptions.PreventUpdate
 
 	# load data from database
-	df_hv_dose = get_live_hv_dose(sql_engine, verbose=False)
+	df_hv_dose = get_storage_hv_dose(sql_engine, verbose=False)
 
 	traces = []
 
@@ -235,8 +235,8 @@ def plot_hv(n_clicks):
 		raise dash.exceptions.PreventUpdate
 
 	# load data from database
-	df_hv_dose = get_live_hv_dose(sql_engine, verbose=False)
-	df_refDet = get_live_refDet(sql_engine, verbose=False)
+	df_hv_dose = get_storage_hv_dose(sql_engine, verbose=False)
+	df_refDet = get_storage_refDet(sql_engine, verbose=False)
 
 	traces = []
 
@@ -339,7 +339,7 @@ def plot_pressure(n_clicks):
 		raise dash.exceptions.PreventUpdate
 
 	# load data from database
-	df_pressure = get_live_pressure(sql_engine, verbose=False)
+	df_pressure = get_storage_pressure(sql_engine, verbose=False)
 
 	traces = []
 
@@ -404,7 +404,7 @@ def plot_d2flow(n_clicks):
 		raise dash.exceptions.PreventUpdate
 
 	# load data from database
-	df_d2flow = get_live_d2flow(sql_engine, verbose=False)
+	df_d2flow = get_storage_d2flow(sql_engine, verbose=False)
 
 	traces = []
 
@@ -482,7 +482,7 @@ def plot_mw_power(n_clicks):
 		raise dash.exceptions.PreventUpdate
 
 	# load data from database
-	df_mw = get_live_mw(sql_engine, verbose=False)
+	df_mw = get_storage_mw(sql_engine, verbose=False)
 
 	traces = []
 
@@ -575,7 +575,7 @@ def plot_mw_freq(n_clicks):
 		raise dash.exceptions.PreventUpdate
 
 	# load data from database
-	df_mw = get_live_mw(sql_engine, verbose=False)
+	df_mw = get_storage_mw(sql_engine, verbose=False)
 
 	traces = []
 
