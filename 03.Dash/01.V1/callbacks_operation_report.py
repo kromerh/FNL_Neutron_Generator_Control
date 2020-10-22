@@ -227,6 +227,112 @@ def plot_hv(n_clicks):
 
 
 
+# plot dose
+@app.callback(
+	Output("graph_dose", "figure"),
+	[Input('btn_load_and_plot', 'n_clicks')])
+def plot_hv(n_clicks):
+	if n_clicks is None:
+		raise dash.exceptions.PreventUpdate
+
+	# load data from database
+	df_hv_dose = get_live_hv_dose(sql_engine, verbose=False)
+	df_refDet = get_live_refDet(sql_engine, verbose=False)
+
+	traces = []
+
+	if len(df_hv_dose) > 0:
+		plot_hv = True
+		plot_dose = True
+		df_hv_dose['dose'] = df_hv_dose['dose_voltage'] * 3000 / 5.5
+
+		# current calibration
+		df_hv_dose['HV_current'] = interp_HV_current(df_hv_dose['HV_current'].values)
+
+		# hv calibration
+		df_hv_dose['HV_voltage'] = interp_HV_voltage(df_hv_dose['HV_voltage'].values)
+
+		# leakage current correction
+		df_hv_dose['HV_current'] = df_hv_dose['HV_current'] - interp_leak(df_hv_dose['HV_voltage'].values)
+
+		idx = df_hv_dose[df_hv_dose['HV_current'] < 0].index # set negative current values to 0
+		df_hv_dose.loc[idx, 'HV_current'] = 0
+
+		# compute neutron output from dose
+		df_hv_dose['neutron_yield'] = df_hv_dose['dose'].values * (interp_dose(df_hv_dose['HV_voltage'].values) / 100)
+		df_dose = df_hv_dose
+
+
+		if len(df_dose) == 0:
+			df_dose['time'] = datetime.datetime.now()
+			df_dose['neutron_yield'] = -1
+		if len(df_refDet) == 0:
+			df_refDet['time'] = datetime.datetime.now()
+			df_refDet['sum_counts'] = -1
+		# refDet
+		traces.append(go.Scatter(
+			x=df_refDet['time'],
+			y=df_refDet['sum_counts'],
+			text='Counts [30s]',
+			line=go.scatter.Line(
+				color='orange',
+				width=1.5
+			),
+			opacity=0.7,
+			name='Counts [30s]'
+		))
+		# Output
+		traces.append(go.Scatter(
+			x=df_dose['time'],
+			y=df_dose['neutron_yield'],
+			text='Neutron yield',
+			line=go.scatter.Line(
+				color='blue',
+				width=1.5
+			),
+			opacity=0.7,
+
+			name='Neutron yield',
+			yaxis='y2'
+		))
+
+	else:
+
+		traces.append(go.Scatter(
+			x=[],
+			y=[],
+			line=go.scatter.Line(
+				color='#42C4F7',
+				width=1.0
+			),
+			text='HV',
+			# mode='markers',
+			opacity=1,
+			marker={
+				 'size': 15,
+				 'line': {'width': 1, 'color': '#42C4F7'}
+			},
+			mode='lines',
+			name='Dose and ref det',
+
+		))
+
+	return 	{
+			'data': traces,
+			'layout': go.Layout(
+				# xaxis={'title': 'Time'},
+				yaxis={'title': 'Counts [30s]', 'range': [0, 2000], 'side': "left" ,'titlefont': {'color': "orange"}},
+				yaxis2={'title': 'Neutron yield', 'range': [1e6, 1e8], 'exponentformat':'e', "overlaying": "y", 'side': "right", 'titlefont': {'color': "blue"}},
+
+				height=200,  # px
+				showlegend=False,
+				margin=dict(t=10, b=15, l=50, r=50),
+				hovermode='closest'
+			)
+		}
+
+
+
 	# # load data from database
 	# df_hv_dose = get_live_hv_dose(sql_engine, verbose=False)
 	# df_pressure = get_live_pressure(sql_engine, verbose=False)
