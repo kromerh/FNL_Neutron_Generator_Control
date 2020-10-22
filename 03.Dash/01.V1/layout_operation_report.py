@@ -73,64 +73,44 @@ layout_operation_report = html.Div(id='operation_report_parent',children=
                                                         className="table__1 three columns",
                                                         ),
                                                 ],
-                                                className="row",
+                                                className="row flex-display",
                                                 style = {"margin-left": "5%"},
                                             ),
                                     html.Div(
-                                            [
-                                                html.Button('Load data', id='btn_load_and_plot', n_clicks=0)
-                                            ],
-                                            className="three columns",
-                                            style = {"margin-left": "5%"},
-                                        ),
-                                    html.Div(
-                                            [
-                                                html.Div(
+                                                [
+                                                    html.Div(
                                                             [
-                                                                dcc.Graph(
-                                                                        id="graph_HV",
-                                                                        figure={
-                                                                            "data": [
-                                                                                {"x": [1, 2, 3], "y": [4, 1, 2], "type": "scatter"},
-                                                                                {"x": [1, 2, 3], "y": [2, 4, 5], "type": "scatter"},
-                                                                            ],
-                                                                            "layout": {
-                                                                                "height": 200,  # px
-                                                                                "margin": dict(t=10, b=15, l=50, r=50)
-                                                                            },
-                                                                        },
-                                                                    ),
-
+                                                                html.Button('Load data', id='btn_load_and_plot', n_clicks=0)
                                                             ],
-                                                            className="pretty_container seven columns",
-                                                            style={"margin-left": "2%"}
-                                                    ),
-                                            ],
-                                            className="row flex-display"
-                                        ),
+                                                            className="three columns",
+                                                            style = {"margin-left": "5%"},
+                                                        ),
+                                                ],
+                                                className="row flex-display",
+                                    ),
                                     html.Div(
-                                            [
-                                                html.Div(
-                                                            [
-                                                                dcc.Graph(
-                                                                        id="graph_dose",
-                                                                        figure={
-                                                                            "data": [
-                                                                                {"x": [1, 2, 3], "y": [4, 1, 2], "type": "scatter"},
-                                                                                {"x": [1, 2, 3], "y": [2, 4, 5], "type": "scatter"},
-                                                                            ],
-                                                                            "layout": {
-                                                                                "height": 200,  # px
-                                                                                "margin": dict(t=10, b=15, l=50, r=50)
+                                                [
+                                                    html.Div(
+                                                                [
+                                                                    dcc.Graph(
+                                                                            id="graph_HV",
+                                                                            figure={
+                                                                                "data": [
+                                                                                    {"x": [1, 2, 3], "y": [4, 1, 2], "type": "scatter"},
+                                                                                    {"x": [1, 2, 3], "y": [2, 4, 5], "type": "scatter"},
+                                                                                ],
+                                                                                "layout": {
+                                                                                    "height": 200,  # px
+                                                                                    "margin": dict(t=10, b=15, l=50, r=50)
+                                                                                },
                                                                             },
-                                                                        },
-                                                                    ),
+                                                                        ),
 
-                                                            ],
-                                                            className="pretty_container seven columns",
-                                                            style={"margin-left": "2%"}
-                                                    ),
-                                            ],
+                                                                ],
+                                                                className="pretty_container seven columns",
+                                                                style={"margin-left": "2%"}
+                                                        ),
+                                                ],
                                             className="row flex-display"
                                         ),
 
