@@ -189,7 +189,32 @@ layout_operation_report = html.Div(id='operation_report_parent',children=
                                                     html.Div(
                                                                 [
                                                                     dcc.Graph(
-                                                                            id="graph_mw",
+                                                                            id="graph_mw_power",
+                                                                            figure={
+                                                                                "data": [
+                                                                                    {"x": [1, 2, 3], "y": [4, 1, 2], "type": "scatter"},
+                                                                                    {"x": [1, 2, 3], "y": [2, 4, 5], "type": "scatter"},
+                                                                                ],
+                                                                                "layout": {
+                                                                                    "height": 200,  # px
+                                                                                    "margin": dict(t=10, b=15, l=50, r=50)
+                                                                                },
+                                                                            },
+                                                                        ),
+
+                                                                ],
+                                                                className="pretty_container seven columns",
+                                                                style={"margin-left": "2%"}
+                                                        ),
+                                                ],
+                                            className="row flex-display"
+                                        ),
+                                    html.Div(
+                                                [
+                                                    html.Div(
+                                                                [
+                                                                    dcc.Graph(
+                                                                            id="graph_mw_freq",
                                                                             figure={
                                                                                 "data": [
                                                                                     {"x": [1, 2, 3], "y": [4, 1, 2], "type": "scatter"},

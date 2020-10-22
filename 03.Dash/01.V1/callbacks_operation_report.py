@@ -395,9 +395,10 @@ def plot_pressure(n_clicks):
 			)
 		}
 
+
 # plot d2flow
 @app.callback(
-	Output("graph_pressure", "figure"),
+	Output("graph_d2flow", "figure"),
 	[Input('btn_load_and_plot', 'n_clicks')])
 def plot_d2flow(n_clicks):
 	if n_clicks is None:
@@ -466,6 +467,174 @@ def plot_d2flow(n_clicks):
 			yaxis={'title': 'Flow measured [mV]', 'titlefont': {'color': "red"}},
 			yaxis2={'title': 'Flow set [mV]',  "range": [0, 1000], "overlaying": "y", 'side': "right", 'titlefont': {'color': "green"}},
 			height=200,  # px
+			showlegend=False,
+			margin=dict(t=10, b=15, l=50, r=50),
+			hovermode='closest'
+		)
+	}
+
+
+# plot mw_power
+@app.callback(
+	Output("graph_mw_power", "figure"),
+	[Input('btn_load_and_plot', 'n_clicks')])
+def plot_mw_power(n_clicks):
+	if n_clicks is None:
+		raise dash.exceptions.PreventUpdate
+
+	# load data from database
+	df_mw = get_live_mw(sql_engine, verbose=False)
+
+	traces = []
+
+
+	if len(df_mw) > 0:
+		# FP
+		traces.append(go.Scatter(
+			x=df['time'],
+			y=df['FP'],
+			text='Forward power [W]',
+			line=go.scatter.Line(
+				color='blue',
+				width=1.5
+			),
+			opacity=0.7,
+			name='Forward power [W]'
+		))
+		# FP set
+		traces.append(go.Scatter(
+			x=df['time'],
+			y=df['FP_set'],
+			text='Forward power setpoint [W]',
+			line=go.scatter.Line(
+				color='green',
+				width=1.5
+			),
+			opacity=0.7,
+
+			name='Forward power setpoint [W]',
+		))
+		# RP
+		traces.append(go.Scatter(
+			x=df['time'],
+			y=df['RP'],
+			text='Reflected power [W]',
+			line=go.scatter.Line(
+				color='red',
+				width=1.5
+			),
+			opacity=0.7,
+
+			name='Reflected power [W]',
+			yaxis='y2'
+		))
+
+	else:
+
+		traces.append(go.Scatter(
+			x=[],
+			y=[],
+			line=go.scatter.Line(
+				color='#42C4F7',
+				width=1.0
+			),
+			text='HV',
+			# mode='markers',
+			opacity=1,
+			marker={
+				 'size': 15,
+				 'line': {'width': 1, 'color': '#42C4F7'}
+			},
+			mode='lines',
+			name='mw power',
+
+		))
+
+	return {
+		'data': traces,
+		'layout': go.Layout(
+			# xaxis={'title': 'Time'},
+			yaxis={'title': 'FP [W]', "range": [0, 205], 'side': "right", 'titlefont': {'color': "black"}},
+			yaxis2={'title': 'RP [W]',  "range": [0, 100], "overlaying": "y", 'side': "left", 'titlefont': {'color': "red"}},
+			height=150,  # px
+			showlegend=False,
+			margin=dict(t=10, b=15, l=50, r=50),
+			hovermode='closest'
+		)
+	}
+
+
+
+
+
+# plot mw_freq
+@app.callback(
+	Output("graph_mw_freq", "figure"),
+	[Input('btn_load_and_plot', 'n_clicks')])
+def plot_mw_freq(n_clicks):
+	if n_clicks is None:
+		raise dash.exceptions.PreventUpdate
+
+	# load data from database
+	df_mw = get_live_mw(sql_engine, verbose=False)
+
+	traces = []
+
+
+	if len(df_mw) > 0:
+		# FP
+		traces.append(go.Scatter(
+			x=df['time'],
+			y=df['Freq'],
+			text='Frequency [MHz]',
+			line=go.scatter.Line(
+				color='blue',
+				width=1.5
+			),
+			opacity=0.7,
+			name='Frequency [MHz]'
+		))
+		# FP set
+		traces.append(go.Scatter(
+			x=df['time'],
+			y=df['Freq_set'],
+			text='Frequency setpoint [MHz]',
+			line=go.scatter.Line(
+				color='green',
+				width=1.5
+			),
+			opacity=0.7,
+
+			name='Frequency setpoint [MHz]',
+		))
+
+	else:
+
+		traces.append(go.Scatter(
+			x=[],
+			y=[],
+			line=go.scatter.Line(
+				color='#42C4F7',
+				width=1.0
+			),
+			text='HV',
+			# mode='markers',
+			opacity=1,
+			marker={
+				 'size': 15,
+				 'line': {'width': 1, 'color': '#42C4F7'}
+			},
+			mode='lines',
+			name='mw freq',
+
+		))
+
+	return {
+		'data': traces,
+		'layout': go.Layout(
+			# xaxis={'title': 'Time'},
+			yaxis={'title': 'Frequency [MHz]', "range": [2350, 2550], 'side': "right", 'titlefont': {'color': "black"}},
+			height=150,  # px
 			showlegend=False,
 			margin=dict(t=10, b=15, l=50, r=50),
 			hovermode='closest'
