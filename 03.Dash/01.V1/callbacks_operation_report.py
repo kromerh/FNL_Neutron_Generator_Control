@@ -216,8 +216,8 @@ def plot_hv(n_clicks):
 			'data': traces,
 			'layout': go.Layout(
 				# xaxis={'title': 'Time'},
-				yaxis={'title': 'HV [-kV]', 'range': [lim_hv_min, lim_hv_max], 'titlefont': {'color': "red"}},
-				yaxis2={'title': 'I [-mA]', 'range': [lim_I_min, lim_I_max], "overlaying": "y", 'side': "right", 'titlefont': {'color': "blue"}},
+				yaxis={'title': 'HV [-kV]', 'range': [0, 150], 'titlefont': {'color': "red"}},
+				yaxis2={'title': 'I [-mA]', 'range': [0, 2], "overlaying": "y", 'side': "right", 'titlefont': {'color': "blue"}},
 				height=200,  # px
 				showlegend=False,
 				margin=dict(t=10, b=15, l=50, r=50),
