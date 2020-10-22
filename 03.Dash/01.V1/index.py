@@ -9,6 +9,7 @@ from apps import app_experiment # input data for the experiment (admin stuff) an
 from apps import app_sensor_readout # show sensor data. This is the main feature
 from apps import app_sensor_control # show sensor data. This is the main feature
 from apps import app_arc_control # show arc control data. This is the main feature
+from apps import app_operation_report # historic and live data
 
 app.layout = html.Div(
 	[
