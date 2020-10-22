@@ -66,11 +66,11 @@ layout_operation_report = html.Div(id='operation_report_parent',children=
                                                         'backgroundColor': 'white',
                                                         'fontWeight': 'bold'
                                                     },
-                                                )
+                                                ),
                                             ],
-                                            className="table__1",
+                                            className="table__1 four columns",
                                             ),
-                        ],
+                                ],
                         ),
                     dcc.Tab(
                         label="STORAGE",
