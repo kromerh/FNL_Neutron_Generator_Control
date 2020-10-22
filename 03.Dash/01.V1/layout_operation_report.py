@@ -12,11 +12,6 @@ import dash_daq as daq
 
 layout_operation_report = html.Div(id='operation_report_parent',children=
     [
-        dcc.Store(id="live_hv_dose_data", storage_type="session"),
-        dcc.Store(id="live_pressure_data", storage_type="session"),
-        dcc.Store(id="live_refDet_data", storage_type="session"),
-        dcc.Store(id="live_d2flow_data", storage_type="session"),
-        dcc.Store(id="live_mw_data", storage_type="session"),
         html.Div(
             [
                 html.Div(
