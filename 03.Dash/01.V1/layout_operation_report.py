@@ -74,12 +74,14 @@ layout_operation_report = html.Div(id='operation_report_parent',children=
                                                         ),
                                                 ],
                                                 className="row",
+                                                style = {"margin-left": "5%"},
                                             ),
                                     html.Div(
                                             [
                                                 html.Button('Load data', id='btn_load_and_plot', n_clicks=0)
                                             ],
                                             className="three columns",
+                                            style = {"margin-left": "5%"},
                                         ),
 
                                 ],
