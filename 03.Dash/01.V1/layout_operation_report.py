@@ -102,11 +102,11 @@ layout_operation_report = html.Div(id='operation_report_parent',children=
                                                                     ),
 
                                                             ],
-                                                            className="pretty_container five columns",
+                                                            className="pretty_container",
                                                             style={"margin-left": "2%"}
                                                     ),
                                             ],
-                                            className="row"
+                                            className="row flex-display"
                                         ),
                                     html.Div(
                                             [
@@ -127,11 +127,11 @@ layout_operation_report = html.Div(id='operation_report_parent',children=
                                                                     ),
 
                                                             ],
-                                                            className="pretty_container five columns",
+                                                            className="pretty_container",
                                                             style={"margin-left": "2%"}
                                                     ),
                                             ],
-                                            className="row"
+                                            className="row flex-display"
                                         ),
 
 
