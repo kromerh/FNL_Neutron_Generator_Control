@@ -134,511 +134,511 @@ interp_pressure_IS = interp1d(pd.to_numeric(df_LT_pressure['pressure_IS_pi']).va
 
 
 
-# plot hv
-@app.callback(
-	Output("graph_HV_storage", "figure"),
-	[Input('btn_storage_load_and_plot', 'n_clicks')])
-def plot_hv(n_clicks):
-	if n_clicks is None:
-		raise dash.exceptions.PreventUpdate
-
-	# load data from database
-	df_hv_dose = get_storage_hv_dose(sql_engine, verbose=False)
-
-	traces = []
-
-	if len(df_hv_dose) > 0:
-
-		# current calibration
-		df_hv_dose['HV_current'] = interp_HV_current(df_hv_dose['HV_current'].values)
-
-		# hv calibration
-		df_hv_dose['HV_voltage'] = interp_HV_voltage(df_hv_dose['HV_voltage'].values)
-
-		# leakage current correction
-		df_hv_dose['HV_current'] = df_hv_dose['HV_current'] - interp_leak(df_hv_dose['HV_voltage'].values)
-
-		idx = df_hv_dose[df_hv_dose['HV_current'] < 0].index # set negative current values to 0
-		df_hv_dose.loc[idx, 'HV_current'] = 0
-
-		df = df_hv_dose[['time', 'HV_voltage', 'HV_current']]
-
-		# HV voltage
-		traces.append(go.Scatter(
-			x=df['time'],
-			y=df['HV_voltage'],
-			text='HV_voltage [-kV]',
-			line=go.scatter.Line(
-				color='red',
-				width=1.5
-			),
-			opacity=0.7,
-			name='HV_voltage [-kV]'
-		))
-		# HV current
-		traces.append(go.Scatter(
-			x=df['time'],
-			y=df['HV_current'],
-			text='HV_current [-mA]',
-			line=go.scatter.Line(
-				color='blue',
-				width=1.5
-			),
-			opacity=0.7,
-
-			name='HV_current [-mA]',
-			yaxis='y2'
-		))
-
-	else:
-
-		traces.append(go.Scatter(
-			x=[],
-			y=[],
-			line=go.scatter.Line(
-				color='#42C4F7',
-				width=1.0
-			),
-			text='HV',
-			# mode='markers',
-			opacity=1,
-			marker={
-				 'size': 15,
-				 'line': {'width': 1, 'color': '#42C4F7'}
-			},
-			mode='lines',
-			name='HV',
-
-		))
-
-	return 	{
-			'data': traces,
-			'layout': go.Layout(
-				# xaxis={'title': 'Time'},
-				yaxis={'title': 'HV [-kV]', 'range': [0, 150], 'titlefont': {'color': "red"}},
-				yaxis2={'title': 'I [-mA]', 'range': [0, 2], "overlaying": "y", 'side': "right", 'titlefont': {'color': "blue"}},
-				height=200,  # px
-				showlegend=False,
-				margin=dict(t=10, b=15, l=50, r=50),
-				hovermode='closest'
-			)
-		}
-
-
-
-# plot dose
-@app.callback(
-	Output("graph_dose_storage", "figure"),
-	[Input('btn_storage_load_and_plot', 'n_clicks')])
-def plot_hv(n_clicks):
-	if n_clicks is None:
-		raise dash.exceptions.PreventUpdate
-
-	# load data from database
-	df_hv_dose = get_storage_hv_dose(sql_engine, verbose=False)
-	df_refDet = get_storage_refDet(sql_engine, verbose=False)
-
-	traces = []
-
-	if len(df_hv_dose) > 0:
-		plot_hv = True
-		plot_dose = True
-		df_hv_dose['dose'] = df_hv_dose['dose_voltage'] * 3000 / 5.5
-
-		# current calibration
-		df_hv_dose['HV_current'] = interp_HV_current(df_hv_dose['HV_current'].values)
-
-		# hv calibration
-		df_hv_dose['HV_voltage'] = interp_HV_voltage(df_hv_dose['HV_voltage'].values)
-
-		# leakage current correction
-		df_hv_dose['HV_current'] = df_hv_dose['HV_current'] - interp_leak(df_hv_dose['HV_voltage'].values)
-
-		idx = df_hv_dose[df_hv_dose['HV_current'] < 0].index # set negative current values to 0
-		df_hv_dose.loc[idx, 'HV_current'] = 0
-
-		# compute neutron output from dose
-		df_hv_dose['neutron_yield'] = df_hv_dose['dose'].values * (interp_dose(df_hv_dose['HV_voltage'].values) / 100)
-		df_dose = df_hv_dose
-
-
-		if len(df_dose) == 0:
-			df_dose['time'] = datetime.datetime.now()
-			df_dose['neutron_yield'] = -1
-		if len(df_refDet) == 0:
-			df_refDet['time'] = datetime.datetime.now()
-			df_refDet['sum_counts'] = -1
-		# refDet
-		traces.append(go.Scatter(
-			x=df_refDet['time'],
-			y=df_refDet['sum_counts'],
-			text='Counts [30s]',
-			line=go.scatter.Line(
-				color='orange',
-				width=1.5
-			),
-			opacity=0.7,
-			name='Counts [30s]'
-		))
-		# Output
-		traces.append(go.Scatter(
-			x=df_dose['time'],
-			y=df_dose['neutron_yield'],
-			text='Neutron yield',
-			line=go.scatter.Line(
-				color='blue',
-				width=1.5
-			),
-			opacity=0.7,
-
-			name='Neutron yield',
-			yaxis='y2'
-		))
-
-	else:
-
-		traces.append(go.Scatter(
-			x=[],
-			y=[],
-			line=go.scatter.Line(
-				color='#42C4F7',
-				width=1.0
-			),
-			text='HV',
-			# mode='markers',
-			opacity=1,
-			marker={
-				 'size': 15,
-				 'line': {'width': 1, 'color': '#42C4F7'}
-			},
-			mode='lines',
-			name='Dose and ref det',
-
-		))
-
-	return 	{
-			'data': traces,
-			'layout': go.Layout(
-				# xaxis={'title': 'Time'},
-				yaxis={'title': 'Counts [30s]', 'range': [0, 2000], 'side': "left" ,'titlefont': {'color': "orange"}},
-				yaxis2={'title': 'Neutron yield', 'range': [1e6, 1e8], 'exponentformat':'e', "overlaying": "y", 'side': "right", 'titlefont': {'color': "blue"}},
-
-				height=200,  # px
-				showlegend=False,
-				margin=dict(t=10, b=15, l=50, r=50),
-				hovermode='closest'
-			)
-		}
-
-# plot pressure
-@app.callback(
-	Output("graph_pressure_storage", "figure"),
-	[Input('btn_storage_load_and_plot', 'n_clicks')])
-def plot_pressure(n_clicks):
-	if n_clicks is None:
-		raise dash.exceptions.PreventUpdate
-
-	# load data from database
-	df_pressure = get_storage_pressure(sql_engine, verbose=False)
-
-	traces = []
-
-
-	if len(df_pressure) > 0:
-		df_pressure['pressure_IS'] = 10**(1.667*df_pressure['voltage_IS']-11.33)
-		df_pressure['pressure_IS'] = interp_pressure_IS(df_pressure['pressure_IS'])
-
-		traces.append(go.Scatter(
-			x=df['time'],
-			y=df['pressure_IS'].values,
-			text='Pressure [mbar]',
-			line=go.scatter.Line(
-				color='red',
-				width=1.5
-			),
-			opacity=0.7,
-			name='Pressure [mbar]'
-		))
-
-	else:
-
-		traces.append(go.Scatter(
-			x=[],
-			y=[],
-			line=go.scatter.Line(
-				color='#42C4F7',
-				width=1.0
-			),
-			text='HV',
-			# mode='markers',
-			opacity=1,
-			marker={
-				 'size': 15,
-				 'line': {'width': 1, 'color': '#42C4F7'}
-			},
-			mode='lines',
-			name='Pressure',
-
-		))
-
-	return 	{
-			'data': traces,
-			'layout': go.Layout(
-				# xaxis={'title': 'Time'},
-				yaxis={'title': 'Pressure [mbar]', 'titlefont': {'color': "red"},
-				'type': "log", 'exponentformat':'e', 'side': "right"},
-				height=200,  # px
-				showlegend=False,
-				margin=dict(t=10, b=15, l=50, r=50),
-				hovermode='closest'
-			)
-		}
-
-
-# plot d2flow
-@app.callback(
-	Output("graph_d2flow_storage", "figure"),
-	[Input('btn_storage_load_and_plot', 'n_clicks')])
-def plot_d2flow(n_clicks):
-	if n_clicks is None:
-		raise dash.exceptions.PreventUpdate
-
-	# load data from database
-	df_d2flow = get_storage_d2flow(sql_engine, verbose=False)
-
-	traces = []
-
-
-	if len(df_d2flow) > 0:
-
-		# HV voltage
-		traces.append(go.Scatter(
-			x=df['time'],
-			y=df['voltage_flow'],
-			text='Flow measured [mV]',
-			line=go.scatter.Line(
-				color='red',
-				width=1.5
-			),
-			opacity=0.7,
-			name='Flow measured [mV]'
-		))
-		# HV current
-		traces.append(go.Scatter(
-			x=df['time'],
-			y=df['voltage_flow_set'],
-			text='Flow set [mV]',
-			line=go.scatter.Line(
-				color='green',
-				width=1.5
-			),
-			opacity=0.7,
-
-			name='Flow set [mV]',
-			yaxis='y2'
-		))
-
-	else:
-
-		traces.append(go.Scatter(
-			x=[],
-			y=[],
-			line=go.scatter.Line(
-				color='#42C4F7',
-				width=1.0
-			),
-			text='HV',
-			# mode='markers',
-			opacity=1,
-			marker={
-				 'size': 15,
-				 'line': {'width': 1, 'color': '#42C4F7'}
-			},
-			mode='lines',
-			name='Flow',
-
-		))
-
-	return {
-		'data': traces,
-		'layout': go.Layout(
-			# xaxis={'title': 'Time'},
-			yaxis={'title': 'Flow measured [mV]', 'titlefont': {'color': "red"}},
-			yaxis2={'title': 'Flow set [mV]',  "range": [0, 1000], "overlaying": "y", 'side': "right", 'titlefont': {'color': "green"}},
-			height=200,  # px
-			showlegend=False,
-			margin=dict(t=10, b=15, l=50, r=50),
-			hovermode='closest'
-		)
-	}
-
-
-# plot mw_power
-@app.callback(
-	Output("graph_mw_power_storage", "figure"),
-	[Input('btn_storage_load_and_plot', 'n_clicks')])
-def plot_mw_power(n_clicks):
-	if n_clicks is None:
-		raise dash.exceptions.PreventUpdate
-
-	# load data from database
-	df_mw = get_storage_mw(sql_engine, verbose=False)
-
-	traces = []
-
-
-	if len(df_mw) > 0:
-		# FP
-		traces.append(go.Scatter(
-			x=df['time'],
-			y=df['FP'],
-			text='Forward power [W]',
-			line=go.scatter.Line(
-				color='blue',
-				width=1.5
-			),
-			opacity=0.7,
-			name='Forward power [W]'
-		))
-		# FP set
-		traces.append(go.Scatter(
-			x=df['time'],
-			y=df['FP_set'],
-			text='Forward power setpoint [W]',
-			line=go.scatter.Line(
-				color='green',
-				width=1.5
-			),
-			opacity=0.7,
-
-			name='Forward power setpoint [W]',
-		))
-		# RP
-		traces.append(go.Scatter(
-			x=df['time'],
-			y=df['RP'],
-			text='Reflected power [W]',
-			line=go.scatter.Line(
-				color='red',
-				width=1.5
-			),
-			opacity=0.7,
-
-			name='Reflected power [W]',
-			yaxis='y2'
-		))
-
-	else:
-
-		traces.append(go.Scatter(
-			x=[],
-			y=[],
-			line=go.scatter.Line(
-				color='#42C4F7',
-				width=1.0
-			),
-			text='HV',
-			# mode='markers',
-			opacity=1,
-			marker={
-				 'size': 15,
-				 'line': {'width': 1, 'color': '#42C4F7'}
-			},
-			mode='lines',
-			name='mw power',
-
-		))
-
-	return {
-		'data': traces,
-		'layout': go.Layout(
-			# xaxis={'title': 'Time'},
-			yaxis={'title': 'FP [W]', "range": [0, 205], 'side': "right", 'titlefont': {'color': "black"}},
-			yaxis2={'title': 'RP [W]',  "range": [0, 100], "overlaying": "y", 'side': "left", 'titlefont': {'color': "red"}},
-			height=150,  # px
-			showlegend=False,
-			margin=dict(t=10, b=15, l=50, r=50),
-			hovermode='closest'
-		)
-	}
-
-
-
-
-
-# plot mw_freq
-@app.callback(
-	Output("graph_mw_freq_storage", "figure"),
-	[Input('btn_storage_load_and_plot', 'n_clicks')])
-def plot_mw_freq(n_clicks):
-	if n_clicks is None:
-		raise dash.exceptions.PreventUpdate
-
-	# load data from database
-	df_mw = get_storage_mw(sql_engine, verbose=False)
-
-	traces = []
-
-
-	if len(df_mw) > 0:
-		# FP
-		traces.append(go.Scatter(
-			x=df['time'],
-			y=df['Freq'],
-			text='Frequency [MHz]',
-			line=go.scatter.Line(
-				color='blue',
-				width=1.5
-			),
-			opacity=0.7,
-			name='Frequency [MHz]'
-		))
-		# FP set
-		traces.append(go.Scatter(
-			x=df['time'],
-			y=df['Freq_set'],
-			text='Frequency setpoint [MHz]',
-			line=go.scatter.Line(
-				color='green',
-				width=1.5
-			),
-			opacity=0.7,
-
-			name='Frequency setpoint [MHz]',
-		))
-
-	else:
-
-		traces.append(go.Scatter(
-			x=[],
-			y=[],
-			line=go.scatter.Line(
-				color='#42C4F7',
-				width=1.0
-			),
-			text='HV',
-			# mode='markers',
-			opacity=1,
-			marker={
-				 'size': 15,
-				 'line': {'width': 1, 'color': '#42C4F7'}
-			},
-			mode='lines',
-			name='mw freq',
-
-		))
-
-	return {
-		'data': traces,
-		'layout': go.Layout(
-			# xaxis={'title': 'Time'},
-			yaxis={'title': 'Frequency [MHz]', "range": [2350, 2550], 'side': "right", 'titlefont': {'color': "black"}},
-			height=150,  # px
-			showlegend=False,
-			margin=dict(t=10, b=15, l=50, r=50),
-			hovermode='closest'
-		)
-	}
+# # plot hv
+# @app.callback(
+# 	Output("graph_HV_storage", "figure"),
+# 	[Input('btn_storage_load_and_plot', 'n_clicks')])
+# def plot_hv(n_clicks):
+# 	if n_clicks is None:
+# 		raise dash.exceptions.PreventUpdate
+
+# 	# load data from database
+# 	df_hv_dose = get_storage_hv_dose(sql_engine, verbose=False)
+
+# 	traces = []
+
+# 	if len(df_hv_dose) > 0:
+
+# 		# current calibration
+# 		df_hv_dose['HV_current'] = interp_HV_current(df_hv_dose['HV_current'].values)
+
+# 		# hv calibration
+# 		df_hv_dose['HV_voltage'] = interp_HV_voltage(df_hv_dose['HV_voltage'].values)
+
+# 		# leakage current correction
+# 		df_hv_dose['HV_current'] = df_hv_dose['HV_current'] - interp_leak(df_hv_dose['HV_voltage'].values)
+
+# 		idx = df_hv_dose[df_hv_dose['HV_current'] < 0].index # set negative current values to 0
+# 		df_hv_dose.loc[idx, 'HV_current'] = 0
+
+# 		df = df_hv_dose[['time', 'HV_voltage', 'HV_current']]
+
+# 		# HV voltage
+# 		traces.append(go.Scatter(
+# 			x=df['time'],
+# 			y=df['HV_voltage'],
+# 			text='HV_voltage [-kV]',
+# 			line=go.scatter.Line(
+# 				color='red',
+# 				width=1.5
+# 			),
+# 			opacity=0.7,
+# 			name='HV_voltage [-kV]'
+# 		))
+# 		# HV current
+# 		traces.append(go.Scatter(
+# 			x=df['time'],
+# 			y=df['HV_current'],
+# 			text='HV_current [-mA]',
+# 			line=go.scatter.Line(
+# 				color='blue',
+# 				width=1.5
+# 			),
+# 			opacity=0.7,
+
+# 			name='HV_current [-mA]',
+# 			yaxis='y2'
+# 		))
+
+# 	else:
+
+# 		traces.append(go.Scatter(
+# 			x=[],
+# 			y=[],
+# 			line=go.scatter.Line(
+# 				color='#42C4F7',
+# 				width=1.0
+# 			),
+# 			text='HV',
+# 			# mode='markers',
+# 			opacity=1,
+# 			marker={
+# 				 'size': 15,
+# 				 'line': {'width': 1, 'color': '#42C4F7'}
+# 			},
+# 			mode='lines',
+# 			name='HV',
+
+# 		))
+
+# 	return 	{
+# 			'data': traces,
+# 			'layout': go.Layout(
+# 				# xaxis={'title': 'Time'},
+# 				yaxis={'title': 'HV [-kV]', 'range': [0, 150], 'titlefont': {'color': "red"}},
+# 				yaxis2={'title': 'I [-mA]', 'range': [0, 2], "overlaying": "y", 'side': "right", 'titlefont': {'color': "blue"}},
+# 				height=200,  # px
+# 				showlegend=False,
+# 				margin=dict(t=10, b=15, l=50, r=50),
+# 				hovermode='closest'
+# 			)
+# 		}
+
+
+
+# # plot dose
+# @app.callback(
+# 	Output("graph_dose_storage", "figure"),
+# 	[Input('btn_storage_load_and_plot', 'n_clicks')])
+# def plot_hv(n_clicks):
+# 	if n_clicks is None:
+# 		raise dash.exceptions.PreventUpdate
+
+# 	# load data from database
+# 	df_hv_dose = get_storage_hv_dose(sql_engine, verbose=False)
+# 	df_refDet = get_storage_refDet(sql_engine, verbose=False)
+
+# 	traces = []
+
+# 	if len(df_hv_dose) > 0:
+# 		plot_hv = True
+# 		plot_dose = True
+# 		df_hv_dose['dose'] = df_hv_dose['dose_voltage'] * 3000 / 5.5
+
+# 		# current calibration
+# 		df_hv_dose['HV_current'] = interp_HV_current(df_hv_dose['HV_current'].values)
+
+# 		# hv calibration
+# 		df_hv_dose['HV_voltage'] = interp_HV_voltage(df_hv_dose['HV_voltage'].values)
+
+# 		# leakage current correction
+# 		df_hv_dose['HV_current'] = df_hv_dose['HV_current'] - interp_leak(df_hv_dose['HV_voltage'].values)
+
+# 		idx = df_hv_dose[df_hv_dose['HV_current'] < 0].index # set negative current values to 0
+# 		df_hv_dose.loc[idx, 'HV_current'] = 0
+
+# 		# compute neutron output from dose
+# 		df_hv_dose['neutron_yield'] = df_hv_dose['dose'].values * (interp_dose(df_hv_dose['HV_voltage'].values) / 100)
+# 		df_dose = df_hv_dose
+
+
+# 		if len(df_dose) == 0:
+# 			df_dose['time'] = datetime.datetime.now()
+# 			df_dose['neutron_yield'] = -1
+# 		if len(df_refDet) == 0:
+# 			df_refDet['time'] = datetime.datetime.now()
+# 			df_refDet['sum_counts'] = -1
+# 		# refDet
+# 		traces.append(go.Scatter(
+# 			x=df_refDet['time'],
+# 			y=df_refDet['sum_counts'],
+# 			text='Counts [30s]',
+# 			line=go.scatter.Line(
+# 				color='orange',
+# 				width=1.5
+# 			),
+# 			opacity=0.7,
+# 			name='Counts [30s]'
+# 		))
+# 		# Output
+# 		traces.append(go.Scatter(
+# 			x=df_dose['time'],
+# 			y=df_dose['neutron_yield'],
+# 			text='Neutron yield',
+# 			line=go.scatter.Line(
+# 				color='blue',
+# 				width=1.5
+# 			),
+# 			opacity=0.7,
+
+# 			name='Neutron yield',
+# 			yaxis='y2'
+# 		))
+
+# 	else:
+
+# 		traces.append(go.Scatter(
+# 			x=[],
+# 			y=[],
+# 			line=go.scatter.Line(
+# 				color='#42C4F7',
+# 				width=1.0
+# 			),
+# 			text='HV',
+# 			# mode='markers',
+# 			opacity=1,
+# 			marker={
+# 				 'size': 15,
+# 				 'line': {'width': 1, 'color': '#42C4F7'}
+# 			},
+# 			mode='lines',
+# 			name='Dose and ref det',
+
+# 		))
+
+# 	return 	{
+# 			'data': traces,
+# 			'layout': go.Layout(
+# 				# xaxis={'title': 'Time'},
+# 				yaxis={'title': 'Counts [30s]', 'range': [0, 2000], 'side': "left" ,'titlefont': {'color': "orange"}},
+# 				yaxis2={'title': 'Neutron yield', 'range': [1e6, 1e8], 'exponentformat':'e', "overlaying": "y", 'side': "right", 'titlefont': {'color': "blue"}},
+
+# 				height=200,  # px
+# 				showlegend=False,
+# 				margin=dict(t=10, b=15, l=50, r=50),
+# 				hovermode='closest'
+# 			)
+# 		}
+
+# # plot pressure
+# @app.callback(
+# 	Output("graph_pressure_storage", "figure"),
+# 	[Input('btn_storage_load_and_plot', 'n_clicks')])
+# def plot_pressure(n_clicks):
+# 	if n_clicks is None:
+# 		raise dash.exceptions.PreventUpdate
+
+# 	# load data from database
+# 	df_pressure = get_storage_pressure(sql_engine, verbose=False)
+
+# 	traces = []
+
+
+# 	if len(df_pressure) > 0:
+# 		df_pressure['pressure_IS'] = 10**(1.667*df_pressure['voltage_IS']-11.33)
+# 		df_pressure['pressure_IS'] = interp_pressure_IS(df_pressure['pressure_IS'])
+
+# 		traces.append(go.Scatter(
+# 			x=df['time'],
+# 			y=df['pressure_IS'].values,
+# 			text='Pressure [mbar]',
+# 			line=go.scatter.Line(
+# 				color='red',
+# 				width=1.5
+# 			),
+# 			opacity=0.7,
+# 			name='Pressure [mbar]'
+# 		))
+
+# 	else:
+
+# 		traces.append(go.Scatter(
+# 			x=[],
+# 			y=[],
+# 			line=go.scatter.Line(
+# 				color='#42C4F7',
+# 				width=1.0
+# 			),
+# 			text='HV',
+# 			# mode='markers',
+# 			opacity=1,
+# 			marker={
+# 				 'size': 15,
+# 				 'line': {'width': 1, 'color': '#42C4F7'}
+# 			},
+# 			mode='lines',
+# 			name='Pressure',
+
+# 		))
+
+# 	return 	{
+# 			'data': traces,
+# 			'layout': go.Layout(
+# 				# xaxis={'title': 'Time'},
+# 				yaxis={'title': 'Pressure [mbar]', 'titlefont': {'color': "red"},
+# 				'type': "log", 'exponentformat':'e', 'side': "right"},
+# 				height=200,  # px
+# 				showlegend=False,
+# 				margin=dict(t=10, b=15, l=50, r=50),
+# 				hovermode='closest'
+# 			)
+# 		}
+
+
+# # plot d2flow
+# @app.callback(
+# 	Output("graph_d2flow_storage", "figure"),
+# 	[Input('btn_storage_load_and_plot', 'n_clicks')])
+# def plot_d2flow(n_clicks):
+# 	if n_clicks is None:
+# 		raise dash.exceptions.PreventUpdate
+
+# 	# load data from database
+# 	df_d2flow = get_storage_d2flow(sql_engine, verbose=False)
+
+# 	traces = []
+
+
+# 	if len(df_d2flow) > 0:
+
+# 		# HV voltage
+# 		traces.append(go.Scatter(
+# 			x=df['time'],
+# 			y=df['voltage_flow'],
+# 			text='Flow measured [mV]',
+# 			line=go.scatter.Line(
+# 				color='red',
+# 				width=1.5
+# 			),
+# 			opacity=0.7,
+# 			name='Flow measured [mV]'
+# 		))
+# 		# HV current
+# 		traces.append(go.Scatter(
+# 			x=df['time'],
+# 			y=df['voltage_flow_set'],
+# 			text='Flow set [mV]',
+# 			line=go.scatter.Line(
+# 				color='green',
+# 				width=1.5
+# 			),
+# 			opacity=0.7,
+
+# 			name='Flow set [mV]',
+# 			yaxis='y2'
+# 		))
+
+# 	else:
+
+# 		traces.append(go.Scatter(
+# 			x=[],
+# 			y=[],
+# 			line=go.scatter.Line(
+# 				color='#42C4F7',
+# 				width=1.0
+# 			),
+# 			text='HV',
+# 			# mode='markers',
+# 			opacity=1,
+# 			marker={
+# 				 'size': 15,
+# 				 'line': {'width': 1, 'color': '#42C4F7'}
+# 			},
+# 			mode='lines',
+# 			name='Flow',
+
+# 		))
+
+# 	return {
+# 		'data': traces,
+# 		'layout': go.Layout(
+# 			# xaxis={'title': 'Time'},
+# 			yaxis={'title': 'Flow measured [mV]', 'titlefont': {'color': "red"}},
+# 			yaxis2={'title': 'Flow set [mV]',  "range": [0, 1000], "overlaying": "y", 'side': "right", 'titlefont': {'color': "green"}},
+# 			height=200,  # px
+# 			showlegend=False,
+# 			margin=dict(t=10, b=15, l=50, r=50),
+# 			hovermode='closest'
+# 		)
+# 	}
+
+
+# # plot mw_power
+# @app.callback(
+# 	Output("graph_mw_power_storage", "figure"),
+# 	[Input('btn_storage_load_and_plot', 'n_clicks')])
+# def plot_mw_power(n_clicks):
+# 	if n_clicks is None:
+# 		raise dash.exceptions.PreventUpdate
+
+# 	# load data from database
+# 	df_mw = get_storage_mw(sql_engine, verbose=False)
+
+# 	traces = []
+
+
+# 	if len(df_mw) > 0:
+# 		# FP
+# 		traces.append(go.Scatter(
+# 			x=df['time'],
+# 			y=df['FP'],
+# 			text='Forward power [W]',
+# 			line=go.scatter.Line(
+# 				color='blue',
+# 				width=1.5
+# 			),
+# 			opacity=0.7,
+# 			name='Forward power [W]'
+# 		))
+# 		# FP set
+# 		traces.append(go.Scatter(
+# 			x=df['time'],
+# 			y=df['FP_set'],
+# 			text='Forward power setpoint [W]',
+# 			line=go.scatter.Line(
+# 				color='green',
+# 				width=1.5
+# 			),
+# 			opacity=0.7,
+
+# 			name='Forward power setpoint [W]',
+# 		))
+# 		# RP
+# 		traces.append(go.Scatter(
+# 			x=df['time'],
+# 			y=df['RP'],
+# 			text='Reflected power [W]',
+# 			line=go.scatter.Line(
+# 				color='red',
+# 				width=1.5
+# 			),
+# 			opacity=0.7,
+
+# 			name='Reflected power [W]',
+# 			yaxis='y2'
+# 		))
+
+# 	else:
+
+# 		traces.append(go.Scatter(
+# 			x=[],
+# 			y=[],
+# 			line=go.scatter.Line(
+# 				color='#42C4F7',
+# 				width=1.0
+# 			),
+# 			text='HV',
+# 			# mode='markers',
+# 			opacity=1,
+# 			marker={
+# 				 'size': 15,
+# 				 'line': {'width': 1, 'color': '#42C4F7'}
+# 			},
+# 			mode='lines',
+# 			name='mw power',
+
+# 		))
+
+# 	return {
+# 		'data': traces,
+# 		'layout': go.Layout(
+# 			# xaxis={'title': 'Time'},
+# 			yaxis={'title': 'FP [W]', "range": [0, 205], 'side': "right", 'titlefont': {'color': "black"}},
+# 			yaxis2={'title': 'RP [W]',  "range": [0, 100], "overlaying": "y", 'side': "left", 'titlefont': {'color': "red"}},
+# 			height=150,  # px
+# 			showlegend=False,
+# 			margin=dict(t=10, b=15, l=50, r=50),
+# 			hovermode='closest'
+# 		)
+# 	}
+
+
+
+
+
+# # plot mw_freq
+# @app.callback(
+# 	Output("graph_mw_freq_storage", "figure"),
+# 	[Input('btn_storage_load_and_plot', 'n_clicks')])
+# def plot_mw_freq(n_clicks):
+# 	if n_clicks is None:
+# 		raise dash.exceptions.PreventUpdate
+
+# 	# load data from database
+# 	df_mw = get_storage_mw(sql_engine, verbose=False)
+
+# 	traces = []
+
+
+# 	if len(df_mw) > 0:
+# 		# FP
+# 		traces.append(go.Scatter(
+# 			x=df['time'],
+# 			y=df['Freq'],
+# 			text='Frequency [MHz]',
+# 			line=go.scatter.Line(
+# 				color='blue',
+# 				width=1.5
+# 			),
+# 			opacity=0.7,
+# 			name='Frequency [MHz]'
+# 		))
+# 		# FP set
+# 		traces.append(go.Scatter(
+# 			x=df['time'],
+# 			y=df['Freq_set'],
+# 			text='Frequency setpoint [MHz]',
+# 			line=go.scatter.Line(
+# 				color='green',
+# 				width=1.5
+# 			),
+# 			opacity=0.7,
+
+# 			name='Frequency setpoint [MHz]',
+# 		))
+
+# 	else:
+
+# 		traces.append(go.Scatter(
+# 			x=[],
+# 			y=[],
+# 			line=go.scatter.Line(
+# 				color='#42C4F7',
+# 				width=1.0
+# 			),
+# 			text='HV',
+# 			# mode='markers',
+# 			opacity=1,
+# 			marker={
+# 				 'size': 15,
+# 				 'line': {'width': 1, 'color': '#42C4F7'}
+# 			},
+# 			mode='lines',
+# 			name='mw freq',
+
+# 		))
+
+# 	return {
+# 		'data': traces,
+# 		'layout': go.Layout(
+# 			# xaxis={'title': 'Time'},
+# 			yaxis={'title': 'Frequency [MHz]', "range": [2350, 2550], 'side': "right", 'titlefont': {'color': "black"}},
+# 			height=150,  # px
+# 			showlegend=False,
+# 			margin=dict(t=10, b=15, l=50, r=50),
+# 			hovermode='closest'
+# 		)
+# 	}
 
 
 # Refresh overview table when clicking button
@@ -682,7 +682,7 @@ def refresh_dates(n_clicks):
 	data = df.to_dict('records')
 
 	# what to display as the dropdown options
-	options_ids=[
+	options_dates=[
 				{'label': i, 'value': i} for i in df['date'].values
 			]
 
