@@ -250,7 +250,7 @@ layout_operation_report = html.Div(id='operation_report_parent',children=
                                                                 html.Button('Load overview', id='btn_storage_overview', n_clicks=0)
                                                             ],
                                                             className="three columns",
-                                                            style = {"margin-left": "5%"},
+                                                            style = {"margin-left": "5%", "margin-top": "1%"},
                                                         ),
                                                 ],
                                                 className="row flex-display",
@@ -294,7 +294,7 @@ layout_operation_report = html.Div(id='operation_report_parent',children=
                                                                     ],
                                                                     multi=False,
                                                                     className="reag__select",
-                                                                    style={"margin-left": "3%", "width": "120px"}
+                                                                    style={"margin-left": "3%", "width": "300px"}
                                                                 ),
                                                             ],
                                                             className="three columns",
