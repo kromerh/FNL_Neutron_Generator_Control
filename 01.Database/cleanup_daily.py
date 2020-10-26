@@ -140,7 +140,7 @@ def cleanup_live_mw(sql_engine):
 
 		# remove id from the table
 		df = df.drop(columns=['id'])
-
+		df['Code'] = df['Code'].astype(str)
 
 		# save to the storage
 		if len(df) > 0:

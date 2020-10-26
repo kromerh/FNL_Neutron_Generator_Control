@@ -1128,7 +1128,7 @@ def plot_mw_freq(live_mw_data, experiment_control_data):
 		# FP
 		traces.append(go.Scatter(
 			x=df['time'],
-			y=df['Freq'],
+			y=df['Freq']/10.0,
 			text='Frequency [MHz]',
 			line=go.scatter.Line(
 				color='blue',
@@ -1140,7 +1140,7 @@ def plot_mw_freq(live_mw_data, experiment_control_data):
 		# FP set
 		traces.append(go.Scatter(
 			x=df['time'],
-			y=df['Freq_set'],
+			y=df['Freq_set']/10.0,
 			text='Frequency setpoint [MHz]',
 			line=go.scatter.Line(
 				color='green',
