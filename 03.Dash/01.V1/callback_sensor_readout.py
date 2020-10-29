@@ -132,10 +132,6 @@ def read_experiment_id(sql_engine):
 
 
 
-
-
-
-
 def get_live_hv_dose(sql_engine, query_time, verbose=False):
 	"""
 	Read live_hv_dose table and return data for that query_time
@@ -169,6 +165,41 @@ def get_experiment_control_data(sql_engine, verbose=False):
 
 	return df
 
+def get_live_refDet(sql_engine, query_time, verbose=False):
+	"""
+	Read live_ref_det table and return data for that query_time
+	"""
+	query = f"SELECT * FROM live_ref_det WHERE time > \"{query_time}\";"
+	df = pd.read_sql(query, sql_engine)
+	df['sum_counts'] = df[['counts_D1', 'counts_D2', 'counts_D3', 'counts_D4']].sum(axis=1)
+
+	if verbose: print(f'Reading live_ref_det, retrieved {df.shape} entries. \n {df.head()}')
+
+	return df
+
+
+def get_live_d2flow(sql_engine, query_time, verbose=False):
+	"""
+	Read live_d2flow table and return data for that query_time
+	"""
+	query = f"SELECT * FROM live_d2flow WHERE time > \"{query_time}\";"
+	df = pd.read_sql(query, sql_engine)
+
+	if verbose: print(f'Reading live_d2flow, retrieved {df.shape} entries. \n {df.head()}')
+
+	return df
+
+
+def get_live_mw(sql_engine, query_time, verbose=False):
+	"""
+	Read live_d2flow table and return data for that query_time
+	"""
+	query = f"SELECT * FROM live_mw WHERE time > \"{query_time}\";"
+	df = pd.read_sql(query, sql_engine)
+
+	if verbose: print(f'Reading live_mw, retrieved {df.shape} entries. \n {df.head()}')
+
+	return df
 
 
 
@@ -190,7 +221,10 @@ def get_experiment_control_data(sql_engine, verbose=False):
 @app.callback(
 	[
 		Output('live_hv_dose_data_readout', 'data'),
-		Output('live_pressure_data_readout', 'data')
+		Output('live_refDet_data_readout', 'data'),
+		Output('live_pressure_data_readout', 'data'),
+		Output('live_d2flow_data_readout', 'data'),
+		Output('live_mw_data_readout', 'data')
 	],
 	[Input('readout_interval_readout', 'n_intervals')])
 def read_live_hv_dose(n):
@@ -224,11 +258,18 @@ def read_live_hv_dose(n):
 			df_pressure['pressure_IS'] = 10**(1.667*df_pressure['voltage_IS']-11.33)
 			df_pressure['pressure_IS'] = interp_pressure_IS(df_pressure['pressure_IS'])
 
+		df_refDet = get_live_refDet(sql_engine, query_time, verbose=VERBOSE_READ_REFDET)
+		df_d2flow = get_live_d2flow(sql_engine, query_time, verbose=VERBOSE_READ_D2FLOW)
+		df_mw = get_live_mw(sql_engine, query_time, verbose=VERBOSE_READ_MW)
 
 		json_hv_dose = df_hv_dose.to_json(date_format='iso', orient='split')
 		json_pressure = df_pressure.to_json(date_format='iso', orient='split')
 
-		return json_hv_dose, json_pressure
+		json_refDet = df_refDet.to_json(date_format='iso', orient='split')
+		json_d2flow = df_d2flow.to_json(date_format='iso', orient='split')
+		json_mw = df_mw.to_json(date_format='iso', orient='split')
+
+		return json_hv_dose, json_refDet, json_pressure, json_d2flow, json_mw
 
 
 # check the state of the readout, if no new entry in past 15 seconds, make indicator red
@@ -567,6 +608,128 @@ def plot_pressure(json_data, experiment_control_data):
 				# xaxis={'title': 'Time'},
 				yaxis={'title': 'Pressure [mbar]', 'titlefont': {'color': "red"},
 				'type': "log", 'exponentformat':'e', 'side': "right"},
+				height=200,  # px
+				showlegend=False,
+				margin=dict(t=10, b=15, l=50, r=50),
+				hovermode='closest'
+			)
+		}
+
+# dose graph
+@app.callback(
+	Output("sensor_readout_graph_dose_readout", "figure"),
+	[Input("live_hv_dose_data_readout", "data"), Input("live_ref", "data")],
+	[State('experiment_control_data', 'data')]
+)
+def plot_dose(json_data_hv_dose, json_data_refDet, experiment_control_data):
+
+	# y limits for the graph
+	experiment_control_data = pd.read_json(experiment_control_data, orient='split')
+	lim_refDet_max = float(experiment_control_data['refDet_plot_max'].values[0])
+	lim_refDet_min = float(experiment_control_data['refDet_plot_min'].values[0])
+
+	lim_yield_max = float(experiment_control_data['yield_plot_max'].values[0])
+	lim_yield_min = float(experiment_control_data['yield_plot_min'].values[0])
+
+
+	# print(state_dic)
+	traces = []
+	if len(experiment_control_data) > 0:
+		try:
+			df_dose = pd.read_json(json_data_hv_dose, orient='split')
+			df_refDet = pd.read_json(json_data_refDet, orient='split')
+			if len(df_dose) == 0:
+				df_dose['time'] = datetime.datetime.now()
+				df_dose['neutron_yield'] = -1
+			if len(df_refDet) == 0:
+				df_refDet['time'] = datetime.datetime.now()
+				df_refDet['sum_counts'] = -1
+			# refDet
+			traces.append(go.Scatter(
+				x=df_refDet['time'],
+				y=df_refDet['sum_counts'],
+				text='Counts [30s]',
+				line=go.scatter.Line(
+					color='orange',
+					width=1.5
+				),
+				opacity=0.7,
+				name='Counts [30s]'
+			))
+			# Output
+			traces.append(go.Scatter(
+				x=df_dose['time'],
+				y=df_dose['neutron_yield'],
+				text='Neutron yield',
+				line=go.scatter.Line(
+					color='blue',
+					width=1.5
+				),
+				opacity=0.7,
+
+				name='Neutron yield',
+				yaxis='y2'
+			))
+
+		except:
+			traces.append(go.Scatter(
+				x=[],
+				y=[],
+				line=go.scatter.Line(
+					color='orange',
+					width=1.0
+				),
+				text='Counts [30s]',
+				# mode='markers',
+				opacity=1,
+				marker={
+					 'size': 15,
+					 'line': {'width': 1, 'color': 'orange'}
+				},
+				mode='lines',
+				name='Counts [30s]',
+
+			))
+
+		return {
+			'data': traces,
+			'layout': go.Layout(
+				# xaxis={'title': 'Time'},
+				yaxis={'title': 'Counts [30s]', 'range': [lim_refDet_min, lim_refDet_max], 'side': "left" ,'titlefont': {'color': "orange"}},
+				yaxis2={'title': 'Neutron yield', 'range': [lim_yield_min, lim_yield_max], 'exponentformat':'e', "overlaying": "y", 'side': "right", 'titlefont': {'color': "blue"}},
+
+				height=200,  # px
+				showlegend=False,
+				margin=dict(t=10, b=15, l=50, r=50),
+				hovermode='closest'
+			)
+		}
+
+	traces.append(go.Scatter(
+		x=[],
+		y=[],
+		line=go.scatter.Line(
+			color='#42C4F7',
+			width=1.0
+		),
+		text='Counts [30s]',
+		# mode='markers',
+		opacity=1,
+		marker={
+			 'size': 15,
+			 'line': {'width': 1, 'color': 'orange'}
+		},
+		mode='lines',
+		name='Counts [30s]',
+
+	))
+	return 	{
+			'data': traces,
+			'layout': go.Layout(
+				# xaxis={'title': 'Time'},
+				yaxis={'title': 'Dose [muSv/hr]', 'range': [lim_dose_min, lim_dose_max], 'side': "left", 'titlefont': {'color': "orange"}},
+				yaxis2={'title': 'Neutron yield', 'range': [lim_yield_min, lim_yield_max], 'exponentformat':'e', "overlaying": "y", 'side': "right", 'titlefont': {'color': "blue"}},
+
 				height=200,  # px
 				showlegend=False,
 				margin=dict(t=10, b=15, l=50, r=50),

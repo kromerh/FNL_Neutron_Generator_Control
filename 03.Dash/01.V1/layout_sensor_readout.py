@@ -17,7 +17,10 @@ layout_sensor_readout = html.Div(id='sensor_readout_parent',children=
             n_intervals=0
         ),
         dcc.Store(id="live_hv_dose_data_readout", storage_type="session"),
+        dcc.Store(id="live_refDet_data_readout", storage_type="session"),
         dcc.Store(id="live_pressure_data_readout", storage_type="session"),
+        dcc.Store(id="live_d2flow_data_readout", storage_type="session"),
+        dcc.Store(id="live_mw_data_readout", storage_type="session"),
         html.Div(
             [
                 html.Div(
