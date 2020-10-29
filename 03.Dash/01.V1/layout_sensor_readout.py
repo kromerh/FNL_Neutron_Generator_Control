@@ -10,13 +10,14 @@ import dash_daq as daq
 
 layout_sensor_readout = html.Div(id='sensor_readout_parent',children=
     [
-        dcc.Store(id="experiment_control_data_readout"),
+        dcc.Store(id="experiment_control_data_readout", storage_type="session"),
         dcc.Interval(
             id='readout_interval_readout',
-            interval=1*1000, # in milliseconds
+            interval=5*1000, # in milliseconds
             n_intervals=0
         ),
-        dcc.Store(id="live_hv_dose_data_readout"),
+        dcc.Store(id="live_hv_dose_data_readout", storage_type="session"),
+        dcc.Store(id="live_pressure_data_readout", storage_type="session"),
         html.Div(
             [
                 html.Div(
@@ -213,7 +214,7 @@ layout_sensor_readout = html.Div(id='sensor_readout_parent',children=
                 html.Div(
                     [
                         dcc.Graph(
-                                id="sensor_readout_graph_dose_readout",
+                                id="sensor_readout_graph_pressure_readout",
                                 figure={
                                     "data": [
                                         {"x": [1, 2, 3], "y": [4, 1, 2], "type": "scatter"},
@@ -236,7 +237,7 @@ layout_sensor_readout = html.Div(id='sensor_readout_parent',children=
                 html.Div(
                     [
                         dcc.Graph(
-                                id="sensor_readout_graph_pressure_readout",
+                                id="sensor_readout_graph_dose_readout",
                                 figure={
                                     "data": [
                                         {"x": [1, 2, 3], "y": [4, 1, 2], "type": "scatter"},

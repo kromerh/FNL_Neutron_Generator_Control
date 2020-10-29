@@ -414,7 +414,7 @@ def set_refDet_indicator(readout_interval, live_refDet_data):
 def set_hv_indicator(readout_interval, live_hv_dose_data):
 	if live_hv_dose_data:
 		df = pd.read_json(live_hv_dose_data, orient='split')
-		print(df)
+
 		if len(df) > 0:
 			df['time'] = pd.to_datetime(df['time'])
 			df['time'] = df['time'].dt.tz_localize(None)

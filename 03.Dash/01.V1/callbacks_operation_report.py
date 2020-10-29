@@ -347,7 +347,7 @@ def plot_pressure(n_clicks):
 	if len(df_pressure) > 0:
 		df_pressure['pressure_IS'] = 10**(1.667*df_pressure['voltage_IS']-11.33)
 		df_pressure['pressure_IS'] = interp_pressure_IS(df_pressure['pressure_IS'])
-
+		df = df_pressure
 		traces.append(go.Scatter(
 			x=df['time'],
 			y=df['pressure_IS'].values,
@@ -410,7 +410,7 @@ def plot_d2flow(n_clicks):
 
 
 	if len(df_d2flow) > 0:
-
+		df = df_d2flow
 		# HV voltage
 		traces.append(go.Scatter(
 			x=df['time'],
@@ -488,6 +488,7 @@ def plot_mw_power(n_clicks):
 
 
 	if len(df_mw) > 0:
+		df = df_mw
 		# FP
 		traces.append(go.Scatter(
 			x=df['time'],
@@ -581,10 +582,11 @@ def plot_mw_freq(n_clicks):
 
 
 	if len(df_mw) > 0:
+		df = df_mw
 		# FP
 		traces.append(go.Scatter(
 			x=df['time'],
-			y=df['Freq'],
+			y=df['Freq']/10.0,
 			text='Frequency [MHz]',
 			line=go.scatter.Line(
 				color='blue',
@@ -596,7 +598,7 @@ def plot_mw_freq(n_clicks):
 		# FP set
 		traces.append(go.Scatter(
 			x=df['time'],
-			y=df['Freq_set'],
+			y=df['Freq_set']/10.0,
 			text='Frequency setpoint [MHz]',
 			line=go.scatter.Line(
 				color='green',
