@@ -10,6 +10,7 @@ from dash.dependencies import Input, Output, State
 import dash_bootstrap_components as dbc
 import dash_daq as daq
 
+
 layout_operation_report = html.Div(id='operation_report_parent',children=
     [
         html.Div(
@@ -79,6 +80,66 @@ layout_operation_report = html.Div(id='operation_report_parent',children=
                                                             ],
                                                             className="three columns",
                                                             style = {"margin-left": "5%"},
+                                                        ),
+                                                ],
+                                                className="row flex-display",
+                                    ),
+                                    html.Div(
+                                                [
+                                                    html.Div(
+                                                            [
+                                                                html.A('Download hv and dose data', 
+                                                                    id='download_link_hv_dose', 
+                                                                    download="live_data_hv_dose.csv", 
+                                                                    href="", 
+                                                                    target="_blank")
+                                                            ],
+                                                            className="three columns",
+                                                            style = {"margin-left": "5%", "margin-top": "1%"},
+                                                        ),
+                                                    html.Div(
+                                                            [
+                                                                html.A('Download data refDet', 
+                                                                    id='download_link_refDet', 
+                                                                    download="live_data_refDet.csv", 
+                                                                    href="", 
+                                                                    target="_blank")
+                                                            ],
+                                                            className="three columns",
+                                                            style = {"margin-top": "1%"},
+                                                        ),
+                                                    html.Div(
+                                                            [
+                                                                html.A('Download data pressure', 
+                                                                    id='download_link_pressure', 
+                                                                    download="live_data_pressure.csv", 
+                                                                    href="", 
+                                                                    target="_blank")
+                                                            ],
+                                                            className="three columns",
+                                                            style = {"margin-top": "1%"},
+                                                        ),
+                                                    html.Div(
+                                                            [
+                                                                html.A('Download data d2flow', 
+                                                                    id='download_link_d2flow', 
+                                                                    download="live_data_d2flow.csv", 
+                                                                    href="", 
+                                                                    target="_blank")
+                                                            ],
+                                                            className="three columns",
+                                                            style = {"margin-top": "1%"},
+                                                        ),
+                                                    html.Div(
+                                                            [
+                                                                html.A('Download data mw', 
+                                                                    id='download_link_mw', 
+                                                                    download="live_data_mw.csv", 
+                                                                    href="", 
+                                                                    target="_blank")
+                                                            ],
+                                                            className="three columns",
+                                                            style = {"margin-top": "1%"},
                                                         ),
                                                 ],
                                                 className="row flex-display",
@@ -311,6 +372,66 @@ layout_operation_report = html.Div(id='operation_report_parent',children=
                                                             ],
                                                             className="three columns",
                                                             style = {"margin-left": "5%", "margin-top": "1.5%", "margin-bottom": "1.5%"},
+                                                        ),
+                                                ],
+                                                className="row flex-display",
+                                    ),
+                                    html.Div(
+                                                [
+                                                    html.Div(
+                                                            [
+                                                                html.A('Download hv and dose data', 
+                                                                    id='download_link_hv_dose_storage', 
+                                                                    download="live_data_hv_dose_storage.csv", 
+                                                                    href="", 
+                                                                    target="_blank")
+                                                            ],
+                                                            className="three columns",
+                                                            style = {"margin-left": "5%", "margin-top": "1%"},
+                                                        ),
+                                                    html.Div(
+                                                            [
+                                                                html.A('Download data refDet', 
+                                                                    id='download_link_refDet_storage', 
+                                                                    download="live_data_refDet_storage.csv", 
+                                                                    href="", 
+                                                                    target="_blank")
+                                                            ],
+                                                            className="three columns",
+                                                            style = {"margin-top": "1%"},
+                                                        ),
+                                                    html.Div(
+                                                            [
+                                                                html.A('Download data pressure', 
+                                                                    id='download_link_pressure_storage', 
+                                                                    download="live_data_pressure_storage.csv", 
+                                                                    href="", 
+                                                                    target="_blank")
+                                                            ],
+                                                            className="three columns",
+                                                            style = {"margin-top": "1%"},
+                                                        ),
+                                                    html.Div(
+                                                            [
+                                                                html.A('Download data d2flow', 
+                                                                    id='download_link_d2flow_storage', 
+                                                                    download="live_data_d2flow_storage.csv", 
+                                                                    href="", 
+                                                                    target="_blank")
+                                                            ],
+                                                            className="three columns",
+                                                            style = {"margin-top": "1%"},
+                                                        ),
+                                                    html.Div(
+                                                            [
+                                                                html.A('Download data mw', 
+                                                                    id='download_link_mw_storage', 
+                                                                    download="live_data_mw_storage.csv", 
+                                                                    href="", 
+                                                                    target="_blank")
+                                                            ],
+                                                            className="three columns",
+                                                            style = {"margin-top": "1%"},
                                                         ),
                                                 ],
                                                 className="row flex-display",

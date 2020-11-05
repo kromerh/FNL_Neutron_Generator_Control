@@ -16,7 +16,7 @@ import plotly.graph_objs as go
 from app import app
 
 from scipy.interpolate import interp1d
-
+import urllib
 
 # Connect to the database
 
@@ -104,13 +104,13 @@ interp_leak = interp1d(X, Y, fill_value='extrapolate')
 
 # HV calibration
 df_HV_LT = pd.read_csv(f'{cwd}/calibration/HV_readout_calibration.txt', delimiter="\t")
-interp_HV_voltage = interp1d(df_HV_LT['Voltage_read'], df_HV_LT['HV_voltage'])
+interp_HV_voltage = interp1d(df_HV_LT['Voltage_read'], df_HV_LT['HV_voltage'], fill_value='extrapolate')
 
 # Current calibration
 # correct the current that the arduino reads. This is done using the dose_lookup_table which relates the pi dose with the displayed dose.
 df_HV_I_LT =pd.read_csv(f'{cwd}/calibration/I_readout_calibration.txt', delimiter="\t")
 # interpolation function
-interp_HV_current = interp1d(df_HV_I_LT['Current_read'], df_HV_I_LT['HV_current'])
+interp_HV_current = interp1d(df_HV_I_LT['Current_read'], df_HV_I_LT['HV_current'], fill_value='extrapolate')
 
 # dose to neutron output conversion
 cwd = os.getcwd()
@@ -701,3 +701,82 @@ def click_anywhere(n_clicks):
 
 
 	return columns, data
+
+
+
+@app.callback(
+	[
+		Output("download_link_hv_dose", "href"),
+		Output("download_link_refDet", "href"),
+		Output("download_link_pressure", "href"),
+		Output("download_link_d2flow", "href"),
+		Output("download_link_mw", "href"),
+	],
+	[Input('btn_load_and_plot', 'n_clicks')])
+def plot_hv(n_clicks):
+	if n_clicks is None:
+		raise dash.exceptions.PreventUpdate
+	# load data from database
+	df_hv_dose = get_live_hv_dose(sql_engine, verbose=False)
+	df_refDet = get_live_refDet(sql_engine, verbose=False)
+	df_mw = get_live_mw(sql_engine, verbose=False)
+	df_d2flow = get_live_d2flow(sql_engine, verbose=False)
+
+	# load data from database
+	df_pressure = get_live_pressure(sql_engine, verbose=False)
+
+	if len(df_pressure) > 0:
+		df_pressure['pressure_IS'] = 10**(1.667*df_pressure['voltage_IS']-11.33)
+		df_pressure['pressure_IS'] = interp_pressure_IS(df_pressure['pressure_IS'])
+
+	if len(df_hv_dose) > 0:
+
+		# current calibration
+		df_hv_dose['HV_current'] = interp_HV_current(df_hv_dose['HV_current'].values)
+
+		# hv calibration
+		df_hv_dose['HV_voltage'] = interp_HV_voltage(df_hv_dose['HV_voltage'].values)
+
+		# leakage current correction
+		df_hv_dose['HV_current'] = df_hv_dose['HV_current'] - interp_leak(df_hv_dose['HV_voltage'].values)
+
+		idx = df_hv_dose[df_hv_dose['HV_current'] < 0].index # set negative current values to 0
+
+		df_hv_dose.loc[idx, 'HV_current'] = 0
+		df_hv_dose['dose'] = df_hv_dose['dose_voltage'] * 3000 / 5.5
+
+		# current calibration
+		df_hv_dose['HV_current'] = interp_HV_current(df_hv_dose['HV_current'].values)
+
+		# hv calibration
+		df_hv_dose['HV_voltage'] = interp_HV_voltage(df_hv_dose['HV_voltage'].values)
+
+		# leakage current correction
+		df_hv_dose['HV_current'] = df_hv_dose['HV_current'] - interp_leak(df_hv_dose['HV_voltage'].values)
+
+		idx = df_hv_dose[df_hv_dose['HV_current'] < 0].index # set negative current values to 0
+		df_hv_dose.loc[idx, 'HV_current'] = 0
+
+		# compute neutron output from dose
+		df_hv_dose['neutron_yield'] = df_hv_dose['dose'].values * (interp_dose(df_hv_dose['HV_voltage'].values) / 100)
+
+	
+
+	csv_string_hv_dose = df_hv_dose.to_csv(index=False, encoding='utf-8')
+	csv_string_hv_dose = "data:text/csv;charset=utf-8," + urllib.parse.quote(csv_string_hv_dose)
+	
+	csv_string_refDet = df_refDet.to_csv(index=False, encoding='utf-8')
+	csv_string_refDet = "data:text/csv;charset=utf-8," + urllib.parse.quote(csv_string_refDet)
+
+	csv_string_mw = df_mw.to_csv(index=False, encoding='utf-8')
+	csv_string_mw = "data:text/csv;charset=utf-8," + urllib.parse.quote(csv_string_mw)
+
+	csv_string_d2flow = df_d2flow.to_csv(index=False, encoding='utf-8')
+	csv_string_d2flow = "data:text/csv;charset=utf-8," + urllib.parse.quote(csv_string_d2flow)
+
+	csv_string_pressure = df_pressure.to_csv(index=False, encoding='utf-8')
+	csv_string_pressure = "data:text/csv;charset=utf-8," + urllib.parse.quote(csv_string_pressure)
+
+
+
+	return csv_string_hv_dose, csv_string_refDet, csv_string_pressure, csv_string_d2flow, csv_string_mw

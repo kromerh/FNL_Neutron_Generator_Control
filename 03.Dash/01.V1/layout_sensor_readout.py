@@ -438,7 +438,7 @@ layout_sensor_readout = html.Div(id='sensor_readout_parent',children=
                                 },
                             ),
                             dcc.Graph(
-                                id="sensor_readout_graph_mw_freq_readout",
+                                id="readout_graph_mw_freq_readout",
                                 figure={
                                     "data": [
                                         {"x": [1, 2, 3], "y": [4, 1, 2], "type": "scatter"},
