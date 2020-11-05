@@ -1381,7 +1381,7 @@ def set_leak_indicators_live(readout_interval, live_leak_data):
 			query_time = pd.to_datetime((current_time - datetime.timedelta(seconds=READOUT_DEADTIME)))
 
 			last_time = df['time'].values[-1]
-			print(last_time)
+
 			if last_time < query_time:
 				return ['red', 'red', 'red']
 			else:
