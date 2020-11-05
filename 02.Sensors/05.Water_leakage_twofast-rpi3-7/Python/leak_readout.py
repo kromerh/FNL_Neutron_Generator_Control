@@ -94,7 +94,7 @@ while True:
 			s2 = float(s[1][0])
 			s3 = float(s[2])
 			sys.stdout.write('Reading leak sensors 1, 2, 3 ...')
-			sys.stdout.write(f'{now}, {voltage_IS}, {voltage_VC}')
+			sys.stdout.write(f'{now}, {s1}, {s2}, {s3}')
 			saveDB(experiment_id, s1, s2, s3, VERBOSE)
 		sleep(0.1)
 
