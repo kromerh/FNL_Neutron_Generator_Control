@@ -89,6 +89,7 @@ while True:
 		now = datetime.datetime.now()
 		now = now.strftime(format='%Y-%m-%d %H:%M:%S')
 		print(' ')
+		print(s)
 		if len(s) == 3:  # V1 V2 extractionOn
 			s1 = float(s[0])
 			s2 = float(s[1])
