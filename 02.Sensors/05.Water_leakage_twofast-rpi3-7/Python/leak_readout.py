@@ -3,13 +3,10 @@ import serial.tools.list_ports
 import re
 import sys
 import pymysql
-import re
-import sys
 import sqlalchemy as sql
 import datetime
 import time
 from time import sleep
-from scipy.interpolate import interp1d
 import pandas as pd
 import numpy as np
 
