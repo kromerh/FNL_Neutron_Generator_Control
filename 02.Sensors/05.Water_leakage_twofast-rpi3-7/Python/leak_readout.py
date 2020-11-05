@@ -36,7 +36,7 @@ serialArduino = serial.Serial(port=ARDUINO_PORT, baudrate=9600)
 
 
 def get_experiment_id(sql_engine, verbose=False):
-	query = f"SELECT * FROM experiment_control;"
+	query = f"""SELECT * FROM experiment_control;"""
 	df = pd.read_sql(query, sql_engine)
 
 	experiment_id = df['experiment_id'].values[0]
