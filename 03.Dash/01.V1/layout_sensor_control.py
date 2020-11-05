@@ -13,13 +13,13 @@ import dash_daq as daq
 
 df = pd.read_csv('https://raw.githubusercontent.com/plotly/datasets/master/solar.csv')
 cwd = os.getcwd()
-df_hostnames = pd.read_csv(f'{cwd}/pi_hostnames.csv')
+df_hostnames = pd.read_csv(f'{cwd}/FNL_Neutron_Generator_Control/03.Dash/01.V1/pi_hostnames.csv')
 
 
 # Connect to the database
 
 # read password and user to database
-credentials_file = r'../../credentials.pw'
+credentials_file = f'{os.getcwd()}/FNL_Neutron_Generator_Control/credentials.pw'
 
 credentials = pd.read_csv(credentials_file, header=0)
 user = credentials['username'].values[0]

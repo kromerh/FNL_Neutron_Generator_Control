@@ -2,7 +2,7 @@ import pymysql
 import sqlalchemy as sql
 import pandas as pd
 import re
-
+import os
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
@@ -16,7 +16,7 @@ app.scripts.config.serve_locally=True
 # Connect to the database
 
 # read password and user to database
-credentials_file = r'../../credentials.pw'
+credentials_file = f'{os.getcwd()}/FNL_Neutron_Generator_Control/credentials.pw'
 
 credentials = pd.read_csv(credentials_file, header=0)
 

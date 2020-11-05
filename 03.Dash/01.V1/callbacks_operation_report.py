@@ -21,7 +21,7 @@ import urllib
 # Connect to the database
 
 # read password and user to database
-credentials_file = r'../../credentials.pw'
+credentials_file = f'{os.getcwd()}/FNL_Neutron_Generator_Control/credentials.pw'
 
 credentials = pd.read_csv(credentials_file, header=0)
 user = credentials['username'].values[0]
@@ -96,25 +96,25 @@ def get_live_mw(sql_engine, verbose=False):
 
 # leakage current correction
 cwd = os.getcwd()
-data_I_leak = pd.read_csv(f'{cwd}/calibration/LUT_leakage_current.csv', index_col=0)
+data_I_leak = pd.read_csv(f'{cwd}/FNL_Neutron_Generator_Control/03.Dash/01.V1//calibration/LUT_leakage_current.csv', index_col=0)
 X = data_I_leak['HV_voltage'].values.astype(np.float64)
 Y = data_I_leak['HV_current'].values.astype(np.float64)
 interp_leak = interp1d(X, Y, fill_value='extrapolate')
 
 
 # HV calibration
-df_HV_LT = pd.read_csv(f'{cwd}/calibration/HV_readout_calibration.txt', delimiter="\t")
+df_HV_LT = pd.read_csv(f'{cwd}/FNL_Neutron_Generator_Control/03.Dash/01.V1//calibration/HV_readout_calibration.txt', delimiter="\t")
 interp_HV_voltage = interp1d(df_HV_LT['Voltage_read'], df_HV_LT['HV_voltage'], fill_value='extrapolate')
 
 # Current calibration
 # correct the current that the arduino reads. This is done using the dose_lookup_table which relates the pi dose with the displayed dose.
-df_HV_I_LT =pd.read_csv(f'{cwd}/calibration/I_readout_calibration.txt', delimiter="\t")
+df_HV_I_LT =pd.read_csv(f'{cwd}/FNL_Neutron_Generator_Control/03.Dash/01.V1//calibration/I_readout_calibration.txt', delimiter="\t")
 # interpolation function
 interp_HV_current = interp1d(df_HV_I_LT['Current_read'], df_HV_I_LT['HV_current'], fill_value='extrapolate')
 
 # dose to neutron output conversion
 cwd = os.getcwd()
-data_mcnp_LUT = pd.read_csv(f'{cwd}/calibration/LUT_dose_neutron_output.csv', index_col=0)
+data_mcnp_LUT = pd.read_csv(f'{cwd}/FNL_Neutron_Generator_Control/03.Dash/01.V1//calibration/LUT_dose_neutron_output.csv', index_col=0)
 # position of the sphere is east
 interp_dose = interp1d(data_mcnp_LUT.index, data_mcnp_LUT['E'].values, fill_value='extrapolate')
 
@@ -122,7 +122,7 @@ interp_dose = interp1d(data_mcnp_LUT.index, data_mcnp_LUT['E'].values, fill_valu
 # pressure calibration
 # correct the pressure that the arduino reads. This is done using the dose_lookup_table which relates the pi dose with the displayed dose.
 cwd = os.getcwd()
-df_LT_pressure = pd.read_csv(f"{cwd}/calibration/LUT_pressure_ion_source.txt", delimiter="\t")
+df_LT_pressure = pd.read_csv(f"{cwd}/FNL_Neutron_Generator_Control/03.Dash/01.V1//calibration/LUT_pressure_ion_source.txt", delimiter="\t")
 
 # interpolation function
 interp_pressure_IS = interp1d(pd.to_numeric(df_LT_pressure['pressure_IS_pi']).values, pd.to_numeric(df_LT_pressure['pressure_IS_display']).values, fill_value='extrapolate')

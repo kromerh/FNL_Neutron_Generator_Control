@@ -12,7 +12,7 @@ import dash_bootstrap_components as dbc
 import dash_daq as daq
 
 cwd = os.getcwd()
-df_hostnames = pd.read_csv(f'{cwd}/pi_hostnames.csv')
+df_hostnames = pd.read_csv(f'{cwd}/FNL_Neutron_Generator_Control/03.Dash/01.V1//pi_hostnames.csv')
 
 layout_arc_control = html.Div(id='motor_control_parent',children=
     [
