@@ -89,10 +89,9 @@ while True:
 		now = datetime.datetime.now()
 		now = now.strftime(format='%Y-%m-%d %H:%M:%S')
 		print(' ')
-		print(s)
 		if len(s) == 3:  # V1 V2 extractionOn
-			s1 = float(s[0])
-			s2 = float(s[1])
+			s1 = float(s[0][0])
+			s2 = float(s[1][0])
 			s3 = float(s[2])
 			sys.stdout.write('Reading leak sensors 1, 2, 3 ...')
 			sys.stdout.write(f'{now}, {voltage_IS}, {voltage_VC}')
