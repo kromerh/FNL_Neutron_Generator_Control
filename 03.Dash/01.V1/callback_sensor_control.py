@@ -1373,7 +1373,6 @@ def set_leak_indicators_live(readout_interval, live_leak_data):
 	if live_leak_data:
 		df = pd.read_json(live_leak_data, orient='split')	
 		if len(df) > 0:
-			print(1)
 			df['time'] = pd.to_datetime(df['time'])
 			df['time'] = df['time'].dt.tz_localize(None)
 			# check last entry
