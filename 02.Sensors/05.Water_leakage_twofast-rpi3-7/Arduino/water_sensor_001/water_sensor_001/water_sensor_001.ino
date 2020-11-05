@@ -6,7 +6,7 @@ void setup() {
   init();
 }
 void loop() {
-  Serial.print(digitalRead(WATER_SENSO1R));
+  Serial.print(digitalRead(WATER_SENSOR1));
   Serial.print(", ");
   Serial.print(digitalRead(WATER_SENSOR2));
   Serial.print(", ");
