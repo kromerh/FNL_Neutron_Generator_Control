@@ -1351,7 +1351,7 @@ def read_live_hv_dose(n):
 		json_refDet = df_refDet.to_json(date_format='iso', orient='split')
 		json_d2flow = df_d2flow.to_json(date_format='iso', orient='split')
 		json_mw = df_mw.to_json(date_format='iso', orient='split')
-		json_leak = df_mw.to_json(date_format='iso', orient='split')
+		json_leak = df_leak.to_json(date_format='iso', orient='split')
 		
 		return json_hv_dose, json_pressure, json_refDet, json_d2flow, json_mw, json_leak
 
@@ -1369,10 +1369,11 @@ def read_live_hv_dose(n):
 	],
 	[Input('readout_interval', 'n_intervals')],
 	[State("live_leak_data", "data")])
-def set_leak_indicators(readout_interval, live_leak_data):
+def set_leak_indicators_live(readout_interval, live_leak_data):
 	if live_leak_data:
-		df = pd.read_json(live_leak_data, orient='split')
+		df = pd.read_json(live_leak_data, orient='split')	
 		if len(df) > 0:
+			print(1)
 			df['time'] = pd.to_datetime(df['time'])
 			df['time'] = df['time'].dt.tz_localize(None)
 			# check last entry
@@ -1380,7 +1381,7 @@ def set_leak_indicators(readout_interval, live_leak_data):
 			query_time = pd.to_datetime((current_time - datetime.timedelta(seconds=READOUT_DEADTIME)))
 
 			last_time = df['time'].values[-1]
-
+			print(last_time)
 			if last_time < query_time:
 				return ['red', 'red', 'red']
 			else:
@@ -1390,9 +1391,6 @@ def set_leak_indicators(readout_interval, live_leak_data):
 
 				query_time = pd.to_datetime((current_time - datetime.timedelta(seconds=60)))
 				df = df[ df['time'] >= query_time ]
-
-				print(df.tail())
-				print(df.head())
 
 				counts_s1 = df['s1'].shape[0]
 				counts_s2 = df['s2'].shape[0]

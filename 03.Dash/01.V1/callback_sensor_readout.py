@@ -529,8 +529,6 @@ def set_leak_indicators(readout_interval, live_leak_data_readout):
 				query_time = pd.to_datetime((current_time - datetime.timedelta(seconds=60)))
 				df = df[ df['time'] >= query_time ]
 
-				print(df.tail())
-				print(df.head())
 
 				counts_s1 = df['s1'].shape[0]
 				counts_s2 = df['s2'].shape[0]
