@@ -3,7 +3,7 @@
 #define WATER_SENSOR3 7// sensor S3
 
 void setup() {
-  init();
+  init_sensors();
 }
 void loop() {
   Serial.print(digitalRead(WATER_SENSOR1));
@@ -14,7 +14,7 @@ void loop() {
   delay(1000);
 }
 
-void init() {
+void init_sensors() {
     Serial.begin (9600);
     pinMode(WATER_SENSOR1, INPUT);
     pinMode(WATER_SENSOR2, INPUT);
