@@ -57,6 +57,7 @@ layout_sensor_control = html.Div(id='sensor_control_parent',children=
         dcc.Store(id="live_refDet_data", storage_type="session"),
         dcc.Store(id="live_d2flow_data", storage_type="session"),
         dcc.Store(id="live_mw_data", storage_type="session"),
+        dcc.Store(id="live_leak_data", storage_type="session"),
         dcc.Store(id="experiment_control_data", storage_type="session"),
         # empty Div to trigger javascript file for graph resizing
         html.Div(id="output_mw_ip"), # empty to keep track of ip of mw changed
