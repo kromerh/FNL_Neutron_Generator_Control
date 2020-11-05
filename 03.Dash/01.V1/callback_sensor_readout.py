@@ -202,6 +202,18 @@ def get_live_mw(sql_engine, query_time, verbose=False):
 	return df
 
 
+def get_live_leak(sql_engine, query_time, verbose=False):
+	"""
+	Read live_leak table and return data for that query_time
+	"""
+	query = f"SELECT * FROM live_leak WHERE time > \"{query_time}\";"
+	df = pd.read_sql(query, sql_engine)
+
+	if verbose: print(f'Reading live_leak, retrieved {df.shape} entries. \n {df.head()}')
+
+	return df
+
+
 
 
 
@@ -224,7 +236,8 @@ def get_live_mw(sql_engine, query_time, verbose=False):
 		Output('live_refDet_data_readout', 'data'),
 		Output('live_pressure_data_readout', 'data'),
 		Output('live_d2flow_data_readout', 'data'),
-		Output('live_mw_data_readout', 'data')
+		Output('live_mw_data_readout', 'data'),
+		Output('live_leak_data_readout', 'data')
 	],
 	[Input('readout_interval_readout', 'n_intervals')])
 def read_live_hv_dose(n):
@@ -261,6 +274,7 @@ def read_live_hv_dose(n):
 		df_refDet = get_live_refDet(sql_engine, query_time, verbose=VERBOSE_READ_REFDET)
 		df_d2flow = get_live_d2flow(sql_engine, query_time, verbose=VERBOSE_READ_D2FLOW)
 		df_mw = get_live_mw(sql_engine, query_time, verbose=VERBOSE_READ_MW)
+		df_leak = get_live_leak(sql_engine, query_time, verbose=VERBOSE_READ_MW)
 
 		json_hv_dose = df_hv_dose.to_json(date_format='iso', orient='split')
 		json_pressure = df_pressure.to_json(date_format='iso', orient='split')
@@ -268,8 +282,9 @@ def read_live_hv_dose(n):
 		json_refDet = df_refDet.to_json(date_format='iso', orient='split')
 		json_d2flow = df_d2flow.to_json(date_format='iso', orient='split')
 		json_mw = df_mw.to_json(date_format='iso', orient='split')
+		json_leak = df_leak.to_json(date_format='iso', orient='split')
 
-		return json_hv_dose, json_refDet, json_pressure, json_d2flow, json_mw
+		return json_hv_dose, json_refDet, json_pressure, json_d2flow, json_mw, json_leak
 
 
 # check the state of the pressure readout, if no new entry in past READOUT_DEADTIME seconds, make indicator red
@@ -480,6 +495,59 @@ def set_pressure_indicator(readout_interval, live_pressure_data):
 			return 'red'
 
 	return "gray"
+
+
+# check the state of the leak sensor readouts
+# if a 0 in the past 60 seconds, make red
+@app.callback(
+	[
+		Output('idc_leak1_sensor_readout', 'color'),
+		Output('idc_leak2_sensor_readout', 'color'),
+		Output('idc_leak3_sensor_readout', 'color')
+	],
+	[Input('readout_interval_readout', 'n_intervals')],
+	[State("live_leak_data_readout", "data")])
+def set_leak_indicators(readout_interval, live_leak_data_readout):
+	if live_leak_data_readout:
+		df = pd.read_json(live_leak_data_readout, orient='split')
+		if len(df) > 0:
+			df['time'] = pd.to_datetime(df['time'])
+			df['time'] = df['time'].dt.tz_localize(None)
+			# check last entry
+			current_time = datetime.datetime.now()
+			query_time = pd.to_datetime((current_time - datetime.timedelta(seconds=READOUT_DEADTIME)))
+
+			last_time = df['time'].values[-1]
+
+			if last_time < query_time:
+				return ['red', 'red', 'red']
+			else:
+				color_s1 = 'red'
+				color_s3 = 'red'
+				color_s2 = 'red'
+
+				query_time = pd.to_datetime((current_time - datetime.timedelta(seconds=60)))
+				df = df[ df['time'] >= query_time ]
+
+				print(df.tail())
+				print(df.head())
+
+				counts_s1 = df['s1'].shape[0]
+				counts_s2 = df['s2'].shape[0]
+				counts_s3 = df['s3'].shape[0]
+
+				if counts_s1 == df['s1'].sum(): 
+					color_s1 = "#39ff14"
+				if counts_s2 == df['s2'].sum(): 
+					color_s2 = "#39ff14"
+				if counts_s3 == df['s3'].sum(): 
+					color_s3 = "#39ff14"
+
+				return [color_s1, color_s2, color_s3]
+		else:
+			return ["red", "red", "red"]
+
+	return ["gray", "gray", "gray"]
 
 
 
