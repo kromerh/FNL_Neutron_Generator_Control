@@ -10,7 +10,7 @@ from scipy.interpolate import interp1d
 # Connect to the database
 
 # read password and user to database
-credentials_file = r'../../credentials.pw'
+credentials_file = r'/home/pi/credentials.pw'
 
 credentials = pd.read_csv(credentials_file, header=0)
 user = credentials['username'].values[0]
