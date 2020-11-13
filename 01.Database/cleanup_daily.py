@@ -99,19 +99,19 @@ def cleanup_live_pressure(sql_engine):
 		# load the live_pressure
 		df = read_table(sql_engine, table='live_pressure')
 
-		# remove id from the table
-		df = df.drop(columns=['id'])
-
-		# calculate pressure
-		df['pressure_IS'] = 10**(1.667*df['voltage_IS']-11.33)
-		df['pressure_VC'] = 0 # no values available
-
-		# apply calibration
-		interp_pressure_IS = calibrate_pressure_IS(path_LUT_calib_pressure_IS)
-		df['pressure_IS_calib'] = interp_pressure_IS(df['pressure_IS'])
-
 		# save to the storage
 		if len(df) > 0:
+			# remove id from the table
+			df = df.drop(columns=['id'])
+
+			# calculate pressure
+			df['pressure_IS'] = 10**(1.667*df['voltage_IS']-11.33)
+			df['pressure_VC'] = 0 # no values available
+
+			# apply calibration
+			interp_pressure_IS = calibrate_pressure_IS(path_LUT_calib_pressure_IS)
+			df['pressure_IS_calib'] = interp_pressure_IS(df['pressure_IS'])
+
 			df = df.replace(np.inf, 0)
 			df = df.replace(np.nan, 0)
 			df.to_sql(name='storage_pressure', con=sql_engine, if_exists='append', index=False)
