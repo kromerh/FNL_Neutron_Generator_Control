@@ -97,6 +97,7 @@ def read_live():
                 counts_D2 = s[4]
                 counts_D3 = s[5]
                 counts_D4 = s[6]
+                print(ard_time, s)
                 if float(ard_time) >= 30000.0:
                     sys.stdout.write('Reading reference detectors  ...')
                     sys.stdout.write(f'{now}, D1: {counts_D1}, D2: {counts_D2}, D3: {counts_D3}, D4: {counts_D4} ')
