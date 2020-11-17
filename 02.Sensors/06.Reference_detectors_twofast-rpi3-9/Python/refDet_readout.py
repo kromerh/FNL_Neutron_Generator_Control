@@ -28,8 +28,13 @@ db = str(credentials['db'].values[0])
 connect_string = 'mysql+pymysql://%(user)s:%(pw)s@%(host)s:3306/%(db)s'% {"user": user, "pw": pw, "host": host, "db": db}
 sql_engine = sql.create_engine(connect_string)
 
+def serial_close(ser):
+    ser.close()
+
+def serial_open(ARDUINO_PORT):
+    serialArduino = serial.Serial(port=ARDUINO_PORT, baudrate=9600)
 # connect to arduino
-serialArduino = serial.Serial(port=ARDUINO_PORT, baudrate=9600)
+
 
 
 def get_experiment_id(sql_engine, verbose=False):
@@ -78,7 +83,7 @@ def read_live():
     while True:
         try:
             # experiment_id = get_experiment_id(sql_engine, VERBOSE)
-
+            ser = serial_open(ARDUINO_PORT)
             # read arduino
             ardRead = pi_read(ARDUINO_PORT)
             s = ardRead.rstrip().split()
@@ -92,10 +97,12 @@ def read_live():
                 counts_D2 = s[4]
                 counts_D3 = s[5]
                 counts_D4 = s[6]
-                # if float(ard_time) >= 30000.0:
-                #     sys.stdout.write('Reading reference detectors  ...')
-                #     sys.stdout.write(f'{now}, D1: {counts_D1}, D2: {counts_D2}, D3: {counts_D3}, D4: {counts_D4} ')
-                #     # saveDB(experiment_id, ard_time, counts_D1, counts_D2, counts_D3, counts_D4, VERBOSE)
+                if float(ard_time) >= 30000.0:
+                    sys.stdout.write('Reading reference detectors  ...')
+                    sys.stdout.write(f'{now}, D1: {counts_D1}, D2: {counts_D2}, D3: {counts_D3}, D4: {counts_D4} ')
+                    saveDB(experiment_id, ard_time, counts_D1, counts_D2, counts_D3, counts_D4, VERBOSE)
+                    ser.close()
+                    pi_flush(ARDUINO_PORT)
             sleep(0.1)
 
         except KeyboardInterrupt:
