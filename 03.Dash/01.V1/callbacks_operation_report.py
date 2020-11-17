@@ -320,7 +320,7 @@ def plot_hv(n_clicks):
 			'data': traces,
 			'layout': go.Layout(
 				# xaxis={'title': 'Time'},
-				yaxis={'title': 'Counts [30s]', 'range': [0, 4000], 'side': "left" ,'titlefont': {'color': "orange"}},
+				yaxis={'title': 'Counts [30s]', 'range': [0, 8000], 'side': "left" ,'titlefont': {'color': "orange"}},
 				yaxis2={'title': 'Neutron yield', 'range': [1e6, 1e8], 'exponentformat':'e', "overlaying": "y", 'side': "right", 'titlefont': {'color': "blue"}},
 
 				height=200,  # px
