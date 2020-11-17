@@ -76,62 +76,40 @@ def pi_read(serialArduino):
     return valueRead
 
 
+pi_flush(arduinoPort)
 
-def read_live():
-	while True:
-		try:
-			# experiment_id = get_experiment_id(sql_engine, VERBOSE)
-			serialArduino = serial_open(ARDUINO_PORT)
-			# read arduino
-			ardRead = pi_read(serialArduino)
-			s = ardRead.rstrip().split()
-			now = datetime.datetime.now()
-			now = now.strftime(format='%Y-%m-%d %H:%M:%S')
-			print(f"{now}")
-		   
-			if len(s) == 7:
-				ard_time = s[1]
-				counts_D1 = s[3]
-				counts_D2 = s[4]
-				counts_D3 = s[5]
-				counts_D4 = s[6]
-				print(ard_time, s)
-				if float(ard_time) >= 30000.0:
-					sys.stdout.write('Reading reference detectors  ...')
-					sys.stdout.write(f'{now}, D1: {counts_D1}, D2: {counts_D2}, D3: {counts_D3}, D4: {counts_D4} ')
-					serial_close(serialArduino)
-					pi_flush(ARDUINO_PORT)
-					serialArduino = serial_open(ARDUINO_PORT)
-					# saveDB(experiment_id, ard_time, counts_D1, counts_D2, counts_D3, counts_D4, VERBOSE)
-
-			sleep(0.1)
-
-		except KeyboardInterrupt:
-			print('Ctrl + C. Exiting. Flushing serial connection.')
-			pi_flush(ARDUINO_PORT)
-			sys.exit(1)
-		finally:
-			pi_flush(ARDUINO_PORT)
-
-
-
-if __name__ == '__main__':
-	# Get the arguments from the command-line except the filename
-	argv = sys.argv[1:]
-
+while True:
 	try:
-		if len(argv) == 1:
-			MODE = argv[0]
-			if MODE == '--live':
-				read_live()
-			else:
-				print('Error! usage: refDet_readout.py --MODE. MODE can only be live')
-				sys.exit(2)
-		else:
-			print('Error! usage: refDet_readout.py --MODE. MODE can only be live')
-			sys.exit(2)
+		# experiment_id = get_experiment_id(sql_engine, VERBOSE)
+		serialArduino = serial_open(ARDUINO_PORT)
+		# read arduino
+		ardRead = pi_read(serialArduino)
+		s = ardRead.rstrip().split()
+		now = datetime.datetime.now()
+		now = now.strftime(format='%Y-%m-%d %H:%M:%S')
+		print(f"{now}")
+	   
+		if len(s) == 7:
+			ard_time = s[1]
+			counts_D1 = s[3]
+			counts_D2 = s[4]
+			counts_D3 = s[5]
+			counts_D4 = s[6]
+			print(ard_time, s)
+			if float(ard_time) >= 30000.0:
+				sys.stdout.write('Reading reference detectors  ...')
+				sys.stdout.write(f'{now}, D1: {counts_D1}, D2: {counts_D2}, D3: {counts_D3}, D4: {counts_D4} ')
+				serial_close(serialArduino)
+				pi_flush(ARDUINO_PORT)
+				serialArduino = serial_open(ARDUINO_PORT)
+				# saveDB(experiment_id, ard_time, counts_D1, counts_D2, counts_D3, counts_D4, VERBOSE)
 
-	except getopt.GetoptError:
-		# Print something useful
-		print('Error! usage: refDet_readout.py --MODE. MODE can only be live')
-		sys.exit(2)
+		sleep(0.1)
+
+	except KeyboardInterrupt:
+		print('Ctrl + C. Exiting. Flushing serial connection.')
+		pi_flush(ARDUINO_PORT)
+		sys.exit(1)
+	finally:
+		pi_flush(ARDUINO_PORT)
+
