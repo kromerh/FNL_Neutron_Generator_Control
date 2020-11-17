@@ -64,18 +64,17 @@ def pi_flush(serial_port):
 	serialArduino.flushOutput() #flush output buffer, aborting current output and discard all that is in buffer
 
 def pi_read(serialArduino):
-	while (serialArduino.inWaiting() == 0):  # wait for incoming data
-		pass
-	valueRead = serialArduino.readline(500)
-	# print(valueRead)
-	try:
-		valueRead = (valueRead.decode('utf-8')).strip()
-		serialArduino.flushInput()  #flush input buffer, discarding all its contents
-		serialArduino.flushOutput() #flush output buffer, aborting current output and discard all that is in buffer
-	   # print(valueRead)
-	except UnicodeDecodeError:
-		valueRead = '-1'
-	return valueRead
+    # print('Reading arduino.')
+    while (serialArduino.inWaiting() == 0):  # wait for incoming data
+        pass
+    valueRead = serialArduino.readline(500)
+    try:
+        valueRead = (valueRead.decode('utf-8')).strip()
+        # print(valueRead)
+    except UnicodeDecodeError:
+        valueRead = '-1'
+    return valueRead
+
 
 
 def read_live():
