@@ -92,7 +92,7 @@ def read_live():
             print(f"{now}")
            
             if len(s) == 7:
-                ard_time = s[1]
+                ard_time = float(s[1])
                 counts_D1 = s[3]
                 counts_D2 = s[4]
                 counts_D3 = s[5]
