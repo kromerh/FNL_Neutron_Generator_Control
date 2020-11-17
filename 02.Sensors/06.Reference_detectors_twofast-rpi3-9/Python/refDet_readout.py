@@ -85,7 +85,7 @@ def read_live():
 			ser = serial_open(ARDUINO_PORT)
 			
 			# read arduino
-			ardRead = pi_read(ARDUINO_PORT)
+			ardRead = pi_read(ser)
 			s = ardRead.rstrip().split()
 			now = datetime.datetime.now()
 			now = now.strftime(format='%Y-%m-%d %H:%M:%S')
