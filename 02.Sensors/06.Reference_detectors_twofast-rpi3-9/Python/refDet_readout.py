@@ -77,7 +77,7 @@ def pi_read(serialArduino):
 pi_flush(ARDUINO_PORT)
 while True:
 	try:
-		# experiment_id = get_experiment_id(sql_engine, VERBOSE)
+		experiment_id = get_experiment_id(sql_engine, VERBOSE)
 		serialArduino = serial_open(ARDUINO_PORT)
 		# read arduino
 		ardRead = pi_read(serialArduino)
