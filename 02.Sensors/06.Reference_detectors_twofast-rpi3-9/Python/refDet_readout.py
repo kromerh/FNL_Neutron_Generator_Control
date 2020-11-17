@@ -78,12 +78,13 @@ def pi_read(serial_port):
         valueRead = '-1'
     return valueRead
 
+ser = serial_open(ARDUINO_PORT)
 
 def read_live():
     while True:
         try:
             # experiment_id = get_experiment_id(sql_engine, VERBOSE)
-            ser = serial_open(ARDUINO_PORT)
+            
             # read arduino
             ardRead = pi_read(ARDUINO_PORT)
             s = ardRead.rstrip().split()
@@ -92,7 +93,7 @@ def read_live():
             print(f"{now}")
            
             if len(s) == 7:
-                ard_time = float(s[1])
+                ard_time = s[1]
                 counts_D1 = s[3]
                 counts_D2 = s[4]
                 counts_D3 = s[5]
