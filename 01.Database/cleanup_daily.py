@@ -10,7 +10,7 @@ from scipy.interpolate import interp1d
 # Connect to the database
 
 # read password and user to database
-credentials_file = r'../../credentials.pw'
+credentials_file = r'/home/pi/credentials.pw'
 
 credentials = pd.read_csv(credentials_file, header=0)
 user = credentials['username'].values[0]
@@ -99,19 +99,19 @@ def cleanup_live_pressure(sql_engine):
 		# load the live_pressure
 		df = read_table(sql_engine, table='live_pressure')
 
-		# remove id from the table
-		df = df.drop(columns=['id'])
-
-		# calculate pressure
-		df['pressure_IS'] = 10**(1.667*df['voltage_IS']-11.33)
-		df['pressure_VC'] = 0 # no values available
-
-		# apply calibration
-		interp_pressure_IS = calibrate_pressure_IS(path_LUT_calib_pressure_IS)
-		df['pressure_IS_calib'] = interp_pressure_IS(df['pressure_IS'])
-
 		# save to the storage
 		if len(df) > 0:
+			# remove id from the table
+			df = df.drop(columns=['id'])
+
+			# calculate pressure
+			df['pressure_IS'] = 10**(1.667*df['voltage_IS']-11.33)
+			df['pressure_VC'] = 0 # no values available
+
+			# apply calibration
+			interp_pressure_IS = calibrate_pressure_IS(path_LUT_calib_pressure_IS)
+			df['pressure_IS_calib'] = interp_pressure_IS(df['pressure_IS'])
+
 			df = df.replace(np.inf, 0)
 			df = df.replace(np.nan, 0)
 			df.to_sql(name='storage_pressure', con=sql_engine, if_exists='append', index=False)
@@ -137,13 +137,14 @@ def cleanup_live_mw(sql_engine):
 	try:
 		# load the live_hv_dose
 		df = read_table(sql_engine, table='live_mw')
-
-		# remove id from the table
-		df = df.drop(columns=['id'])
-		df['Code'] = df['Code'].astype(str)
-
-		# save to the storage
 		if len(df) > 0:
+
+			# remove id from the table
+			df = df.drop(columns=['id'])
+			df['Code'] = 0
+
+			# save to the storage
+
 			df = df.replace(np.inf, 0)
 			df = df.replace(np.nan, 0)
 			df.to_sql(name='storage_mw', con=sql_engine, if_exists='append', index=False)
@@ -253,26 +254,26 @@ def cleanup_live_hv_dose(sql_engine):
 	try:
 		# load the live_hv_dose
 		df = read_table(sql_engine, table='live_hv_dose')
-
-		# remove id from the table
-		df = df.drop(columns=['id'])
-
-		# calculate dose_rate
-		df['dose_rate'] = df['dose_voltage'] * 3000 / 5.5
-
-		# leakage current correction
-		interp_leak = leakage_current_correction(path_LUT_leakage_current)
-		df['HV_current'] = df['HV_current'] - interp_leak(df['HV_voltage'].values)
-
-		idx = df[df['HV_current'] < 0].index # set negative current values to 0
-		df.loc[idx, 'HV_current'] = 0
-
-		# compute neutron output from dose_rate
-		interp_dose = dose_to_output(path_LUT_dose_neutron_output)
-		df['neutron_output'] = df['dose_rate'].values * (interp_dose(df['HV_voltage'].values) / 100)
-
 		# save to the storage
 		if len(df) > 0:
+			# remove id from the table
+			df = df.drop(columns=['id'])
+
+			# calculate dose_rate
+			df['dose_rate'] = df['dose_voltage'] * 3000 / 5.5
+
+			# leakage current correction
+			interp_leak = leakage_current_correction(path_LUT_leakage_current)
+			df['HV_current'] = df['HV_current'] - interp_leak(df['HV_voltage'].values)
+
+			idx = df[df['HV_current'] < 0].index # set negative current values to 0
+			df.loc[idx, 'HV_current'] = 0
+
+			# compute neutron output from dose_rate
+			interp_dose = dose_to_output(path_LUT_dose_neutron_output)
+			df['neutron_output'] = df['dose_rate'].values * (interp_dose(df['HV_voltage'].values) / 100)
+
+
 			df = df.replace(np.inf, 0)
 			df = df.replace(np.nan, 0)
 			df.to_sql(name='storage_hv_dose', con=sql_engine, if_exists='append', index=False)
