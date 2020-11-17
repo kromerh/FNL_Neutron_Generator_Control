@@ -397,7 +397,8 @@ def rolling_mean_hv(readout_interval, live_hv_dose_data):
 			mean_I = df[ df['time'] > query_time].loc[:, 'HV_current'].mean()
 
 			return f"-{mean_HV:.1f} kV", f"{mean_I:.1f} mA"
-
+		else:
+			return f"-0 kV", f"0 mA"
 	else:
 		return f"-0 kV", f"0 mA"
 
