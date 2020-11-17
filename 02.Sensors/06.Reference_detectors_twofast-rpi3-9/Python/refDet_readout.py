@@ -99,7 +99,7 @@ while True:
 				serial_close(serialArduino)
 				pi_flush(ARDUINO_PORT)
 				serialArduino = serial_open(ARDUINO_PORT)
-				# saveDB(experiment_id, ard_time, counts_D1, counts_D2, counts_D3, counts_D4, VERBOSE)
+				saveDB(experiment_id, ard_time, counts_D1, counts_D2, counts_D3, counts_D4, VERBOSE)
 
 		sleep(0.1)
 
