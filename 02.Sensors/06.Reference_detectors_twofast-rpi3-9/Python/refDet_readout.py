@@ -33,9 +33,6 @@ def serial_close(ser):
 
 def serial_open(ARDUINO_PORT):
 	serialArduino = serial.Serial(port=ARDUINO_PORT, baudrate=9600)
-# connect to arduino
-
-
 
 def get_experiment_id(sql_engine, verbose=False):
 	query = f"SELECT experiment_id FROM experiment_control;"
@@ -76,7 +73,7 @@ def pi_read(serialArduino):
     return valueRead
 
 
-pi_flush(arduinoPort)
+pi_flush(ARDUINO_PORT)
 
 while True:
 	try:
