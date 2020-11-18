@@ -568,7 +568,7 @@ def rolling_mean_mw(readout_interval, live_mw_data):
 
 			mean_fp = df[ df['time'] > query_time].loc[:, 'FP'].mean()
 			mean_rp = df[ df['time'] > query_time].loc[:, 'RP'].mean()
-			mean_freq = df[ df['time'] > query_time].loc[:, 'Freq'].mean()
+			mean_freq = df[ df['time'] > query_time].loc[:, 'Freq'].mean() / 10
 
 			return f"{mean_fp:.1f} W", f"{mean_rp:.1f} W", f"{mean_freq:.1f} MHz"
 
