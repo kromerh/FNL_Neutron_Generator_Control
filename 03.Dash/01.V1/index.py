@@ -17,7 +17,7 @@ app.layout = html.Div(
 	    [
 	        # html.Img(src="assets/logo.png", className="app__logo"),
 	        html.Img(src=app.get_asset_url('logo.png'), className="app__logo"),
-	        html.H4("Version 2020.09.003", className="header__text"),
+	        html.H4("Version 2020.11.001", className="header__text"),
 	    ],
 	    className="app__header",
 		),
@@ -35,7 +35,7 @@ index_page = html.Div(
 								style={"margin-left": "10%"},
 								className='header__text'),
 							html.P("\
-								You can find the manual for the control here (insert PDF). ",
+								You can find the manual for the control here: LTH_Neutimag\\hkromer\\Neutron_generator_documentation. ",
 								style={"margin-left": "10%"},
 								className='row'),
 						],
