@@ -731,18 +731,6 @@ def plot_hv(n_clicks):
 
 	if len(df_hv_dose) > 0:
 
-		# current calibration
-		df_hv_dose['HV_current'] = interp_HV_current(df_hv_dose['HV_current'].values)
-
-		# hv calibration
-		df_hv_dose['HV_voltage'] = interp_HV_voltage(df_hv_dose['HV_voltage'].values)
-
-		# leakage current correction
-		df_hv_dose['HV_current'] = df_hv_dose['HV_current'] - interp_leak(df_hv_dose['HV_voltage'].values)
-
-		idx = df_hv_dose[df_hv_dose['HV_current'] < 0].index # set negative current values to 0
-
-		df_hv_dose.loc[idx, 'HV_current'] = 0
 		df_hv_dose['dose'] = df_hv_dose['dose_voltage'] * 3000 / 5.5
 
 		# current calibration
